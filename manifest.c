@@ -230,6 +230,10 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
         switch (event.type) {
         case YAML_SCALAR_EVENT:
             /* add new region to list */
+            if (mpk_stringlist_add(&pkg->regions,
+                    (char *)event.data.scalar.value) != MPK_SUCCESS) {
+                return PARSE_STATE_ERROR;
+            }
             return PARSE_STATE_REGIONS_LIST;
         case YAML_SEQUENCE_END_EVENT:
             return PARSE_STATE_START;
