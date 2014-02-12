@@ -3,7 +3,7 @@
 project(libmpk)
 cmake_minimum_required(VERSION 2.8)
 
-set(CMAKE_C_FLAGS "-std=c99 -Wall -pedantic -Wextra")
+set(CMAKE_C_FLAGS "-std=c11 -Wall -pedantic -Wextra")
 
 set(LIBMPK_SRC
     defines.h
@@ -12,6 +12,7 @@ set(LIBMPK_SRC
     config.c
     pkginfo.c
     file.c
+    stringhelper.c
     stringlist.c
     manifest.c
     pkgref.c

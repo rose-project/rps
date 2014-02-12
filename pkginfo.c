@@ -5,7 +5,9 @@
 #include <syslog.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "err.h"
+#include "stringhelper.h"
 #include "pkginfo.h"
 
 #define CHECK_AND_FREE(ptr) if (ptr) {  \
@@ -84,4 +86,11 @@ mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str)
     }
 
     return MPK_FAILURE;
+}
+
+
+mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[],
+    char *src)
+{
+    return read_hexstr(signature,MPK_PKGINFO_SIGNATURE_LEN, src);
 }

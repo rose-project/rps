@@ -5,7 +5,11 @@
 #include <stdio.h>
 #include <syslog.h>
 #include <yaml.h>
+#include <memory.h>
+#include <string.h>
+#include "stringhelper.h"
 #include "manifest.h"
+
 
 enum PARSE_STATE {
     PARSE_STATE_ERROR = -1,
@@ -44,6 +48,7 @@ enum PARSE_STATE {
     PARSE_STATE_SIGNATURE
 };
 
+
 enum PARSE_EVENT {
     PARSE_EVENT_DEFAULT = 0,
     PARSE_EVENT_TOKEN,
@@ -52,6 +57,7 @@ enum PARSE_EVENT {
     PASRE_EVENT_START_MAPPING,
     PASRE_EVENT_END_MAPPING
 };
+
 
 enum MANIFEST_TAG {
     MANIFEST_TAG_MANIFEST = 0,
@@ -71,6 +77,7 @@ enum MANIFEST_TAG {
     MANIFEST_TAG_COUNT,
 };
 
+
 static const char *tagname[] = {
     "manifest",
     "name",
@@ -88,6 +95,7 @@ static const char *tagname[] = {
     "signature"
 };
 
+
 enum MANIFEST_TAG get_tag_from_name(const char *tag)
 {
     int i;
@@ -100,6 +108,7 @@ enum MANIFEST_TAG get_tag_from_name(const char *tag)
 
     return -1;
 }
+
 
 enum PARSE_STATE eval_new_tag(char *token)
 {
@@ -139,6 +148,7 @@ enum PARSE_STATE eval_new_tag(char *token)
     }
 }
 
+
 char *allocate_and_copy_str(const char *str)
 {
     char *dest;
@@ -150,6 +160,7 @@ char *allocate_and_copy_str(const char *str)
 
     return dest;
 }
+
 
 enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
     yaml_event_t event)
@@ -273,19 +284,6 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                 return PARSE_STATE_ERROR;
             }
             return PARSE_STATE_DEPENDS_LISTITEM;
-        case YAML_MAPPING_END_EVENT:
-            if (!tmp_pkgref) {
-                return PARSE_STATE_ERROR;
-            }
-            if (!tmp_str) {
-                goto return_error;
-            }
-            tmp_pkgref->name = tmp_str;
-            if (mpk_pkgreflist_add() != MPK_SUCCESS) {
-                goto return_error;
-            }
-            tmp_pkgref = NULL;
-            return PARSE_STATE_DEPENDS_LIST;
         default:
             return PARSE_STATE_ERROR;
         }
@@ -306,7 +304,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                 goto return_error;
             }
             tmp_pkgref->name = tmp_str;
-            if (mpk_pkgreflist_add() != MPK_SUCCESS) {
+            if (mpk_pkgreflist_add(&pkg->depends, tmp_pkgref) != MPK_SUCCESS) {
                 goto return_error;
             }
             tmp_pkgref = NULL;
@@ -347,7 +345,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
     case PARSE_STATE_DEPENDS_OPERATOR:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
-            if (mpk_version_operator_deserialize(&tmp_pkgref->op,
+            if (mpk_version_operator_deserialize(&tmp_pkgref->op, 0,
                     (char *)event.data.scalar.value,
                     strlen((char *)event.data.scalar.value))
                     != MPK_SUCCESS) {
@@ -374,19 +372,6 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                 return PARSE_STATE_ERROR;
             }
             return PARSE_STATE_CONFLICTS_LISTITEM;
-        case YAML_MAPPING_END_EVENT:
-            if (!tmp_pkgref) {
-                return PARSE_STATE_ERROR;
-            }
-            if (!tmp_str) {
-                goto return_error;
-            }
-            tmp_pkgref->name = tmp_str;
-            if (mpk_pkgreflist_add() != MPK_SUCCESS) {
-                goto return_error;
-            }
-            tmp_pkgref = NULL;
-            return PARSE_STATE_CONFLICTS_LIST;
         default:
             return PARSE_STATE_ERROR;
         }
@@ -424,7 +409,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
     case PARSE_STATE_CONFLICTS_OPERATOR:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
-            if (mpk_version_operator_deserialize(&tmp_pkgref->op,
+            if (mpk_version_operator_deserialize(&tmp_pkgref->op, 0,
                     (char *)event.data.scalar.value,
                     strlen((char *)event.data.scalar.value))
                     != MPK_SUCCESS) {
@@ -531,14 +516,17 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
             if (tmp_file) {
                 goto return_error;
             }
-            if (!(file = malloc(sizeof(struct mpk_file)))) {
+            if (!(tmp_file = malloc(sizeof(struct mpk_file)))) {
                 goto return_error;
             }
-            if ((char *)event.data.scalar.value == '-') {
-                memset(file->hash, 0, sizeof(file->hash));
+            if (*(char *)event.data.scalar.value == '-') {
+                memset(tmp_file->hash, 0, sizeof(tmp_file->hash));
             } else {
-                memccpy(tmp_file->hash, (char *)event.data.scalar.value, 0,
-                    sizeof(tmp_file->hash));
+                if (mpk_pkginfo_signature_deserialize(tmp_file->hash,
+                        (char *)event.data.scalar.value)
+                        != MPK_SUCCESS) {
+                    goto return_error;
+                }
             }
             return PARSE_STATE_FILE_LISTITEM_END;
         default:
@@ -551,7 +539,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                 goto return_error;
             }
             tmp_file->name = tmp_str;
-            if (mpk_filelist_add(&pkg->files, file) != MPK_SUCCESS) {
+            if (mpk_filelist_add(&pkg->files, tmp_file) != MPK_SUCCESS) {
                 goto return_error;
             }
             tmp_str = NULL;
@@ -563,11 +551,13 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
     case PARSE_STATE_SIGNATURE:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
-            if ((char *)event.data.scalar.value == '-') {
-                memset(file->hash, 0, sizeof(file->hash));
+            if (*((char *)event.data.scalar.value) == '-') {
+                memset(tmp_file->hash, 0, sizeof(tmp_file->hash));
             } else {
-                memccpy(pkg->signature, (char *)event.data.scalar.value, 0,
-                    sizeof(pkg->signature));
+                if (read_hexstr(pkg->signature,  sizeof(pkg->signature),
+                        (char *)event.data.scalar.value) != MPK_SUCCESS) {
+                    goto return_error;
+                }
             }
             return PARSE_STATE_START;
         default:
@@ -587,6 +577,7 @@ return_error:
         free(tmp_pkgref);
     return PARSE_STATE_ERROR;
 }
+
 
 mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
 {

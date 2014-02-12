@@ -39,6 +39,10 @@ extern const struct mpk_version MPK_VERSION_DEFAULT;
 #define MPK_VERSION_BUILDID_SIZE 14
 #define MPK_VERSION_BUILDID_UNFEDINED 0xffffffffffffffff
 
-mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data, int data_size);
+mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
+    int data_size);
+
+mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
+    int *len, char *data, int data_size);
 
 #endif /* _VERSION_H */

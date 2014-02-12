@@ -21,7 +21,7 @@ struct mpk_pkgref {
 };
 
 struct mpk_pkgreflist_item {
-    struct mpk_pkgref pkgref;
+    struct mpk_pkgref *pkgref;
     LIST_ENTRY(mpk_pkgreflist_item) items;
 };
 
@@ -30,5 +30,11 @@ LIST_HEAD(mpk_pkgreflist, mpk_pkgreflist_item);
 mpk_ret_t mpk_pkgreflist_init(struct mpk_pkgreflist *list);
 
 void mpk_pkgreflist_delete(struct mpk_pkgreflist *list);
+
+mpk_ret_t mpk_pkgreflist_add(struct mpk_pkgreflist *list,
+    struct mpk_pkgref *pkgref);
+
+mpk_ret_t mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
+    struct mpk_pkgreflist_item *item);
 
 #endif /* _PKGREF_H */

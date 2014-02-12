@@ -3,6 +3,8 @@
  * @author Josef Raschen <josef@raschen.org>
  */
 #include <stdlib.h>
+#include <syslog.h>
+#include "err.h"
 #include "file.h"
 
 mpk_ret_t mpk_filelist_init(struct mpk_filelist *list)
@@ -11,6 +13,7 @@ mpk_ret_t mpk_filelist_init(struct mpk_filelist *list)
 
     return MPK_SUCCESS;
 }
+
 
 void mpk_filelist_delete(struct mpk_filelist *list)
 {
@@ -22,4 +25,17 @@ void mpk_filelist_delete(struct mpk_filelist *list)
             free(item->name);
         free(item);
     }
+}
+
+
+mpk_ret_t mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file)
+{
+    if (!list || !file) {
+        syslog(LOG_ERR, "invalid argument(s)");
+        return MPK_FAILURE;
+    }
+
+    LIST_INSERT_HEAD(list, file, items);
+
+    return MPK_SUCCESS;
 }

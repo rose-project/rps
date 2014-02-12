@@ -5,6 +5,8 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include "version.h"
 
 const struct mpk_version MPK_VERSION_DEFAULT = {
@@ -241,6 +243,110 @@ mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
     if (n >= 32) {
         /* due to some strange input, we reached end of our buffer */
         syslog(LOG_ERR, "invalid version info data");
+    }
+
+    return MPK_FAILURE;
+}
+
+mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
+    int *len, char *data, int data_size)
+{
+    if (!op || !data || data_size < 1)
+        return MPK_FAILURE;
+
+    if (data_size == 1) {
+        switch (data[0]) {
+        case '<':
+            *op = MPK_VERSION_OPERATOR_LESS;
+            if (len)
+                *len = 1;
+            return MPK_SUCCESS;
+        case '>':
+            *op = MPK_VERSION_OPERATOR_GREATER;
+            if (len)
+                *len = 1;
+            return MPK_SUCCESS;
+        case '=':
+            *op = MPK_VERSION_OPERATOR_EQUAL;
+            if (len)
+                *len = 1;
+            return MPK_SUCCESS;
+        default:
+            return MPK_FAILURE;
+        }
+    }
+
+    if (data_size == 2) {
+        switch (data[0]) {
+        case '<':
+            switch (data[1]) {
+            case 0:
+                *op = MPK_VERSION_OPERATOR_LESS;
+                if (len)
+                    *len = 2;
+                return MPK_SUCCESS;
+            case '=':
+                *op = MPK_VERSION_OPERATOR_LESS_OR_EQUAL;
+                if (len)
+                    *len = 2;
+                return MPK_SUCCESS;
+            default:
+                return MPK_FAILURE;
+            }
+        case '>':
+            switch (data[1]) {
+            case 0:
+                *op = MPK_VERSION_OPERATOR_GREATER;
+                if (len)
+                    *len = 2;
+                return MPK_SUCCESS;
+            case '=':
+                *op = MPK_VERSION_OPERATOR_GREATER_OR_EQUAL;
+                if (len)
+                    *len = 2;
+                return MPK_SUCCESS;
+            default:
+                return MPK_FAILURE;
+            }
+        case '=':
+            if (data[1] == 0) {
+                *op = MPK_VERSION_OPERATOR_EQUAL;
+                if (len)
+                    *len = 2;
+                return MPK_SUCCESS;
+            } else {
+                return MPK_FAILURE;
+            }
+        default:
+            return MPK_FAILURE;
+        }
+    }
+
+    if (data_size == 3) {
+        if (data[2] != 0)
+            return MPK_FAILURE;
+        switch (data[0]) {
+        case '<':
+            if (data[1] == '=') {
+                *op = MPK_VERSION_OPERATOR_LESS_OR_EQUAL;
+                if (len)
+                    *len = 3;
+                return MPK_SUCCESS;
+            } else {
+                return MPK_FAILURE;
+            }
+        case '>':
+            if (data[1] == '=') {
+                *op = MPK_VERSION_OPERATOR_GREATER_OR_EQUAL;
+                if (len)
+                    *len = 3;
+                return MPK_SUCCESS;
+            } else {
+                return MPK_FAILURE;
+            }
+        default:
+            return MPK_FAILURE;
+        }
     }
 
     return MPK_FAILURE;
