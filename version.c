@@ -266,11 +266,6 @@ mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
             if (len)
                 *len = 1;
             return MPK_SUCCESS;
-        case '=':
-            *op = MPK_VERSION_OPERATOR_EQUAL;
-            if (len)
-                *len = 1;
-            return MPK_SUCCESS;
         default:
             return MPK_FAILURE;
         }
@@ -309,14 +304,20 @@ mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
                 return MPK_FAILURE;
             }
         case '=':
-            if (data[1] == 0) {
+             switch (data[1]) {
+            case 0:
                 *op = MPK_VERSION_OPERATOR_EQUAL;
                 if (len)
                     *len = 2;
                 return MPK_SUCCESS;
-            } else {
+            case '=':
+                 *op = MPK_VERSION_OPERATOR_EQUAL;
+                 if (len)
+                     *len = 2;
+                 return MPK_SUCCESS;
+            default:
                 return MPK_FAILURE;
-            }
+             }
         default:
             return MPK_FAILURE;
         }
@@ -338,6 +339,15 @@ mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
         case '>':
             if (data[1] == '=') {
                 *op = MPK_VERSION_OPERATOR_GREATER_OR_EQUAL;
+                if (len)
+                    *len = 3;
+                return MPK_SUCCESS;
+            } else {
+                return MPK_FAILURE;
+            }
+        case '=':
+            if (data[1] == '=') {
+                *op = MPK_VERSION_OPERATOR_EQUAL;
                 if (len)
                     *len = 3;
                 return MPK_SUCCESS;

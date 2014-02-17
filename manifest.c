@@ -165,9 +165,9 @@ char *allocate_and_copy_str(const char *str)
 enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
     yaml_event_t event)
 {
-    struct mpk_pkgref *tmp_pkgref = NULL;
-    char *tmp_str = NULL;
-    struct mpk_file *tmp_file = NULL;
+    static struct mpk_pkgref *tmp_pkgref = NULL;
+    static char *tmp_str = NULL;
+    static struct mpk_file *tmp_file = NULL;
 
     /* TODO: move parsing of different types of lists (pkgref list, file lists)
      * to separate funktions and reuuse them if possible.
@@ -272,8 +272,6 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
         switch (event.type) {
         case YAML_SEQUENCE_START_EVENT:
             return PARSE_STATE_DEPENDS_LIST;
-        case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START;
         default:
             return PARSE_STATE_ERROR;
         }
@@ -284,17 +282,19 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                 return PARSE_STATE_ERROR;
             }
             return PARSE_STATE_DEPENDS_LISTITEM;
+        case YAML_SEQUENCE_END_EVENT:
+            return PARSE_STATE_START;
         default:
             return PARSE_STATE_ERROR;
         }
     case PARSE_STATE_DEPENDS_LISTITEM:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
-            if (strcmp((char *)event.data.scalar.value, "name")) {
+            if (!strcmp((char *)event.data.scalar.value, "name")) {
                 return PARSE_STATE_DEPENDS_NAME;
-            } else if (strcmp((char *)event.data.scalar.value, "version")) {
+            } else if (!strcmp((char *)event.data.scalar.value, "version")) {
                 return PARSE_STATE_DEPENDS_VERSION;
-            } else if (strcmp((char *)event.data.scalar.value, "op")) {
+            } else if (!strcmp((char *)event.data.scalar.value, "op")) {
                 return PARSE_STATE_DEPENDS_OPERATOR;
             } else {
                 goto return_error;
@@ -359,8 +359,6 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
         switch (event.type) {
         case YAML_SEQUENCE_START_EVENT:
             return PARSE_STATE_CONFLICTS_LIST;
-        case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START;
         default:
             return PARSE_STATE_ERROR;
         }
@@ -372,10 +370,39 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                 return PARSE_STATE_ERROR;
             }
             return PARSE_STATE_CONFLICTS_LISTITEM;
+        case YAML_SEQUENCE_END_EVENT:
+            return PARSE_STATE_START;
         default:
             return PARSE_STATE_ERROR;
         }
         break;
+    case PARSE_STATE_CONFLICTS_LISTITEM:
+        switch (event.type) {
+        case YAML_SCALAR_EVENT:
+            if (!strcmp((char *)event.data.scalar.value, "name")) {
+                return PARSE_STATE_CONFLICTS_NAME;
+            } else if (!strcmp((char *)event.data.scalar.value, "version")) {
+                return PARSE_STATE_CONFLICTS_VERSION;
+            } else if (!strcmp((char *)event.data.scalar.value, "op")) {
+                return PARSE_STATE_CONFLICTS_OPERATOR;
+            } else {
+                goto return_error;
+            }
+        case YAML_MAPPING_END_EVENT:
+            if (!tmp_pkgref || !tmp_str) {
+                goto return_error;
+            }
+            tmp_pkgref->name = tmp_str;
+            if (mpk_pkgreflist_add(&pkg->depends, tmp_pkgref) != MPK_SUCCESS) {
+                goto return_error;
+            }
+            tmp_pkgref = NULL;
+            tmp_str = NULL;
+            return PARSE_STATE_CONFLICTS_LIST;
+        default:
+            goto return_error;
+            return PARSE_STATE_ERROR;
+        }
     case PARSE_STATE_CONFLICTS_NAME:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
