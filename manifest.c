@@ -3,6 +3,7 @@
  * @author Josef Raschen <josef@raschen.org>
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <syslog.h>
 #include <yaml.h>
 #include <memory.h>
@@ -14,6 +15,8 @@
 enum PARSE_STATE {
     PARSE_STATE_ERROR = -1,
     PARSE_STATE_START,
+    PARSE_STATE_START_DOC,
+    PARSE_STATE_START_MFST,
     PARSE_STATE_STOP,
     PARSE_STATE_PARSING,
     PARSE_STATE_MANIFEST,
@@ -153,7 +156,7 @@ char *allocate_and_copy_str(const char *str)
 {
     char *dest;
 
-    if (!(dest = malloc(sizeof(strlen(str) + 1))))
+    if (!(dest = malloc(strlen(str) + 1)))
         return NULL;
 
     strcpy(dest, str);
