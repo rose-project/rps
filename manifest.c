@@ -16,8 +16,11 @@ enum PARSE_STATE {
     PARSE_STATE_ERROR = -1,
     PARSE_STATE_START,
     PARSE_STATE_START_DOC,
+    PARSE_STATE_START_STREAM,
     PARSE_STATE_START_MFST,
-    PARSE_STATE_STOP,
+    PARSE_STATE_END_MFST,
+    PARSE_STATE_END_DOC,
+    PARSE_STATE_END,
     PARSE_STATE_PARSING,
     PARSE_STATE_MANIFEST,
     PARSE_STATE_NAME,
@@ -74,6 +77,7 @@ enum MANIFEST_TAG {
     MANIFEST_TAG_SOURCE,
     MANIFEST_TAG_VENDOR,
     MANIFEST_TAG_DESCRIPTION,
+    MANIFEST_TAG_MAINTAINER,
     MANIFEST_TAG_LICENSE,
     MANIFEST_TAG_FILES,
     MANIFEST_TAG_SIGNATURE,
@@ -93,6 +97,7 @@ static const char *tagname[] = {
     "source",
     "vendor",
     "description",
+    "maintainer",
     "license",
     "files",
     "signature"
@@ -140,6 +145,8 @@ enum PARSE_STATE eval_new_tag(char *token)
         return PARSE_STATE_VENDOR;
     case MANIFEST_TAG_DESCRIPTION:
         return PARSE_STATE_DESCRIPTION;
+    case MANIFEST_TAG_MAINTAINER:
+        return PARSE_STATE_MAINTAINER;
     case MANIFEST_TAG_LICENSE:
         return PARSE_STATE_LICENSE;
     case MANIFEST_TAG_FILES:
@@ -180,15 +187,47 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
     case PARSE_STATE_START:
         switch (event.type) {
         case YAML_STREAM_START_EVENT:
+            return PARSE_STATE_START_STREAM;
+        default:
+            return PARSE_STATE_ERROR;
+        }
+    case PARSE_STATE_START_STREAM:
+        switch (event.type) {
         case YAML_DOCUMENT_START_EVENT:
+            return PARSE_STATE_START_DOC;
+        default:
+            return PARSE_STATE_ERROR;
+        }
+    case PARSE_STATE_START_DOC:
+        switch (event.type) {
         case YAML_MAPPING_START_EVENT:
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
+        default:
+            return PARSE_STATE_ERROR;
+        }
+    case PARSE_STATE_START_MFST:
+        switch (event.type) {
         case YAML_SCALAR_EVENT:
             return eval_new_tag((char *)event.data.scalar.value);
+        case YAML_MAPPING_END_EVENT:
+            return PARSE_STATE_END_MFST;
         default:
-            break;
+            return PARSE_STATE_ERROR;
         }
-        break;
+    case PARSE_STATE_END_MFST:
+        switch (event.type) {
+        case YAML_DOCUMENT_END_EVENT:
+            return PARSE_STATE_END_DOC;
+        default:
+            return PARSE_STATE_ERROR;
+        }
+    case PARSE_STATE_END_DOC:
+        switch (event.type) {
+        case YAML_STREAM_END_EVENT:
+            return PARSE_STATE_END;
+        default:
+            return PARSE_STATE_ERROR;
+        }
     case PARSE_STATE_MANIFEST:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
@@ -199,11 +238,10 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     != MPK_SUCCESS) {
                 return PARSE_STATE_ERROR;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             return PARSE_STATE_ERROR;
         }
-        break;
     case PARSE_STATE_NAME:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
@@ -211,13 +249,12 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                      (char *)event.data.scalar.value))) {
                 return PARSE_STATE_ERROR;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
             break;
         default:
             return PARSE_STATE_ERROR;
             break;
         }
-        break;
     case PARSE_STATE_VERSION:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
@@ -227,11 +264,10 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     != MPK_SUCCESS) {
                 return PARSE_STATE_ERROR;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             return PARSE_STATE_ERROR;
         }
-        break;
     case PARSE_STATE_ARCH:
         switch (event.type) {
         case YAML_SCALAR_EVENT:
@@ -240,18 +276,17 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     (char *)event.data.scalar.value) != MPK_SUCCESS) {
                 return PARSE_STATE_ERROR;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             return PARSE_STATE_ERROR;
         }
-        break;
     case PARSE_STATE_REGIONS:
         /* FIXME: what about an empty region list? */
         switch (event.type) {
         case YAML_SEQUENCE_START_EVENT:
             return PARSE_STATE_REGIONS_LIST;
         case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             return PARSE_STATE_ERROR;
             break;
@@ -266,7 +301,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
             }
             return PARSE_STATE_REGIONS_LIST;
         case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             return PARSE_STATE_ERROR;
         }
@@ -286,7 +321,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
             }
             return PARSE_STATE_DEPENDS_LISTITEM;
         case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             return PARSE_STATE_ERROR;
         }
@@ -374,7 +409,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
             }
             return PARSE_STATE_CONFLICTS_LISTITEM;
         case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             return PARSE_STATE_ERROR;
         }
@@ -453,7 +488,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
         switch (event.type) {
         case YAML_SCALAR_EVENT:
             pkg->priority = atoi((char *)event.data.scalar.value);
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             goto return_error;
         }
@@ -464,7 +499,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     = allocate_and_copy_str((char *)event.data.scalar.value))) {
                 goto return_error;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             goto return_error;
         }
@@ -475,7 +510,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     = allocate_and_copy_str((char *)event.data.scalar.value))) {
                 goto return_error;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             goto return_error;
         }
@@ -486,7 +521,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     = allocate_and_copy_str((char *)event.data.scalar.value))) {
                 goto return_error;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             goto return_error;
         }
@@ -497,7 +532,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     = allocate_and_copy_str((char *)event.data.scalar.value))) {
                 goto return_error;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             goto return_error;
         }
@@ -508,7 +543,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     = allocate_and_copy_str((char *)event.data.scalar.value))) {
                 goto return_error;
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             goto return_error;
         }
@@ -522,7 +557,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
     case PARSE_STATE_FILE_LIST:
         switch (event.type) {
         case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         case YAML_MAPPING_START_EVENT:
             return PARSE_STATE_FILE_LISTITEM_NAME;
         default:
@@ -589,7 +624,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                     goto return_error;
                 }
             }
-            return PARSE_STATE_START;
+            return PARSE_STATE_START_MFST;
         default:
             goto return_error;
         }
@@ -648,7 +683,7 @@ mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
             fclose(f);
             mpk_pkginfo_delete(pkginfo);
             return MPK_FAILURE;
-        } else if (state == PARSE_STATE_STOP) {
+        } else if (state == PARSE_STATE_END) {
             done = 1;
         }
 
