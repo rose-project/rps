@@ -7,13 +7,37 @@
 #include "err.h"
 #include "file.h"
 
+
+struct mpk_file *mpk_file_create()
+{
+    struct mpk_file *f = malloc(sizeof(struct mpk_file));
+    if (!f) {
+        return NULL;
+    }
+
+    f->name = NULL;
+    memset(f->hash, 0, sizeof(f->hash));
+
+    return f;
+}
+
+void mpk_file_delete(struct mpk_file **file)
+{
+    if (*file) {
+        if ((*file)->name) {
+            free((*file)->name);
+        }
+        free(*file);
+        *file = NULL;
+    }
+}
+
 mpk_ret_t mpk_filelist_init(struct mpk_filelist *list)
 {
     LIST_INIT(list);
 
     return MPK_SUCCESS;
 }
-
 
 void mpk_filelist_delete(struct mpk_filelist *list)
 {
@@ -26,7 +50,6 @@ void mpk_filelist_delete(struct mpk_filelist *list)
         free(item);
     }
 }
-
 
 mpk_ret_t mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file)
 {
