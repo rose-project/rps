@@ -73,6 +73,20 @@ void mpk_pkginfo_delete(struct mpk_pkginfo *pkg)
     mpk_filelist_delete(&pkg->files);
 }
 
+mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
+    const char *pkgroot)
+{
+    struct mpk_file *file;
+
+    for (file = pkginf->files.lh_first; file; file = file->items.le_next) {
+            syslog(LOG_INFO, "file %s", file->name);
+        if (mpk_file_calchash(file, pkgroot) != MPK_SUCCESS) {
+            return MPK_FAILURE;
+        }
+    }
+
+    return MPK_SUCCESS;
+}
 
 mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str)
 {
@@ -87,7 +101,6 @@ mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str)
 
     return MPK_FAILURE;
 }
-
 
 mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[],
     char *src)

@@ -9,7 +9,7 @@
 #include "err.h"
 
 /**
- * @brief mpk_init initialized the library (e.g. logging). It has to be called
+ * @brief mpk_init initializes the library (e.g. logging). It has to be called
  *          before using any API of libmpk.
  * @return MPK_SUCCESS or MPK_FAILURE
  */

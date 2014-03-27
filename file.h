@@ -6,10 +6,11 @@
 #define _FILE_H
 
 #include <sys/queue.h>
+#include <openssl/sha.h>
 #include "err.h"
 #include "string.h"
 
-#define MPK_FILEHASH_SIZE 256
+#define MPK_FILEHASH_SIZE SHA256_DIGEST_LENGTH
 
 struct mpk_file {
     char *name;
@@ -30,6 +31,8 @@ struct mpk_file *mpk_file_create();
  * setd *file to NULL afterwards
  */
 void mpk_file_delete(struct mpk_file **file);
+
+mpk_ret_t mpk_file_calchash(struct mpk_file *file, const char *basedir);
 
 mpk_ret_t mpk_filelist_init(struct mpk_filelist *list);
 

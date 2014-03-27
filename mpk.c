@@ -61,14 +61,13 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir)
         mpk_pkginfo_init(&pkg);
         return MPK_FAILURE;
     }
-/*
-    if (mpk_pkginfo_calcfilehashes(pkginf, src_dir)
+
+    if (mpk_pkginfo_calcfilehashes(&pkg, src_dir)
             != MPK_SUCCESS) {
         syslog(LOG_ERR, "mpk_pkginfo_calcfilehashes()) failed");
-        free(pkginf);
         return MPK_FAILURE;
     }
-
+/*
     if (mpk_pkginfo_sign(pkginf) != MPK_SUCCESS) {
         syslog(LOG_ERR, "mpk_pkginfo_sign() failed");
         free(pkginf);
