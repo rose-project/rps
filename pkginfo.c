@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <openssl/evp.h>
+#include <openssl/pem.h>
 #include "err.h"
 #include "stringhelper.h"
 #include "pkginfo.h"
@@ -86,6 +88,123 @@ mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     }
 
     return MPK_SUCCESS;
+}
+
+mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
+{
+    EVP_PKEY *private_key;
+    FILE *priv_key_file;
+    RSA *rsa_private_key = NULL;
+    EVP_MD_CTX ctx;
+    struct mpk_pkgreflist_item *pkgref;
+    struct mpk_file *file;
+    unsigned int sig_len;
+
+    /* load private key */
+
+    if ((private_key = EVP_PKEY_new()) == NULL)
+        goto err1;
+    if ((priv_key_file = fopen(pkey_file, "r")) == NULL)
+        goto err2;
+    if (!PEM_read_RSAPrivateKey(priv_key_file, &rsa_private_key, NULL, NULL))
+        goto err3;
+    if (!EVP_PKEY_assign_RSA(private_key, rsa_private_key))
+        goto err3;
+
+
+    /* create signature */
+
+    EVP_MD_CTX_init(&ctx);
+
+    if (!EVP_SignInit(&ctx, EVP_sha512()))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, &pkginf->manifest, sizeof(pkginf->manifest)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, pkginf->name, strlen(pkginf->name)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, &pkginf->version, sizeof(pkginf->version)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, &pkginf->arch, sizeof(pkginf->arch)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, &pkginf->regions, sizeof(pkginf->regions)))
+        goto err3;
+
+    for (pkgref = pkginf->depends.lh_first; pkgref;
+            pkgref = pkgref->items.le_next) {
+        if (!EVP_SignUpdate(&ctx, pkgref->pkgref->name,
+                strlen(pkgref->pkgref->name))) {
+            goto err3;
+        }
+        if (!EVP_SignUpdate(&ctx, &pkgref->pkgref->ver,
+                sizeof(pkgref->pkgref->ver))) {
+            goto err3;
+        }
+        if (!EVP_SignUpdate(&ctx, &pkgref->pkgref->op,
+                sizeof(pkgref->pkgref->op))) {
+            goto err3;
+        }
+    }
+
+    for (pkgref = pkginf->conflicts.lh_first; pkgref;
+            pkgref = pkgref->items.le_next) {
+        if (!EVP_SignUpdate(&ctx, pkgref->pkgref->name,
+                strlen(pkgref->pkgref->name))) {
+            goto err3;
+        }
+        if (!EVP_SignUpdate(&ctx, &pkgref->pkgref->ver,
+                sizeof(pkgref->pkgref->ver))) {
+            goto err3;
+        }
+        if (!EVP_SignUpdate(&ctx, &pkgref->pkgref->op,
+                sizeof(pkgref->pkgref->op))) {
+            goto err3;
+        }
+    }
+
+    if (!EVP_SignUpdate(&ctx, &pkginf->priority, sizeof(pkginf->priority)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, pkginf->source, strlen(pkginf->source)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, pkginf->vendor, strlen(pkginf->vendor)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, pkginf->description, strlen(pkginf->description)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, pkginf->maintainer, strlen(pkginf->maintainer)))
+        goto err3;
+
+    if (!EVP_SignUpdate(&ctx, pkginf->license, strlen(pkginf->license)))
+        goto err3;
+
+    for (file = pkginf->files.lh_first; file; file = file->items.le_next) {
+        if (!EVP_SignUpdate(&ctx, file->name, strlen(file->name)))
+            goto err3;
+
+        if (!EVP_SignUpdate(&ctx, file->hash, MPK_FILEHASH_SIZE))
+            goto err3;
+    }
+
+    if (!EVP_SignFinal(&ctx, pkginf->signature, &sig_len, private_key))
+        goto err3;
+
+    fclose(priv_key_file);
+
+    return MPK_SUCCESS;
+
+    err3:
+        fclose(priv_key_file);
+    err2:
+        EVP_PKEY_free(private_key);
+    err1:
+        return MPK_FAILURE;
 }
 
 mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str)

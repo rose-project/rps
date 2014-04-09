@@ -26,7 +26,7 @@ void mpk_deinit();
  * @param dst_dir the directory to put the rulting mpk into
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir);
+mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey);
 
 /**
  * @brief run_install simply runs installation of a single package without

@@ -67,10 +67,23 @@ mpk_ret_t mpk_pkginfo_init(struct mpk_pkginfo *pkg);
  */
 void mpk_pkginfo_delete(struct mpk_pkginfo *pkg);
 
+/**
+ * @brief mpk_pkginfo_calcfilehashes determines the SHA256 hashes for each file
+ * in the pkginf->files
+ * @param pkginf the package info containing the list of files
+ * @param pkgroot base directory to which the filenames in the list of files
+ * are relative to
+ * @return MPK_SUCCESS or MPK_FAILURE
+ */
 mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     const char *pkgroot);
 
-mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf);
+/**
+ * @brief mpk_pkginfo_sign calculate the signature of the pkginfo data
+ * @param pkginf the package info to sign
+ * @return MPK_SUCCESS or MPK_FAILURE
+ */
+mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file);
 
 mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str);
 

@@ -36,7 +36,7 @@ void mpk_deinit()
     closelog();
 }
 
-mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir)
+mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
 {
     struct mpk_pkginfo pkg;
     char manifest_tmpl_fpath[MPK_PATH_MAX];
@@ -67,23 +67,21 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir)
         syslog(LOG_ERR, "mpk_pkginfo_calcfilehashes()) failed");
         return MPK_FAILURE;
     }
-/*
-    if (mpk_pkginfo_sign(pkginf) != MPK_SUCCESS) {
+
+    if (mpk_pkginfo_sign(&pkg, pkey) != MPK_SUCCESS) {
         syslog(LOG_ERR, "mpk_pkginfo_sign() failed");
-        free(pkginf);
         return MPK_FAILURE;
     }
 
+/*
     sprintf(manifest_fpath, "%s/manifest.txt", src_dir);
     if (mpk_manifest_write(manifest_fpath, pkginf) != MPK_SUCCESS) {
         syslog(LOG_ERR, "mpk_manifest_write() failed");
-        free(pkginf);
         return MPK_FAILURE;
     }
 
     if (mpk_archive_bundlefiles(&pkginf, src_dir, dst_dir)) {
         RLOG_ERR("mpk_archive_bundlefiles() failed");
-        free(pkginf);
         return R_FAILURE;
     }
 */
