@@ -87,6 +87,10 @@ mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file);
 
 mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str);
 
-mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[], char *src);
+mpk_ret_t mpk_pkginfo_arch_serialize(char *dst, int *written, int len,
+    enum MPK_PKGINFO_ARCH arch);
+
+mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[],
+    char *src);
 
 #endif

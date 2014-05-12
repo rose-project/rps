@@ -21,8 +21,10 @@ set(LIBMPK_SRC
 )
 
 set(LIBMPK_LIBS
+    m
     bz2
     ssl
+    crypto
     yaml
 )
 

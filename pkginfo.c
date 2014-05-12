@@ -221,6 +221,21 @@ mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str)
     return MPK_FAILURE;
 }
 
+mpk_ret_t mpk_pkginfo_arch_serialize(char *dst, int *written, int len,
+    enum MPK_PKGINFO_ARCH arch)
+{
+    int n;
+
+    if (!dst || arch < 0 || arch >= MPK_PKGINFO_ARCH_COUNT)
+        return MPK_FAILURE;
+
+    n = snprintf(dst, len, "%s", archname[arch]);
+    if (len)
+        *written = n;
+
+    return MPK_SUCCESS;
+}
+
 mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[],
     char *src)
 {

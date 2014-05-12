@@ -32,6 +32,14 @@ struct mpk_file *mpk_file_create();
  */
 void mpk_file_delete(struct mpk_file **file);
 
+/**
+ * @brief mpk_file_hash_serialize coverts a binary file to a hex string
+ * @param str the destination; has to offer a buffer of at least
+ *      MPK_FILEHASH_SIZE + 1 Bytes
+ * @return MPK_SUCCESS or MPK_FAILURE
+ */
+mpk_ret_t mpk_file_hash_serialize(char *str, struct mpk_file *file);
+
 mpk_ret_t mpk_file_calchash(struct mpk_file *file, const char *basedir);
 
 mpk_ret_t mpk_filelist_init(struct mpk_filelist *list);

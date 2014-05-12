@@ -66,3 +66,17 @@ mpk_ret_t read_hexstr(unsigned char barray[], int blen, char *hexstr)
 
     return MPK_SUCCESS;
 }
+
+
+void write_hexstr(char *hexstr, unsigned char barray[], int blen)
+{
+    int i;
+    char *dst = hexstr;
+    unsigned char *byte = barray;
+
+    for (i = 0; i < blen; i++) {
+        byte2hex(dst, *byte);
+        dst += 2;
+        byte++;
+    }
+}

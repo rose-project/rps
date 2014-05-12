@@ -15,10 +15,12 @@
  * packge.
  */
 struct mpk_pkgref {
-    char *name;
+    const char *name;
     struct mpk_version ver;
     enum MPK_VERSION_OPERATOR op;
 };
+
+void mpk_pkgref_initempty(struct mpk_pkgref *pkg);
 
 struct mpk_pkgreflist_item {
     struct mpk_pkgref *pkgref;
@@ -36,5 +38,7 @@ mpk_ret_t mpk_pkgreflist_add(struct mpk_pkgreflist *list,
 
 mpk_ret_t mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
     struct mpk_pkgreflist_item *item);
+
+mpk_ret_t mpk_pkgreflist_print(FILE *f, struct mpk_pkgreflist *list);
 
 #endif /* _PKGREF_H */

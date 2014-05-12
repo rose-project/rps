@@ -21,4 +21,6 @@ int hex2byte(const char *str);
  */
 mpk_ret_t read_hexstr(unsigned char barray[], int blen, char *hexstr);
 
+void write_hexstr(char *hexstr, unsigned char barray[], int blen);
+
 #endif /* _STRING_H */

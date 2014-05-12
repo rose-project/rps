@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include "err.h"
+#include "stringhelper.h"
 #include "file.h"
 
 
@@ -35,6 +36,17 @@ void mpk_file_delete(struct mpk_file **file)
         free(*file);
         *file = NULL;
     }
+}
+
+mpk_ret_t mpk_file_hash_serialize(char *str, struct mpk_file *file)
+{
+    if (!str)
+        return MPK_FAILURE;
+
+    write_hexstr(str, file->hash, MPK_FILEHASH_SIZE);
+    str[MPK_FILEHASH_SIZE * 2] = 0;
+
+    return MPK_SUCCESS;
 }
 
 mpk_ret_t mpk_file_calchash(struct mpk_file *file, const char *basedir)

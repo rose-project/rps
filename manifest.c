@@ -11,6 +11,7 @@
 #include "stringhelper.h"
 #include "manifest.h"
 
+#define TMP_STR_BUFFER_SIZE 1024
 
 enum PARSE_STATE {
     PARSE_STATE_ERROR = -1,
@@ -84,32 +85,33 @@ enum MANIFEST_TAG {
     MANIFEST_TAG_COUNT,
 };
 
-
-static const char *tagname[] = {
-    "manifest",
-    "name",
-    "version",
-    "arch",
-    "regions",
-    "depends",
-    "conflicts",
-    "priority",
-    "source",
-    "vendor",
-    "description",
-    "maintainer",
-    "license",
-    "files",
-    "signature"
+static struct manifest_tag {
+    const char *name;
+    /* TODO */
+} manifest_tag[] = {
+    { "manifest" },
+    { "name" },
+    { "version" },
+    { "arch" },
+    { "regions" },
+    { "depends" },
+    { "conflicts" },
+    { "priority" },
+    { "source" },
+    { "vendor" },
+    { "description" },
+    { "maintainer" },
+    { "license" },
+    { "files" },
+    { "signature" }
 };
-
 
 enum MANIFEST_TAG get_tag_from_name(const char *tag)
 {
     int i;
 
     for (i = 0; i < MANIFEST_TAG_COUNT; i++) {
-        if (!strcmp(tag, tagname[i])) {
+        if (!strcmp(tag, manifest_tag[i].name)) {
             return i;
         }
     }
@@ -319,6 +321,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
             if (!(tmp_pkgref = malloc(sizeof(struct mpk_pkgref)))) {
                 return PARSE_STATE_ERROR;
             }
+            mpk_pkgref_initempty(tmp_pkgref);
             return PARSE_STATE_DEPENDS_LISTITEM;
         case YAML_SEQUENCE_END_EVENT:
             return PARSE_STATE_START_MFST;
@@ -407,6 +410,7 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
             if (!(tmp_pkgref = malloc(sizeof(struct mpk_pkgref)))) {
                 return PARSE_STATE_ERROR;
             }
+            mpk_pkgref_initempty(tmp_pkgref);
             return PARSE_STATE_CONFLICTS_LISTITEM;
         case YAML_SEQUENCE_END_EVENT:
             return PARSE_STATE_START_MFST;
@@ -431,7 +435,8 @@ enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
                 goto return_error;
             }
             tmp_pkgref->name = tmp_str;
-            if (mpk_pkgreflist_add(&pkg->depends, tmp_pkgref) != MPK_SUCCESS) {
+            if (mpk_pkgreflist_add(&pkg->conflicts, tmp_pkgref)
+                    != MPK_SUCCESS) {
                 goto return_error;
             }
             tmp_pkgref = NULL;
@@ -649,7 +654,7 @@ mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
     enum PARSE_STATE state = PARSE_STATE_START;
 
     if (!(f = fopen(filename, "r"))) {
-        syslog(LOG_ERR, "could not open manifest file %s", filename);
+        syslog(LOG_ERR, "could not open manifest file (%s)", filename);
         return MPK_FAILURE;
     }
 
@@ -683,50 +688,6 @@ mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
             done = 1;
         }
 
-/*
-        switch (event.type) {
-        case YAML_STREAM_START_EVENT:
-            syslog(LOG_DEBUG, "YAML_STREAM_START_EVENT");
-            break;
-        case YAML_STREAM_END_EVENT:
-            syslog(LOG_DEBUG, "YAML_STREAM_END_EVENT");
-            done = 1;
-            break;
-        case YAML_DOCUMENT_START_EVENT:
-            syslog(LOG_DEBUG, "YAML_DOCUMENT_START_EVENT");
-            break;
-        case YAML_DOCUMENT_END_EVENT:
-            syslog(LOG_DEBUG, "YAML_DOCUMENT_END_EVENT");
-            break;
-        case YAML_SEQUENCE_START_EVENT:
-            syslog(LOG_DEBUG, "YAML_SEQUENCE_START_EVENT");
-            break;
-        case YAML_SEQUENCE_END_EVENT:
-            syslog(LOG_DEBUG, "YAML_SEQUENCE_END_EVENT");
-            break;
-        case YAML_MAPPING_START_EVENT:
-            syslog(LOG_DEBUG, "YAML_MAPPING_START_EVENT");
-            break;
-        case YAML_MAPPING_END_EVENT:
-            syslog(LOG_DEBUG, "YAML_MAPPING_END_EVENT");
-            break;
-        case YAML_ALIAS_EVENT:
-            syslog(LOG_DEBUG, "YAML_ALIAS_EVENT: %s",
-                event.data.alias.anchor);
-            break;
-        case YAML_SCALAR_EVENT:
-            syslog(LOG_DEBUG, "YAML_SCALAR_EVENT: %s",
-                event.data.scalar.value);
-            break;
-        default:
-            syslog(LOG_ERR, "received unknown event from parser");
-            yaml_event_delete(&event);
-            fclose(f);
-            return MPK_FAILURE;
-        }
-
-*/
-
         yaml_event_delete(&event);
     }
 
@@ -736,8 +697,401 @@ mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
     return MPK_SUCCESS;
 }
 
-
-mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkginfo)
+mpk_ret_t mapping_append_scalar_str(yaml_document_t *doc, int mapping,
+    const char *str1, const char *str2)
 {
+    int key, value;
+
+    if (!(key = yaml_document_add_scalar(doc, NULL,
+            (unsigned char *)str1, strlen(str1), YAML_PLAIN_SCALAR_STYLE)))
+        return MPK_FAILURE;
+
+    if (!(value = yaml_document_add_scalar(doc, NULL,
+            (unsigned char *)str2, strlen(str2),
+            YAML_SINGLE_QUOTED_SCALAR_STYLE)))
+        return MPK_FAILURE;
+
+    if (!yaml_document_append_mapping_pair(doc, mapping, key, value))
+        return MPK_FAILURE;
+
     return MPK_SUCCESS;
+}
+
+mpk_ret_t mapping_append_scalar_int(yaml_document_t *doc, int mapping,
+    const char *tag, const int val)
+{
+    int key, value;
+    char tmp_str[12];
+
+    if (!(key = yaml_document_add_scalar(doc, NULL,
+            (unsigned char *)tag, strlen(tag), YAML_PLAIN_SCALAR_STYLE)))
+        return MPK_FAILURE;
+
+    snprintf(tmp_str, 12, "%d");
+    if (!(value = yaml_document_add_scalar(doc, NULL, tmp_str, strlen(tmp_str),
+            YAML_PLAIN_SCALAR_STYLE)))
+        return MPK_FAILURE;
+
+    if (!yaml_document_append_mapping_pair(doc, mapping, key, value))
+        return MPK_FAILURE;
+
+    return MPK_SUCCESS;
+}
+
+mpk_ret_t write_yaml_regions(yaml_document_t *doc, int map,
+    struct mpk_stringlist *regions)
+{
+    int key, sequence, ret, item;
+    struct mpk_stringlist_item *str = NULL;
+
+    if (!regions)
+        return MPK_FAILURE;
+
+    key = yaml_document_add_scalar(doc, NULL,
+        (unsigned char *)manifest_tag[MANIFEST_TAG_REGIONS].name,
+        strlen(manifest_tag[MANIFEST_TAG_REGIONS].name),
+        YAML_PLAIN_SCALAR_STYLE);
+    if (!key)
+        return MPK_FAILURE;
+
+    sequence = yaml_document_add_sequence(doc, NULL, YAML_FLOW_SEQUENCE_STYLE);
+    if (!sequence)
+        return MPK_FAILURE;
+
+    ret = yaml_document_append_mapping_pair(doc, map, key, sequence);
+    if (!ret)
+        return MPK_FAILURE;
+
+    for (str = regions->lh_first; str; str = str->items.le_next) {
+        item = yaml_document_add_scalar(doc, NULL,
+            (unsigned char *)str->str, strlen(str->str),
+                YAML_PLAIN_SCALAR_STYLE);
+        if (!item)
+            return MPK_FAILURE;
+
+        ret = yaml_document_append_sequence_item(doc, sequence, item);
+        if (!ret)
+            return MPK_FAILURE;
+    }
+
+    return MPK_SUCCESS;
+}
+
+mpk_ret_t write_yaml_pkgreflist(yaml_document_t *doc, int map, const char *tag,
+    struct mpk_pkgreflist *pkgs)
+{
+    int key, sequence, item, ret;
+    struct mpk_pkgreflist_item *pkg =  NULL;
+
+    if (!pkgs)
+        return MPK_FAILURE;
+
+    key = yaml_document_add_scalar(doc, NULL, (unsigned char *)tag,
+        strlen(tag), YAML_PLAIN_SCALAR_STYLE);
+    if (!key)
+        return MPK_FAILURE;
+
+    sequence = yaml_document_add_sequence(doc, NULL, YAML_BLOCK_SEQUENCE_STYLE);
+    if (!sequence)
+        return MPK_FAILURE;
+
+    ret = yaml_document_append_mapping_pair(doc, map, key, sequence);
+    if (!ret)
+        return MPK_FAILURE;
+
+    for (pkg = pkgs->lh_first; pkg; pkg = pkg->items.le_next) {
+        int name_tag, name_value;
+        int version_tag, version_value;
+        int op_tag, op_value;
+        int tmp_str_len;
+        char *tmp_str;
+        int len;
+        int pkg_map;
+
+        pkg_map = yaml_document_add_mapping(doc, NULL, YAML_FLOW_MAPPING_STYLE);
+        if (!pkg_map)
+            return MPK_FAILURE;
+
+        /* name */
+
+        name_tag = yaml_document_add_scalar(doc, NULL,
+            (unsigned char *)"name", strlen("name"),
+                YAML_PLAIN_SCALAR_STYLE);
+        if (!name_tag)
+            return MPK_FAILURE;
+
+        name_value = yaml_document_add_scalar(doc, NULL,
+            (unsigned char *)pkg->pkgref->name, strlen(pkg->pkgref->name),
+                YAML_PLAIN_SCALAR_STYLE);
+        if (!name_value)
+            return MPK_FAILURE;
+
+        if (!yaml_document_append_mapping_pair(doc, pkg_map, name_tag,
+                name_value))
+            return MPK_FAILURE;
+
+        /* version */
+
+        if (!mpk_version_isempty(&pkg->pkgref->ver)) {
+            version_tag = yaml_document_add_scalar(doc, NULL,
+                (unsigned char *)"version", strlen("version"),
+                    YAML_PLAIN_SCALAR_STYLE);
+            if (!version_tag)
+                return MPK_FAILURE;
+
+            tmp_str_len = mpk_version_serializedsize(&pkg->pkgref->ver);
+            tmp_str = malloc(tmp_str_len + 1);
+            if (!tmp_str)
+                return MPK_FAILURE;
+            if (mpk_version_serialize(tmp_str, &len, tmp_str_len,
+                    &pkg->pkgref->ver) != MPK_SUCCESS) {
+                free(tmp_str);
+                return MPK_FAILURE;
+            }
+            version_value = yaml_document_add_scalar(doc, NULL,
+                (unsigned char *)tmp_str, strlen(tmp_str),
+                YAML_PLAIN_SCALAR_STYLE);
+            if (!version_value) {
+                free(tmp_str);
+                return MPK_FAILURE;
+            }
+            free(tmp_str);
+
+            if (!yaml_document_append_mapping_pair(doc, pkg_map, version_tag,
+                    version_value))
+                return MPK_FAILURE;
+        }
+
+        /* operator */
+
+        if (pkg->pkgref->op != MPK_VERSION_OPERATOR_UNKNOWN) {
+            op_tag = yaml_document_add_scalar(doc, NULL,
+                (unsigned char *)"op", strlen("op"), YAML_PLAIN_SCALAR_STYLE);
+            if (!op_tag)
+                return MPK_FAILURE;
+
+            op_value = yaml_document_add_scalar(doc, NULL,
+                (unsigned char *)mpk_version_operator_strings[pkg->pkgref->op],
+                strlen(mpk_version_operator_strings[pkg->pkgref->op]),
+                YAML_PLAIN_SCALAR_STYLE);
+            if (!op_value)
+                return MPK_FAILURE;
+        }
+
+        if (!yaml_document_append_sequence_item(doc, sequence, pkg_map))
+            return MPK_FAILURE;
+    }
+
+    return MPK_SUCCESS;
+}
+
+mpk_ret_t write_yaml_filelist(yaml_document_t *doc, int map, const char *tag,
+    struct mpk_filelist *files)
+{
+    int key, mapping, ret;
+    struct mpk_file *file =  NULL;
+    char tmp_str[MPK_FILEHASH_SIZE * 2 + 1];
+
+    if (!files)
+        return MPK_FAILURE;
+
+    key = yaml_document_add_scalar(doc, NULL, (unsigned char *)tag,
+        strlen(tag), YAML_PLAIN_SCALAR_STYLE);
+    if (!key)
+        return MPK_FAILURE;
+
+    mapping = yaml_document_add_mapping(doc, NULL, YAML_BLOCK_MAPPING_STYLE);
+    if (!mapping)
+        return MPK_FAILURE;
+
+    if (!yaml_document_append_mapping_pair(doc, map, key, mapping))
+        return MPK_FAILURE;
+
+    for (file = files->lh_first; file; file = file->items.le_next) {
+        int filename_item, hash_item;
+
+        filename_item = yaml_document_add_scalar(doc, NULL,
+            (unsigned char *)file->name, strlen(file->name),
+                YAML_PLAIN_SCALAR_STYLE);
+        if (!filename_item)
+            return MPK_FAILURE;
+
+        if (!mpk_file_hash_serialize(tmp_str, file))
+            return MPK_FAILURE;
+
+        hash_item = yaml_document_add_scalar(doc, NULL,
+            (unsigned char *)tmp_str, strlen(tmp_str),
+                YAML_PLAIN_SCALAR_STYLE);
+        if (!hash_item)
+            return MPK_FAILURE;
+
+        if (!yaml_document_append_mapping_pair(doc, mapping, filename_item,
+                hash_item))
+            return MPK_FAILURE;
+    }
+
+    return MPK_SUCCESS;
+}
+
+mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
+{
+    FILE *f;
+    yaml_emitter_t emitter;
+    yaml_event_t event;
+    yaml_document_t document;
+    struct mpk_stringlist_item *str;
+    int mapping, key, value, sequence, item;
+    int len;
+    char tmp_str[TMP_STR_BUFFER_SIZE];
+
+    if (!yaml_document_initialize(&document, NULL, NULL, NULL, 0, 0))
+        goto err0;
+
+    if (!(mapping = yaml_document_add_mapping(&document, NULL,
+            YAML_BLOCK_MAPPING_STYLE)))
+        goto err1;
+
+    /* manifest */
+    if (mpk_version_serialize(tmp_str, &len, TMP_STR_BUFFER_SIZE - 1,
+            &pkg->manifest) != MPK_SUCCESS)
+        goto err1;
+    if (len >= TMP_STR_BUFFER_SIZE)
+        goto err1;
+    tmp_str[len] = 0;
+    if (!mapping_append_scalar_str(&document, mapping, "manifest", tmp_str))
+        goto err1;
+
+    /* name */
+    if (!mapping_append_scalar_str(&document, mapping, "name", pkg->name))
+        goto err1;
+
+    /* version */
+    if (mpk_version_serialize(tmp_str, &len, TMP_STR_BUFFER_SIZE - 1,
+            &pkg->version) != MPK_SUCCESS)
+        goto err1;
+    if (len >= TMP_STR_BUFFER_SIZE)
+        goto err1;
+    tmp_str[len] = 0;
+    if (!mapping_append_scalar_str(&document, mapping, "version", tmp_str))
+        goto err1;
+
+    /* regions */
+    if ((write_yaml_regions(&document, mapping, &pkg->regions) != MPK_SUCCESS))
+        goto err1;
+
+    /* depends */
+    if (!(write_yaml_pkgreflist(&document, mapping, "depends", &pkg->depends)))
+        goto err1;
+
+    /* conflicts */
+    if (!(write_yaml_pkgreflist(&document, mapping, "conflicts",
+            &pkg->conflicts)))
+        goto err1;
+
+    /* priority */
+    if (!mapping_append_scalar_int( &document, mapping, "priority",
+            pkg->priority))
+        goto err1;
+
+    /* source */
+    if (!mapping_append_scalar_str(&document, mapping, "source", pkg->source))
+        goto err1;
+
+    /* vendor */
+    if (!mapping_append_scalar_str(&document, mapping, "vendor", pkg->vendor))
+        goto err1;
+
+    /* description */
+    if (!mapping_append_scalar_str(&document, mapping, "description",
+            pkg->description))
+        goto err1;
+
+    /* license */
+    if (!mapping_append_scalar_str(&document, mapping, "license", pkg->license))
+        goto err1;
+
+    /* list of files */
+    if (!write_yaml_filelist(&document, mapping, "files", &pkg->files))
+        goto err1;
+
+
+    if (!(f = fopen(filename, "w"))) {
+        syslog(LOG_ERR, "Could not open or create target file (%s).", filename);
+        yaml_document_delete(&document);
+        return MPK_FAILURE;
+    }
+
+    if (!yaml_emitter_initialize(&emitter)) {
+        syslog(LOG_ERR, "Could not initialize yaml emitter.");
+        yaml_document_delete(&document);
+        fclose(f);
+        return MPK_FAILURE;
+    }
+
+    yaml_emitter_set_break(&emitter, YAML_LN_BREAK);
+    yaml_emitter_set_unicode(&emitter, 1);
+    yaml_emitter_set_output_file(&emitter, f);
+    yaml_emitter_open(&emitter);
+    yaml_emitter_dump(&emitter, &document);
+    yaml_emitter_close(&emitter);
+    yaml_emitter_delete(&emitter);
+    yaml_document_delete(&document);
+    fclose(f);
+
+
+/*
+
+    fprintf(f, "manifest: %d.%d\n", pkg->manifest.major,
+        pkg->manifest.minor);
+
+    fprintf(f, "name: %s\n", pkg->name);
+
+    fprintf(f, "version: ");
+    mpk_version_print(f, &pkg->version);
+    fprintf(f, "\n");
+
+    fprintf(f, "arch: ");
+    //mpk_pkginfo_arch_serialize(f, pkg->arch);
+    fprintf(f, "\n");
+
+    fprintf(f, "regions: ");
+    if (pkg->regions.lh_first) {
+        fprintf(f, "[");
+        str = pkg->regions.lh_first;
+        while (1) {
+            fprintf(f, "%s", str->str);
+            if ((str = str->items.le_next) != NULL) {
+                fprintf(f, ", ");
+            } else {
+                break;
+            }
+        }
+        fprintf(f, "]");
+    }
+    fprintf(f, "\n");
+
+    fprintf(f, "depends: \n");
+    mpk_pkgreflist_print(f, &pkg->depends);
+
+    fprintf(f, "conflicts: \n");
+    mpk_pkgreflist_print(f, &pkg->conflicts);
+
+    fprintf(f, "priority: %d\n", pkg->priority);
+
+    fprintf(f, "source: %s\n", pkg->source);
+
+    fprintf(f, "vendor: %s\n", pkg->vendor);
+
+    fprintf(f, "description: %s\n", pkg->description);
+
+    fprintf(f, "maintainer: %s\n", pkg->maintainer);
+
+    fprintf(f, "license: %s\n", pkg->license);
+
+*/
+    return MPK_SUCCESS;
+err1:
+    yaml_document_delete(&document);
+err0:
+    return MPK_FAILURE;
 }

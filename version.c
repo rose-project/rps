@@ -7,11 +7,172 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include "version.h"
 
+static inline int digits_int(int i)
+{
+    if (i == 0) {
+        return 1;
+    } else if (i > 0) {
+        return floor(log10(abs(i))) + 1;
+    } else {
+        return floor(log10(abs(i))) + 2;
+    }
+}
+
 const struct mpk_version MPK_VERSION_DEFAULT = {
-    0, 0, 0, MPK_VERSION_BUILDTYPE_UNKNOWN, 0
+    -1, -1, -1, MPK_VERSION_BUILDTYPE_UNKNOWN, -1
 };
+
+/* has to be in sync with enum MPK_VERSION_OPERATOR */
+const char *mpk_version_operator_strings[] = {
+    "",
+    "<",
+    "<=",
+    ">",
+    ">=",
+    "=="
+};
+
+int mpk_version_isempty(struct mpk_version *v)
+{
+    return (v->major == -1);
+}
+
+int mpk_version_serializedsize(struct mpk_version *v)
+{
+    int len = 0;
+
+    if (!v) {
+        return -1;
+    }
+
+    if (v->major < 0) {
+        return len;
+    }
+    len += digits_int(v->major);
+
+    if (v->minor < 0) {
+        return len;
+    }
+    len += 1 + digits_int(v->minor);
+
+    if (v->patch < 0) {
+        return len;
+    }
+    len += 1 + digits_int(v->patch);
+
+    if (v->buildtype != MPK_VERSION_BUILDTYPE_UNKNOWN) {
+        if (v->buildid != MPK_VERSION_BUILDID_UNFEDINED) {
+            /* buildid + buildtype */
+            len += 2 + MPK_VERSION_BUILDID_SIZE;
+        } else {
+            /* buildtype without buildid */
+            len += 2;
+        }
+    } else {
+        if (v->buildid != MPK_VERSION_BUILDID_UNFEDINED) {
+            len += 1 + MPK_VERSION_BUILDID_SIZE;
+        }
+    }
+
+    return len;
+}
+
+mpk_ret_t mpk_version_serialize(char *dst, int *written, int len,
+    struct mpk_version *v)
+{
+    int n;
+    int w = 0;
+
+    if (!dst || !v || len < 0)
+        return MPK_FAILURE;
+
+    if (v->major < 0) {
+        if (written)
+            *written = w;
+        return MPK_SUCCESS;
+    }
+    n = snprintf(dst, len, "%d", v->major);
+    w += n;
+    dst += n;
+    len -= n;
+
+    if (v->minor < 0) {
+        if (written)
+            *written = w;
+        return MPK_SUCCESS;
+    }
+    n = snprintf(dst, len, ".%d", v->minor);
+    w += n;
+    dst += n;
+    len -= n;
+
+    if (v->patch < 0) {
+        if (written)
+            *written = w;
+        return MPK_SUCCESS;
+    }
+    n = snprintf(dst, len, ".%d", v->patch);
+    w += n;
+    dst += n;
+    len -= n;
+
+    if (v->buildtype != MPK_VERSION_BUILDTYPE_UNKNOWN ||
+            v->buildid != MPK_VERSION_BUILDID_UNFEDINED) {
+        n = snprintf(dst, len, "-");
+        w += n;
+        dst += n;
+        len -= n;
+    } else {
+        if (written)
+            *written = w;
+        return MPK_SUCCESS;
+    }
+
+    switch (v->buildtype) {
+    case MPK_VERSION_BUILDTYPE_TEST:
+        n = snprintf(dst, len, "%c", 'T');
+        break;
+    case MPK_VERSION_BUILDTYPE_DEBUG:
+        n = snprintf(dst, len, "%c", 'D');
+        break;
+    case MPK_VERSION_BUILDTYPE_ALPHA:
+        n = snprintf(dst, len, "%c", 'A');
+        break;
+    case MPK_VERSION_BUILDTYPE_BETA:
+        n = snprintf(dst, len, "%c", 'B');
+        break;
+    case MPK_VERSION_BUILDTYPE_PRERELEASE:
+        n = snprintf(dst, len, "%c", 'P');
+        break;
+    case MPK_VERSION_BUILDTYPE_RELEASE:
+        n = snprintf(dst, len, "%c", 'R');
+        break;
+    case MPK_VERSION_BUILDTYPE_UNKNOWN:
+    default:
+        n = 0;
+        break;
+    }
+    w += n;
+    dst += n;
+    len -= n;
+
+    if (v->buildid != MPK_VERSION_BUILDID_UNFEDINED) {
+        if (len < MPK_VERSION_BUILDID_SIZE)
+            return MPK_FAILURE;
+        n = snprintf(dst, MPK_VERSION_BUILDID_SIZE, "%0*lld",
+            MPK_VERSION_BUILDID_SIZE, v->buildid);
+        w += n;
+        dst += n;
+        len -= n;
+    }
+
+    if (written)
+        *written = w;
+    return MPK_SUCCESS;
+}
 
 mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
     int data_size)
@@ -361,3 +522,56 @@ mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
 
     return MPK_FAILURE;
 }
+
+mpk_ret_t mpk_version_operator_print(FILE *f, enum MPK_VERSION_OPERATOR op)
+{
+    if (!f || op < 0 || op >= MPK_VERSION_OPERATOR_COUNT) {
+        return MPK_FAILURE;
+    }
+
+    fprintf(f, "'%s'", mpk_version_operator_strings[op]);
+
+    return MPK_SUCCESS;
+}
+
+mpk_ret_t mpk_version_print(FILE *f, struct mpk_version *v)
+{
+    if (!f || !v) {
+        syslog(LOG_ERR, "ivalid parameter for mpk_version_print()");
+        return MPK_FAILURE;
+    }
+
+    fprintf(f, "%d.%d.%d", v->major, v->minor, v->patch);
+
+    switch (v->buildtype) {
+    case MPK_VERSION_BUILDTYPE_TEST:
+        fprintf(f, "-%c", 'T');
+        break;
+    case MPK_VERSION_BUILDTYPE_DEBUG:
+        fprintf(f, "-%c", 'D');
+        break;
+    case MPK_VERSION_BUILDTYPE_ALPHA:
+        fprintf(f, "-%c", 'A');
+        break;
+    case MPK_VERSION_BUILDTYPE_BETA:
+        fprintf(f, "-%c", 'B');
+        break;
+    case MPK_VERSION_BUILDTYPE_PRERELEASE:
+        fprintf(f, "-%c", 'P');
+        break;
+    case MPK_VERSION_BUILDTYPE_RELEASE:
+        fprintf(f, "-%c", 'R');
+        break;
+    case MPK_VERSION_BUILDTYPE_UNKNOWN:
+    default:
+        return MPK_SUCCESS;
+    }
+
+    /* TODO make sure string length is always MPK_VERSION_BUILDID_SIZE */
+    if (v->buildid != MPK_VERSION_BUILDID_UNFEDINED) {
+        fprintf(f, "%llu", v->buildid);
+    }
+
+    return MPK_SUCCESS;
+}
+

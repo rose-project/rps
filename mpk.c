@@ -9,6 +9,7 @@
 #include "config.h"
 #include "pkginfo.h"
 #include "manifest.h"
+#include "package.h"
 #include "mpk.h"
 
 #define MPK_CONFIG "/etc/libmpk.conf" /* default configuration file */
@@ -73,18 +74,17 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
         return MPK_FAILURE;
     }
 
-/*
     sprintf(manifest_fpath, "%s/manifest.txt", src_dir);
-    if (mpk_manifest_write(manifest_fpath, pkginf) != MPK_SUCCESS) {
+    if (mpk_manifest_write(manifest_fpath, &pkg) != MPK_SUCCESS) {
         syslog(LOG_ERR, "mpk_manifest_write() failed");
         return MPK_FAILURE;
     }
 
-    if (mpk_archive_bundlefiles(&pkginf, src_dir, dst_dir)) {
-        RLOG_ERR("mpk_archive_bundlefiles() failed");
-        return R_FAILURE;
+    if (mpk_package_create(&pkg, src_dir, dst_dir)) {
+        syslog(LOG_ERR, "mpk_archive_bundlefiles() failed");
+        return MPK_FAILURE;
     }
-*/
+
     mpk_pkginfo_delete(&pkg);
 
     return MPK_SUCCESS;
