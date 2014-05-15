@@ -5,6 +5,14 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_C_FLAGS "-std=c11 -Wall -pedantic -Wextra")
 
+include_directories(
+    contrib/jsmn
+)
+
+link_directories(
+    ${PROJECT_SOURCE_DIR}/contrib/jsmn
+)
+
 set(LIBMPK_SRC
     defines.h
     err.h
@@ -23,9 +31,11 @@ set(LIBMPK_SRC
 set(LIBMPK_LIBS
     m
     bz2
+    tar
     ssl
     crypto
     yaml
+    jsmn
 )
 
 add_library(mpk SHARED ${LIBMPK_SRC})

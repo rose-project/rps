@@ -1038,57 +1038,6 @@ mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
     yaml_document_delete(&document);
     fclose(f);
 
-
-/*
-
-    fprintf(f, "manifest: %d.%d\n", pkg->manifest.major,
-        pkg->manifest.minor);
-
-    fprintf(f, "name: %s\n", pkg->name);
-
-    fprintf(f, "version: ");
-    mpk_version_print(f, &pkg->version);
-    fprintf(f, "\n");
-
-    fprintf(f, "arch: ");
-    //mpk_pkginfo_arch_serialize(f, pkg->arch);
-    fprintf(f, "\n");
-
-    fprintf(f, "regions: ");
-    if (pkg->regions.lh_first) {
-        fprintf(f, "[");
-        str = pkg->regions.lh_first;
-        while (1) {
-            fprintf(f, "%s", str->str);
-            if ((str = str->items.le_next) != NULL) {
-                fprintf(f, ", ");
-            } else {
-                break;
-            }
-        }
-        fprintf(f, "]");
-    }
-    fprintf(f, "\n");
-
-    fprintf(f, "depends: \n");
-    mpk_pkgreflist_print(f, &pkg->depends);
-
-    fprintf(f, "conflicts: \n");
-    mpk_pkgreflist_print(f, &pkg->conflicts);
-
-    fprintf(f, "priority: %d\n", pkg->priority);
-
-    fprintf(f, "source: %s\n", pkg->source);
-
-    fprintf(f, "vendor: %s\n", pkg->vendor);
-
-    fprintf(f, "description: %s\n", pkg->description);
-
-    fprintf(f, "maintainer: %s\n", pkg->maintainer);
-
-    fprintf(f, "license: %s\n", pkg->license);
-
-*/
     return MPK_SUCCESS;
 err1:
     yaml_document_delete(&document);
