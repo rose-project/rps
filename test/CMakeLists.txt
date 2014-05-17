@@ -27,3 +27,5 @@ set(MPK_TEST_LIBS
 add_executable(libmpk-test ${MPK_TEST_SRC})
 target_link_libraries(libmpk-test ${MPK_TEST_LIBS})
 
+add_custom_target(test libmpk-test)
+
