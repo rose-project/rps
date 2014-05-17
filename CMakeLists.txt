@@ -1,31 +1,24 @@
-# Project libmpk
-# Copyright 2013 Josef Raschen <josef@raschen.org>
-project(libmpk)
+# Project mpk
+# Copyright 2013-2014 Josef Raschen <josef@raschen.org>
+project(mpk)
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_C_FLAGS "-std=c11 -Wall -pedantic -Wextra")
 
+add_subdirectory(ext/gtest)
+
 include_directories(
-    contrib/jsmn
+    ${PROJECT_SOURCE_DIR}/include/mpk
+    ${PROJECT_SOURCE_DIR}/include
 )
 
 link_directories(
-    ${PROJECT_SOURCE_DIR}/contrib/jsmn
 )
 
-set(LIBMPK_SRC
-    defines.h
-    err.h
-    mpk.c
-    config.c
-    pkginfo.c
-    file.c
-    stringhelper.c
-    stringlist.c
-    manifest.c
-    pkgref.c
-    version.c
-    package.c
+file(GLOB LIBMPK_SRC 
+    ${PROJECT_SOURCE_DIR}/src/*.c
+    ${PROJECT_SOURCE_DIR}/include/*.h
+    ${PROJECT_SOURCE_DIR}/src/*.h
 )
 
 set(LIBMPK_LIBS
@@ -35,9 +28,9 @@ set(LIBMPK_LIBS
     ssl
     crypto
     yaml
-    jsmn
 )
 
-add_library(mpk SHARED ${LIBMPK_SRC})
+add_library(mpk SHARED ${LIBMPK_SRC} )
 target_link_libraries(mpk ${LIBMPK_LIBS})
 
+add_subdirectory(test)

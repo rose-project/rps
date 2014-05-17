@@ -11,6 +11,8 @@
 
 #define MANIFEST_VERSION "1.0"
 
+mpk_ret_t mpk_manifest_test();
+
 /**
  * @brief mpk_manifest_read reads manifest file (or template) into pkginfo
  *        object

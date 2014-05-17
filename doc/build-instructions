@@ -1,0 +1,2 @@
+dependencies
+libyaml-dev, libssl-dev, libbz2-dev, libcrypto++-dev, libar-dev

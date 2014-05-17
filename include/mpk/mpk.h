@@ -6,7 +6,11 @@
 #ifndef _MPK_H
 #define _MPK_H
 
-#include "err.h"
+#include <mpk/err.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief mpk_init initializes the library (e.g. logging). It has to be called
@@ -42,5 +46,9 @@ mpk_ret_t mpk_install(const char *filename);
  * @return
  */
 mpk_ret_t mpk_uninstall(const char *name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MPK_H */

@@ -106,6 +106,11 @@ static struct manifest_tag {
     { "signature" }
 };
 
+mpk_ret_t mpk_manifest_test()
+{
+    return MPK_SUCCESS;
+}
+ 
 enum MANIFEST_TAG get_tag_from_name(const char *tag)
 {
     int i;
