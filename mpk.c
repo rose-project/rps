@@ -80,7 +80,7 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
         return MPK_FAILURE;
     }
 
-    if (mpk_package_bundlempk(&pkg, src_dir, dst_dir)) {
+    if (mpk_package_packmpk(&pkg, src_dir, dst_dir)) {
         syslog(LOG_ERR, "mpk_archive_bundlefiles() failed");
         return MPK_FAILURE;
     }
@@ -93,9 +93,8 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
 
 mpk_ret_t mpk_install(const char *filename)
 {
-    /* TODO */
-
     /* unpack */
+    mpk_package_unpackmpk(filename, "/tmp");
 
     /* verify signature */
 

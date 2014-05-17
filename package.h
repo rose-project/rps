@@ -10,18 +10,22 @@
 #include "version.h"
 #include "err.h"
 
+#define MPK_PACKAGE_CACHE_DIR "/tmp"
+
 #define MPK_PACKAGE_STYLE_RAW = 0
 #define MPK_PACKAGE_STYLE_TAR = 1
 
 /**
- * @brief mpk_package_bundlempk creates a mpk package from the packageinfo and
+ * @brief mpk_package_packmpk creates a mpk package from the packageinfo and
  * source data
  * @param pkg package info object of the package
  * @param srcdir directory of the source data
  * @return
  */
-mpk_ret_t mpk_package_bundlempk(struct mpk_pkginfo *pkg, const char *srcdir,
+mpk_ret_t mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     const char *outdir);
+
+mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir);
 
 /**
  * @brief mpk_package_bundlebmpk write out a bmpk package

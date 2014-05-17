@@ -4,6 +4,7 @@
   */
 #include <stdlib.h>
 #include <fcntl.h>
+#include <libgen.h>
 #include <unistd.h>
 #include <libtar.h>
 #include <bzlib.h>
@@ -28,7 +29,7 @@ struct mpk_package_binheader {
     uint8_t hash[32]; /* sha256 hash of the package */
 };
 
-mpk_ret_t mpk_package_bundlempk(struct mpk_pkginfo *pkg, const char *srcdir,
+mpk_ret_t mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     const char *outdir)
 {
     TAR *tar;
@@ -105,4 +106,76 @@ err1:
     unlink(tar_fpath);
 err0:
     return MPK_FAILURE;
+}
+
+mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir)
+{
+    FILE *tbz2_file, *tar_file;
+    char tar_fpath[PATH_MAX+1];
+    BZFILE *bz2;
+    int bzerr;
+    unsigned char buf[CHUNKSIZE];
+    size_t n;
+    TAR *tar;
+
+    sprintf(tar_fpath, "/tmp/unpacked-%lld.tar", (long long)time(NULL));
+    if (!(tar_file = fopen(tar_fpath, "wb")))
+        return MPK_FAILURE;
+
+    if (!(tbz2_file = fopen(package_file, "rb"))) {
+        fclose(tar_file);
+        return MPK_FAILURE;
+    }
+
+    /* decompress bz2 */
+
+    bz2 = BZ2_bzReadOpen(&bzerr, tbz2_file, 0, 0, NULL, 0);
+    if (bzerr != BZ_OK) {
+        fclose(tbz2_file);
+        fclose(tar_file);
+        return MPK_FAILURE;
+    }
+    while (1) {
+        n = BZ2_bzRead(&bzerr, bz2, buf, CHUNKSIZE);
+        if (bzerr != BZ_OK && bzerr != BZ_STREAM_END) {
+            fclose(tar_file);
+            unlink(tar_fpath);
+            BZ2_bzReadClose(&bzerr, bz2);
+            fclose(tbz2_file);
+            return MPK_FAILURE;
+        }
+
+        if (fwrite(buf, 1, n, tar_file) != n) {
+            fclose(tar_file);
+            unlink(tar_fpath);
+            BZ2_bzReadClose(&bzerr, bz2);
+            fclose(tbz2_file);
+            return MPK_FAILURE;
+        }
+
+        if (bzerr == BZ_STREAM_END)
+            break;
+    }
+
+    BZ2_bzReadClose(&bzerr, bz2);
+    fclose(tbz2_file);
+    fclose(tar_file);
+
+    /* unpack tar */
+
+    if (tar_open(&tar, tar_fpath, NULL, O_RDONLY, 0644, 0) != 0) {
+        unlink(tar_fpath);
+        return MPK_FAILURE;
+    }
+
+    if (tar_extract_all(tar, (char *)outdir) != 0) {
+        tar_close(tar);
+        unlink(tar_fpath);
+        return MPK_FAILURE;
+    }
+    tar_close(tar);
+    if (unlink(tar_fpath) != 0)
+        return MPK_FAILURE;
+
+    return MPK_SUCCESS;
 }
