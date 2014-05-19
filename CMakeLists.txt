@@ -17,7 +17,7 @@ link_directories(
 
 file(GLOB LIBMPK_SRC 
     ${PROJECT_SOURCE_DIR}/src/*.c
-    ${PROJECT_SOURCE_DIR}/include/*.h
+    ${PROJECT_SOURCE_DIR}/include/mpk/*.h
     ${PROJECT_SOURCE_DIR}/src/*.h
 )
 
