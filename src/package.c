@@ -3,6 +3,7 @@
   * @author Josef Raschen <josef@raschen.org>
   */
 #include <stdlib.h>
+#include <time.h>
 #include <fcntl.h>
 #include <libgen.h>
 #include <unistd.h>
