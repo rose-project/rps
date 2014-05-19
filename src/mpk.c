@@ -80,8 +80,8 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
         return MPK_FAILURE;
     }
 
-    if (mpk_package_packmpk(&pkg, src_dir, dst_dir)) {
-        syslog(LOG_ERR, "mpk_archive_bundlefiles() failed");
+    if (mpk_package_packmpk(&pkg, src_dir, dst_dir) != MPK_SUCCESS) {
+        syslog(LOG_ERR, "mpk_package_packmpk() failed");
         return MPK_FAILURE;
     }
 
