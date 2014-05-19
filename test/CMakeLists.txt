@@ -10,6 +10,8 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src
 )
 
+add_definitions(-DTESTDATA_DIR="${PROJECT_SOURCE_DIR}/test/testdata/")
+
 link_directories(
     ${LIBMPK_LIB_DIR}
 )

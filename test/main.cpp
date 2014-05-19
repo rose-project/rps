@@ -4,12 +4,11 @@ extern "C" {
 }
 #include "gtest/gtest.h"
 
-TEST(ManifestTest, TestTest) {
-    EXPECT_EQ (MPK_SUCCESS, mpk_manifest_test());
-}
+TEST(MpkHighLevelApi, package_create) {
 
-int main(int argc, char *argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    EXPECT_EQ(MPK_SUCCESS, mpk_init());
+    EXPECT_EQ(MPK_SUCCESS,
+        mpk_create(TESTDATA_DIR "testpackage","/tmp",
+        TESTDATA_DIR "privkey.pem"));
+    mpk_deinit();
 }

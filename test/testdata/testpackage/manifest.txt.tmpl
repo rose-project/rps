@@ -1,0 +1,42 @@
+manifest: 1.0
+name: testpackage
+version: 1.2.0-R2013031915000000
+arch: armv7hf
+regions: [EU, NA, SA]
+depends:
+  - {name: testpackage_acb-def, version: 1.0.0, op: '>='}
+  - {name: testpackage-123}
+  - {name: abcde, version: 12.0, op: '=='}
+  - {name: testpackage3, version: 12.52.12345, op: '>'}
+  - {name: test123, version: 0.0.123-R2014011412121200, op: '=='}
+conflicts:
+  - {name: testpackage4}
+  - {name: testpackage2, version: 0.0, op: '=='}
+  - {name: testpackage2, version: 3.2.0, op: '>='}
+priority: 0
+source: http://packages.raschen-software.de/test/armv7hf/tespackage/1.2.0-R2013031915000000/tespackage.mpk
+vendor: Raschen Software
+description: >
+  This is a description of the package testpackage.
+  
+  
+  More description could follow here. 
+maintainer: josef@raschen-software.de
+license: GPLv2
+files:
+  - control/cleanup.sh: '-'
+  - control/install.sh: '-'
+  - control/prepare.sh: '-'
+  - data/file: '-'
+  - data/file1: '-'
+  - data/file2: '-'
+  - data/files_a/file2: '-'
+  - data/files_a/file1: '-'
+  - data/files_b/a/b/empty_file: '-'
+  - data/files_a/some_file: '-'
+  - data/files_a/file: '-'
+  - data/files_b/a/b1/file: '-'
+  - data/files_b/a/b1/file1: '-'
+  - data/files_b/a/b1/file2: '-'
+  - tools/anytool: '-'
+signature: '-'
