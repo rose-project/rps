@@ -30,7 +30,8 @@ void mpk_deinit();
  * @param dst_dir the directory to put the rulting mpk into
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey);
+mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir,
+    const char *pkey);
 
 /**
  * @brief run_install simply runs installation of a single package without
@@ -38,7 +39,7 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
  * @param filename the mpk to install
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_install(const char *filename);
+int mpk_install(const char *fpath);
 
 /**
  * @brief mpk_uninstall removes a package without respecting dependencies

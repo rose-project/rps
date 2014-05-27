@@ -34,3 +34,17 @@ add_library(mpk SHARED ${LIBMPK_SRC} )
 target_link_libraries(mpk ${LIBMPK_LIBS})
 
 add_subdirectory(test)
+
+# generate API documentation
+
+option(BUILD_DOCUMENTATION "Build Doxygen based API documentation" OFF)
+if(BUILD_DOCUMENTATION)
+    FIND_PACKAGE(Doxygen)
+    if(NOT DOXYGEN_FOUND)
+        message(FATAL_ERROR "Doxygen is needed to build the API documentation.")
+    endif()
+
+    configure_file(${PROJECT_SOURCE_DIR}/doc/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+    add_custom_target(doc ALL
+        COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile)
+endif()

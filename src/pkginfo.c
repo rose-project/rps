@@ -90,6 +90,7 @@ mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     return MPK_SUCCESS;
 }
 
+/* TODO: move signature calculation to package.c */
 mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
 {
     EVP_PKEY *private_key;

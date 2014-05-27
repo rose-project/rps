@@ -35,5 +35,15 @@ mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir);
  */
 mpk_ret_t mpk_package_bundlebmpk(struct mpk_pkginfo *pkg, const char *srcdir);
 
+/**
+ * @brief mpk_package_verify checks if the signature of the package is correct
+ * @param pkginf pkfinfo of the package to check
+ * @param pkgdir directory of the extracted files
+ * @param pubkey rsa public key
+ * @return
+ */
+int mpk_package_verify(struct mpk_pkginfo *pkginf, const char *pkgdir,
+    const char *pubkey);
+
 #endif /* _PACKAGE_H */
 

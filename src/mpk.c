@@ -5,12 +5,13 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <syslog.h>
+#include <mpk/mpk.h>
 #include "defines.h"
 #include "config.h"
 #include "pkginfo.h"
 #include "manifest.h"
 #include "package.h"
-#include "mpk.h"
+#include "filehandling.h"
 
 #define MPK_CONFIG "/etc/libmpk.conf" /* default configuration file */
 
@@ -90,17 +91,81 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
     return MPK_SUCCESS;
 }
 
-
-mpk_ret_t mpk_install(const char *filename)
+int mpk_install(const char *fpath)
 {
-    /* unpack */
-    mpk_package_unpackmpk(filename, "/tmp");
+//    struct mpk_pkginfo pkg;
+//    const char *filename;
+//    int filename_len;
+//    const char *pkgname;
+//    const char *unpack_dir;
 
-    /* verify signature */
+//    /* get package name from fpath */
+//    filename = basename(fpath);
+//    filename_len = strlen(filename) + 1;
+//    if (len < 5)
+//        return MPK_FAILURE;
+//    if (!(pkgname = malloc(filename_len)))
+//        return MPK_FAILURE;
+//    strcpy(pkgname, filename);
+//    pkgname[filename_len - 5] = 0; /* cut off the extension '.mpk' */
 
-    /* run installation */
+//    /* package extract dir */
+//    if (!(unpack_dir = malloc(strlen("/tmp/") + strlen(pkgname) + 1))) {
+//        free(pkgname);
+//        return MPK_FAILURE;
+//    }
+//    sprintf(unpack_dir, "/tmp/%s", pkgname);
 
-    return MPK_SUCCESS;
+//    if (mpk_package_unpackmpk(fpath, unpack_dir) != MPK_SUCCESS) {
+//        syslog(LOG_ERR, "mpk_package_unpackmpk() failed");
+//        free(unpack_dir);
+//        free(pkgname);
+//        return MPK_FAILURE;
+//    }
+
+//    if (mpk_manifest_read(&pkg, "...") != MPK_SUCCESS) {
+//        syslog(LOG_ERR, "mpk_manifest_read() failed");
+//        mpk_filehandling_deletedir(unpack_dir);
+//        free(unpack_dir);
+//        free(pkgname);
+//        return MPK_FAILURE;
+//    }
+
+//    if (mpk_package_verify(&pkg, "publickey") != MPK_SUCCESS) {
+//        syslog(LOG_ERR, "mpk_package_verifysignature() failed");
+//        mpk_pkginfo_delete(&pkg);
+//        mpk_filehandling_deletedir(unpack_dir);
+//        free(unpack_dir);
+//        free(pkgname);
+//        return MPK_FAILURE;
+//    }
+
+//    /* run preinstall script */
+
+//    /* copy files to destination */
+//    for (struct mpk_file *f = pkg.files.lh_first; f; f = f->items.le_next) {
+
+//    }
+//    if (mpk_filehandling_copydir())
+
+//    /* run install script */
+
+//    /* run cleanup script */
+
+//    /* save manifest and uninstall script */
+
+//    /* add package to list of installed packages in database */
+
+//    /* add package to the 'installed' list to report to backend */
+
+//    /* delete the rest from /tmp */
+//    mpk_filehandling_deletedir(unpack_dir);
+
+//    mpk_pkginfo_delete(&pkg);
+//    free(unpack_dir);
+//    free(pkgname);
+
+//    return MPK_SUCCESS;
 }
 
 
@@ -108,7 +173,13 @@ mpk_ret_t mpk_uninstall(const char *name)
 {
     /* TODO */
 
+    /* get packageinfo from database/cache */
+
     /* run uninstaller */
+
+    /* remove packageinfo from database and cache */
+
+    /* add package to the 'removed' list to report to backend */
 
     /* delete package metedata from local cache */
 

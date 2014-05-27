@@ -3,13 +3,15 @@
   * @author Josef Raschen <josef@raschen.org>
   */
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include <time.h>
 #include <fcntl.h>
+#include <syslog.h>
 #include <libgen.h>
 #include <unistd.h>
 #include <libtar.h>
 #include <bzlib.h>
-#include <string.h>
 #include <linux/limits.h>
 #include "package.h"
 
@@ -120,10 +122,11 @@ mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir)
     TAR *tar;
 
     sprintf(tar_fpath, "/tmp/unpacked-%lld.tar", (long long)time(NULL));
-    if (!(tar_file = fopen(tar_fpath, "wb")))
+    if (!(tar_file = fopen(tar_fpath, "w")))
         return MPK_FAILURE;
 
-    if (!(tbz2_file = fopen(package_file, "rb"))) {
+    if (!(tbz2_file = fopen(package_file, "r"))) {
+        syslog(LOG_ERR, "could not open file: %s", package_file);
         fclose(tar_file);
         return MPK_FAILURE;
     }
@@ -170,6 +173,7 @@ mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir)
     }
 
     if (tar_extract_all(tar, (char *)outdir) != 0) {
+        syslog(LOG_ERR, "tar_extract_all() failed: %s", strerror(errno));
         tar_close(tar);
         unlink(tar_fpath);
         return MPK_FAILURE;

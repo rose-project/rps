@@ -12,3 +12,7 @@ TEST(MpkHighLevelApi, package_create) {
         TESTDATA_DIR "privkey.pem"));
     mpk_deinit();
 }
+
+TEST(MpkHighLevelApi, package_install) {
+    EXPECT_EQ(MPK_SUCCESS, mpk_install(TESTDATA_DIR"/testpackage.mpk"));
+}

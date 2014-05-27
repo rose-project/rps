@@ -67,6 +67,7 @@ mpk_ret_t mpk_pkginfo_init(struct mpk_pkginfo *pkg);
  */
 void mpk_pkginfo_delete(struct mpk_pkginfo *pkg);
 
+/* TODO: should be moved to package.h */
 /**
  * @brief mpk_pkginfo_calcfilehashes determines the SHA256 hashes for each file
  * in the pkginf->files
@@ -78,6 +79,7 @@ void mpk_pkginfo_delete(struct mpk_pkginfo *pkg);
 mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     const char *pkgroot);
 
+/* TODO: should be moved to package.h */
 /**
  * @brief mpk_pkginfo_sign calculate the signature of the pkginfo data
  * @param pkginf the package info to sign
