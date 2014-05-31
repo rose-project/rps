@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_C_FLAGS "-std=c11 -Wall -pedantic -Wextra")
 
 add_subdirectory(ext/gtest)
+add_subdirectory(ext/jsmn)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include/mpk
