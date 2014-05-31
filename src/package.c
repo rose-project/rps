@@ -17,19 +17,26 @@
 
 #define CHUNKSIZE 512
 
+#define PACKAGE_VERSION 1
+
+#define PACKAGE_STYLE_RAW 0
+#define PACKAGE_STYLE_TAR 1
+
+#define PACKAGE_COMPRESSION_NONE 1
+#define PACKAGE_COMPRESSION_BZ2 1
+
 /**
- * @brief mpk_package_binheader is the file header of a bmpk file
+ * @brief mpk_package_signature
  */
-struct mpk_package_binheader {
+struct mpk_package_header {
     uint8_t magic[4]; /* { 0x6d, 0x70, 0x6b, 0x2a } "mpk*" */
-    uint8_t version; /* package format version */
+    uint8_t fversion; /* package format version */
     uint8_t style; /* raw, tar */
     uint8_t compression;
     uint8_t flags;
-    uint64_t filesize;
-    uint32_t data_offset; /* where data begins */
-    uint32_t crc; /* crc32 of header */
-    uint8_t hash[32]; /* sha256 hash of the package */
+    uint64_t package_size; /* size of the complete package including header */
+    uint8_t package_signature[MPK_PACKAGE_SIGNATURE_LEN];
+    uint8_t header_signature[MPK_PACKAGE_SIGNATURE_LEN];
 };
 
 mpk_ret_t mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
