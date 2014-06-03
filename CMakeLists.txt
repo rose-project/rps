@@ -11,6 +11,7 @@ add_subdirectory(ext/jsmn)
 include_directories(
     ${PROJECT_SOURCE_DIR}/include/mpk
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/ext/jsmn
 )
 
 link_directories(
@@ -29,6 +30,8 @@ set(LIBMPK_LIBS
     ssl
     crypto
     yaml
+    jsmn
+    jansson
 )
 
 add_library(mpk SHARED ${LIBMPK_SRC} )

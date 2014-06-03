@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <syslog.h>
 #include <yaml.h>
+#include <jansson.h>
 #include <memory.h>
 #include <string.h>
 #include "stringhelper.h"
@@ -652,6 +653,9 @@ return_error:
 
 mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
 {
+    /* TODO: JSON instead of yaml */
+
+
     FILE *f;
     yaml_parser_t parser;
     yaml_event_t event;
@@ -698,86 +702,6 @@ mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
 
     yaml_parser_delete(&parser);
     fclose(f);
-
-    return MPK_SUCCESS;
-}
-
-mpk_ret_t mapping_append_scalar_str(yaml_document_t *doc, int mapping,
-    const char *str1, const char *str2)
-{
-    int key, value;
-
-    if (!(key = yaml_document_add_scalar(doc, NULL,
-            (unsigned char *)str1, strlen(str1), YAML_PLAIN_SCALAR_STYLE)))
-        return MPK_FAILURE;
-
-    if (!(value = yaml_document_add_scalar(doc, NULL,
-            (unsigned char *)str2, strlen(str2),
-            YAML_SINGLE_QUOTED_SCALAR_STYLE)))
-        return MPK_FAILURE;
-
-    if (!yaml_document_append_mapping_pair(doc, mapping, key, value))
-        return MPK_FAILURE;
-
-    return MPK_SUCCESS;
-}
-
-mpk_ret_t mapping_append_scalar_int(yaml_document_t *doc, int mapping,
-    const char *tag, const int val)
-{
-    int key, value;
-    char tmp_str[12];
-
-    if (!(key = yaml_document_add_scalar(doc, NULL,
-            (unsigned char *)tag, strlen(tag), YAML_PLAIN_SCALAR_STYLE)))
-        return MPK_FAILURE;
-
-    snprintf(tmp_str, 12, "%d");
-    if (!(value = yaml_document_add_scalar(doc, NULL, tmp_str, strlen(tmp_str),
-            YAML_PLAIN_SCALAR_STYLE)))
-        return MPK_FAILURE;
-
-    if (!yaml_document_append_mapping_pair(doc, mapping, key, value))
-        return MPK_FAILURE;
-
-    return MPK_SUCCESS;
-}
-
-mpk_ret_t write_yaml_regions(yaml_document_t *doc, int map,
-    struct mpk_stringlist *regions)
-{
-    int key, sequence, ret, item;
-    struct mpk_stringlist_item *str = NULL;
-
-    if (!regions)
-        return MPK_FAILURE;
-
-    key = yaml_document_add_scalar(doc, NULL,
-        (unsigned char *)manifest_tag[MANIFEST_TAG_REGIONS].name,
-        strlen(manifest_tag[MANIFEST_TAG_REGIONS].name),
-        YAML_PLAIN_SCALAR_STYLE);
-    if (!key)
-        return MPK_FAILURE;
-
-    sequence = yaml_document_add_sequence(doc, NULL, YAML_FLOW_SEQUENCE_STYLE);
-    if (!sequence)
-        return MPK_FAILURE;
-
-    ret = yaml_document_append_mapping_pair(doc, map, key, sequence);
-    if (!ret)
-        return MPK_FAILURE;
-
-    for (str = regions->lh_first; str; str = str->items.le_next) {
-        item = yaml_document_add_scalar(doc, NULL,
-            (unsigned char *)str->str, strlen(str->str),
-                YAML_PLAIN_SCALAR_STYLE);
-        if (!item)
-            return MPK_FAILURE;
-
-        ret = yaml_document_append_sequence_item(doc, sequence, item);
-        if (!ret)
-            return MPK_FAILURE;
-    }
 
     return MPK_SUCCESS;
 }
@@ -890,162 +814,253 @@ mpk_ret_t write_yaml_pkgreflist(yaml_document_t *doc, int map, const char *tag,
     return MPK_SUCCESS;
 }
 
-mpk_ret_t write_yaml_filelist(yaml_document_t *doc, int map, const char *tag,
-    struct mpk_filelist *files)
-{
-    int key, mapping, ret;
-    struct mpk_file *file =  NULL;
-    char tmp_str[MPK_FILEHASH_SIZE * 2 + 1];
-
-    if (!files)
-        return MPK_FAILURE;
-
-    key = yaml_document_add_scalar(doc, NULL, (unsigned char *)tag,
-        strlen(tag), YAML_PLAIN_SCALAR_STYLE);
-    if (!key)
-        return MPK_FAILURE;
-
-    mapping = yaml_document_add_mapping(doc, NULL, YAML_BLOCK_MAPPING_STYLE);
-    if (!mapping)
-        return MPK_FAILURE;
-
-    if (!yaml_document_append_mapping_pair(doc, map, key, mapping))
-        return MPK_FAILURE;
-
-    for (file = files->lh_first; file; file = file->items.le_next) {
-        int filename_item, hash_item;
-
-        filename_item = yaml_document_add_scalar(doc, NULL,
-            (unsigned char *)file->name, strlen(file->name),
-                YAML_PLAIN_SCALAR_STYLE);
-        if (!filename_item)
-            return MPK_FAILURE;
-
-        if (!mpk_file_hash_serialize(tmp_str, file))
-            return MPK_FAILURE;
-
-        hash_item = yaml_document_add_scalar(doc, NULL,
-            (unsigned char *)tmp_str, strlen(tmp_str),
-                YAML_PLAIN_SCALAR_STYLE);
-        if (!hash_item)
-            return MPK_FAILURE;
-
-        if (!yaml_document_append_mapping_pair(doc, mapping, filename_item,
-                hash_item))
-            return MPK_FAILURE;
-    }
-
-    return MPK_SUCCESS;
-}
-
 mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
 {
-    FILE *f;
-    yaml_emitter_t emitter;
-    yaml_event_t event;
-    yaml_document_t document;
-    struct mpk_stringlist_item *str;
-    int mapping, key, value, sequence, item;
-    int len;
+    json_t *root;
+    struct mpk_pkgreflist_item *p;
     char tmp_str[TMP_STR_BUFFER_SIZE];
+    int len;
 
-    if (!yaml_document_initialize(&document, NULL, NULL, NULL, 0, 0))
-        goto err0;
+    root = json_object();
 
-    if (!(mapping = yaml_document_add_mapping(&document, NULL,
-            YAML_BLOCK_MAPPING_STYLE)))
-        goto err1;
-
-    /* manifest */
+     /* manifest */
     if (mpk_version_serialize(tmp_str, &len, TMP_STR_BUFFER_SIZE - 1,
-            &pkg->manifest) != MPK_SUCCESS)
-        goto err1;
-    if (len >= TMP_STR_BUFFER_SIZE)
-        goto err1;
+            &pkg->manifest) != MPK_SUCCESS) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    if (len >= TMP_STR_BUFFER_SIZE) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
     tmp_str[len] = 0;
-    if (!mapping_append_scalar_str(&document, mapping, "manifest", tmp_str))
-        goto err1;
+    if (json_object_set_new(root, "manifest", json_string(tmp_str)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
 
     /* name */
-    if (!mapping_append_scalar_str(&document, mapping, "name", pkg->name))
-        goto err1;
+    if (json_object_set_new(root, "name", json_string(pkg->name)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
 
     /* version */
     if (mpk_version_serialize(tmp_str, &len, TMP_STR_BUFFER_SIZE - 1,
-            &pkg->version) != MPK_SUCCESS)
-        goto err1;
-    if (len >= TMP_STR_BUFFER_SIZE)
-        goto err1;
+            &pkg->version) != MPK_SUCCESS) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    if (len >= TMP_STR_BUFFER_SIZE) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
     tmp_str[len] = 0;
-    if (!mapping_append_scalar_str(&document, mapping, "version", tmp_str))
-        goto err1;
-
-    /* regions */
-    if ((write_yaml_regions(&document, mapping, &pkg->regions) != MPK_SUCCESS))
-        goto err1;
+    if (json_object_set_new(root, "version", json_string(tmp_str)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
 
     /* depends */
-    if (!(write_yaml_pkgreflist(&document, mapping, "depends", &pkg->depends)))
-        goto err1;
+    json_t *depends_array = json_array();
+    if (!depends_array) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    for (p = pkg->depends.lh_first; p; p = p->items.le_next) {
+        json_t *depends_item = json_object();
+        if (!depends_item) {
+            json_decref(depends_array);
+            return MPK_FAILURE;
+        }
+        if (json_object_set_new(depends_item, "name",
+                json_string(p->pkgref->name)) != 0) {
+            json_decref(depends_item);
+            json_decref(depends_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (mpk_version_serialize(tmp_str, &len, TMP_STR_BUFFER_SIZE - 1,
+                &p->pkgref->ver) != MPK_SUCCESS) {
+            json_decref(depends_item);
+            json_decref(depends_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (len >= TMP_STR_BUFFER_SIZE) {
+            json_decref(depends_item);
+            json_decref(depends_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        tmp_str[len] = 0;
+        if (json_object_set_new(depends_item, "version",
+                json_string(tmp_str)) != 0) {
+            json_decref(depends_item);
+            json_decref(depends_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (json_array_append(depends_array, depends_item) != 0) {
+            json_decref(depends_item);
+            json_decref(depends_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        json_decref(depends_item);
+    }
+    if (json_object_set(root, "depends", depends_array) != 0) {
+        json_decref(depends_array);
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    json_decref(depends_array);
 
     /* conflicts */
-    if (!(write_yaml_pkgreflist(&document, mapping, "conflicts",
-            &pkg->conflicts)))
-        goto err1;
+    json_t *conflicts_array = json_array();
+    if (!conflicts_array) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    for (p = pkg->conflicts.lh_first; p; p = p->items.le_next) {
+        json_t *conflicts_item = json_object();
+        if (!conflicts_item) {
+            json_decref(conflicts_array);
+            return MPK_FAILURE;
+        }
+        if (json_object_set_new(conflicts_item, "name",
+                json_string(p->pkgref->name)) != 0) {
+            json_decref(conflicts_item);
+            json_decref(conflicts_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (mpk_version_serialize(tmp_str, &len, TMP_STR_BUFFER_SIZE - 1,
+                &p->pkgref->ver) != MPK_SUCCESS) {
+            json_decref(conflicts_item);
+            json_decref(conflicts_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (len >= TMP_STR_BUFFER_SIZE) {
+            json_decref(conflicts_item);
+            json_decref(conflicts_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        tmp_str[len] = 0;
+        if (json_object_set_new(conflicts_item, "version",
+                json_string(tmp_str)) != 0) {
+            json_decref(conflicts_item);
+            json_decref(conflicts_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (json_array_append(conflicts_array, conflicts_item) != 0) {
+            json_decref(conflicts_item);
+            json_decref(conflicts_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        json_decref(conflicts_item);
+    }
+    if (json_object_set(root, "conflicts", conflicts_array) != 0) {
+        json_decref(conflicts_array);
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    json_decref(conflicts_array);
 
     /* priority */
-    if (!mapping_append_scalar_int( &document, mapping, "priority",
-            pkg->priority))
-        goto err1;
+    if (json_object_set_new(root, "priority", json_integer(100)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
 
     /* source */
-    if (!mapping_append_scalar_str(&document, mapping, "source", pkg->source))
-        goto err1;
+    if (json_object_set_new(root, "source", json_string(pkg->source)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
 
     /* vendor */
-    if (!mapping_append_scalar_str(&document, mapping, "vendor", pkg->vendor))
-        goto err1;
+    if (json_object_set_new(root, "vendor", json_string(pkg->vendor)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
 
-    /* description */
-    if (!mapping_append_scalar_str(&document, mapping, "description",
-            pkg->description))
-        goto err1;
+    /* desciption */
+    if (json_object_set_new(root, "description",
+            json_string(pkg->description)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+
+    /* maintainer */
+    if (json_object_set_new(root, "maintainer",
+            json_string(pkg->maintainer)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
 
     /* license */
-    if (!mapping_append_scalar_str(&document, mapping, "license", pkg->license))
-        goto err1;
-
-    /* list of files */
-    if (!write_yaml_filelist(&document, mapping, "files", &pkg->files))
-        goto err1;
-
-
-    if (!(f = fopen(filename, "w"))) {
-        syslog(LOG_ERR, "Could not open or create target file (%s).", filename);
-        yaml_document_delete(&document);
+    if (json_object_set_new(root, "license", json_string(pkg->license)) != 0) {
+        json_decref(root);
         return MPK_FAILURE;
     }
 
-    if (!yaml_emitter_initialize(&emitter)) {
-        syslog(LOG_ERR, "Could not initialize yaml emitter.");
-        yaml_document_delete(&document);
-        fclose(f);
+    /* files */
+    struct mpk_file *f;
+    json_t *files_array = json_array();
+    if (!files_array) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    for (f = pkg->files.lh_first; f; f = f->items.le_next) {
+        json_t *files_item = json_object();
+        if (!files_item) {
+            json_decref(files_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (json_object_set_new(files_item, "name", json_string(f->name))
+                != 0) {
+            json_decref(files_item);
+            json_decref(files_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (json_object_set_new(files_item, "hash", json_string("-")) != 0) {
+            json_decref(files_item);
+            json_decref(files_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (json_array_append(files_array, files_item) != 0) {
+            json_decref(files_item);
+            json_decref(files_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        json_decref(files_item);
+    }
+    if (json_object_set(root, "files", files_array) != 0) {
+        json_decref(files_array);
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    json_decref(files_array);
+
+    /* signature */
+    if (json_object_set_new(root, "signature", json_string("-")) != 0) {
+        json_decref(root);
         return MPK_FAILURE;
     }
 
-    yaml_emitter_set_break(&emitter, YAML_LN_BREAK);
-    yaml_emitter_set_unicode(&emitter, 1);
-    yaml_emitter_set_output_file(&emitter, f);
-    yaml_emitter_open(&emitter);
-    yaml_emitter_dump(&emitter, &document);
-    yaml_emitter_close(&emitter);
-    yaml_emitter_delete(&emitter);
-    yaml_document_delete(&document);
-    fclose(f);
+    if (json_dump_file(root, filename, JSON_INDENT(4)|JSON_PRESERVE_ORDER) != 0)
+        return MPK_FAILURE;
+
+    json_decref(root);
 
     return MPK_SUCCESS;
-err1:
-    yaml_document_delete(&document);
-err0:
-    return MPK_FAILURE;
 }
