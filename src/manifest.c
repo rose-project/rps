@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
-#include <yaml.h>
 #include <jansson.h>
 #include <memory.h>
 #include <string.h>
@@ -68,6 +67,7 @@ enum PARSE_EVENT {
 
 
 enum MANIFEST_TAG {
+    MANIFEST_TAG_UNDEFINED = -1,
     MANIFEST_TAG_MANIFEST = 0,
     MANIFEST_TAG_NAME,
     MANIFEST_TAG_VERSION,
@@ -107,6 +107,20 @@ static struct manifest_tag {
     { "signature" }
 };
 
+/**
+ * @brief manifest_tag_id determines the MANIFEST_TAG enum value from string
+ * @param str the manifest tag a a null terminated string
+ * @return tag id fromMANIFEST_TA  or MANIFEST_TAG_UNDEFINED in case of an error
+ */
+enum MANIFEST_TAG manifest_tag_id(const char *tag)
+{
+    for (int i = 0; i < MANIFEST_TAG_COUNT; i++) {
+        if (strcmp(manifest_tag[i].name, tag) == 0)
+            return i;
+    }
+    return MANIFEST_TAG_UNDEFINED;
+}
+
 mpk_ret_t mpk_manifest_test()
 {
     return MPK_SUCCESS;
@@ -125,48 +139,6 @@ enum MANIFEST_TAG get_tag_from_name(const char *tag)
     return -1;
 }
 
-
-enum PARSE_STATE eval_new_tag(char *token)
-{
-    enum MANIFEST_TAG tag = get_tag_from_name(token);
-
-    switch (tag) {
-    case MANIFEST_TAG_MANIFEST:
-        return PARSE_STATE_MANIFEST;
-    case MANIFEST_TAG_NAME:
-        return PARSE_STATE_NAME;
-    case MANIFEST_TAG_VERSION:
-        return PARSE_STATE_VERSION;
-    case MANIFEST_TAG_ARCH:
-        return PARSE_STATE_ARCH;
-    case MANIFEST_TAG_REGIONS:
-        return PARSE_STATE_REGIONS;
-    case MANIFEST_TAG_DEPENDS:
-        return PARSE_STATE_DEPENDS;
-    case MANIFEST_TAG_CONFLICTS:
-        return PARSE_STATE_CONFLICTS;
-    case MANIFEST_TAG_PRIORITY:
-        return PARSE_STATE_PRIORITY;
-    case MANIFEST_TAG_SOURCE:
-        return PARSE_STATE_SOURCE;
-    case MANIFEST_TAG_VENDOR:
-        return PARSE_STATE_VENDOR;
-    case MANIFEST_TAG_DESCRIPTION:
-        return PARSE_STATE_DESCRIPTION;
-    case MANIFEST_TAG_MAINTAINER:
-        return PARSE_STATE_MAINTAINER;
-    case MANIFEST_TAG_LICENSE:
-        return PARSE_STATE_LICENSE;
-    case MANIFEST_TAG_FILES:
-        return PARSE_STATE_FILES;
-    case MANIFEST_TAG_SIGNATURE:
-        return PARSE_STATE_SIGNATURE;
-    default:
-        return PARSE_STATE_ERROR;
-    }
-}
-
-
 char *allocate_and_copy_str(const char *str)
 {
     char *dest;
@@ -179,529 +151,146 @@ char *allocate_and_copy_str(const char *str)
     return dest;
 }
 
-
-enum PARSE_STATE eval_input(struct mpk_pkginfo *pkg, enum PARSE_STATE state,
-    yaml_event_t event)
+int parse_version(struct mpk_version *version, json_t *in)
 {
-    static struct mpk_pkgref *tmp_pkgref = NULL;
-    static char *tmp_str = NULL;
-    static struct mpk_file *tmp_file = NULL;
-
-    /* TODO: move parsing of different types of lists (pkgref list, file lists)
-     * to separate funktions and reuuse them if possible.
-     */
-
-    switch (state) {
-    case PARSE_STATE_START:
-        switch (event.type) {
-        case YAML_STREAM_START_EVENT:
-            return PARSE_STATE_START_STREAM;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_START_STREAM:
-        switch (event.type) {
-        case YAML_DOCUMENT_START_EVENT:
-            return PARSE_STATE_START_DOC;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_START_DOC:
-        switch (event.type) {
-        case YAML_MAPPING_START_EVENT:
-            return PARSE_STATE_START_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_START_MFST:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            return eval_new_tag((char *)event.data.scalar.value);
-        case YAML_MAPPING_END_EVENT:
-            return PARSE_STATE_END_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_END_MFST:
-        switch (event.type) {
-        case YAML_DOCUMENT_END_EVENT:
-            return PARSE_STATE_END_DOC;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_END_DOC:
-        switch (event.type) {
-        case YAML_STREAM_END_EVENT:
-            return PARSE_STATE_END;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_MANIFEST:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            /* set pkg->manifest */
-            if (mpk_version_deserialize(&pkg->manifest, NULL,
-                    (char *)event.data.scalar.value,
-                    strlen((char *)event.data.scalar.value))
-                    != MPK_SUCCESS) {
-                return PARSE_STATE_ERROR;
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_NAME:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if(!(pkg->name = allocate_and_copy_str(
-                     (char *)event.data.scalar.value))) {
-                return PARSE_STATE_ERROR;
-            }
-            return PARSE_STATE_START_MFST;
-            break;
-        default:
-            return PARSE_STATE_ERROR;
-            break;
-        }
-    case PARSE_STATE_VERSION:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (mpk_version_deserialize(&pkg->version, NULL,
-                    (char *)event.data.scalar.value,
-                    strlen((char *)event.data.scalar.value))
-                    != MPK_SUCCESS) {
-                return PARSE_STATE_ERROR;
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_ARCH:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            /* set pkg->arch */
-            if (mpk_pkginfo_arch_deserialize(&pkg->arch,
-                    (char *)event.data.scalar.value) != MPK_SUCCESS) {
-                return PARSE_STATE_ERROR;
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_REGIONS:
-        /* FIXME: what about an empty region list? */
-        switch (event.type) {
-        case YAML_SEQUENCE_START_EVENT:
-            return PARSE_STATE_REGIONS_LIST;
-        case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-            break;
-        }
-    case PARSE_STATE_REGIONS_LIST:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            /* add new region to list */
-            if (mpk_stringlist_add(&pkg->regions,
-                    (char *)event.data.scalar.value) != MPK_SUCCESS) {
-                return PARSE_STATE_ERROR;
-            }
-            return PARSE_STATE_REGIONS_LIST;
-        case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_DEPENDS:
-        /* FIXME: Empty list? */
-        switch (event.type) {
-        case YAML_SEQUENCE_START_EVENT:
-            return PARSE_STATE_DEPENDS_LIST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_DEPENDS_LIST:
-        switch (event.type) {
-        case YAML_MAPPING_START_EVENT:
-            if (!(tmp_pkgref = malloc(sizeof(struct mpk_pkgref)))) {
-                return PARSE_STATE_ERROR;
-            }
-            mpk_pkgref_initempty(tmp_pkgref);
-            return PARSE_STATE_DEPENDS_LISTITEM;
-        case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_DEPENDS_LISTITEM:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!strcmp((char *)event.data.scalar.value, "name")) {
-                return PARSE_STATE_DEPENDS_NAME;
-            } else if (!strcmp((char *)event.data.scalar.value, "version")) {
-                return PARSE_STATE_DEPENDS_VERSION;
-            } else if (!strcmp((char *)event.data.scalar.value, "op")) {
-                return PARSE_STATE_DEPENDS_OPERATOR;
-            } else {
-                goto return_error;
-            }
-        case YAML_MAPPING_END_EVENT:
-            if (!tmp_pkgref || !tmp_str) {
-                goto return_error;
-            }
-            tmp_pkgref->name = tmp_str;
-            if (mpk_pkgreflist_add(&pkg->depends, tmp_pkgref) != MPK_SUCCESS) {
-                goto return_error;
-            }
-            tmp_pkgref = NULL;
-            tmp_str = NULL;
-            return PARSE_STATE_DEPENDS_LIST;
-        default:
-            goto return_error;
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_DEPENDS_NAME:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (tmp_str) { /* check if name has been set before -> error */
-                goto return_error;
-                return PARSE_STATE_ERROR;
-            }
-            if(!(tmp_str = allocate_and_copy_str(
-                     (char *)event.data.scalar.value))) {
-                goto return_error;
-            }
-            return PARSE_STATE_DEPENDS_LISTITEM;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_DEPENDS_VERSION:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (mpk_version_deserialize(&tmp_pkgref->ver, NULL,
-                    (char *)event.data.scalar.value,
-                    strlen((char *)event.data.scalar.value))
-                    != MPK_SUCCESS) {
-                goto return_error;
-            }
-            return PARSE_STATE_DEPENDS_LISTITEM;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_DEPENDS_OPERATOR:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (mpk_version_operator_deserialize(&tmp_pkgref->op, 0,
-                    (char *)event.data.scalar.value,
-                    strlen((char *)event.data.scalar.value))
-                    != MPK_SUCCESS) {
-                goto return_error;
-            }
-            return PARSE_STATE_DEPENDS_LISTITEM;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_CONFLICTS:
-        switch (event.type) {
-        case YAML_SEQUENCE_START_EVENT:
-            return PARSE_STATE_CONFLICTS_LIST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-        break;
-    case PARSE_STATE_CONFLICTS_LIST:
-        switch (event.type) {
-        case YAML_MAPPING_START_EVENT:
-            if (!(tmp_pkgref = malloc(sizeof(struct mpk_pkgref)))) {
-                return PARSE_STATE_ERROR;
-            }
-            mpk_pkgref_initempty(tmp_pkgref);
-            return PARSE_STATE_CONFLICTS_LISTITEM;
-        case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START_MFST;
-        default:
-            return PARSE_STATE_ERROR;
-        }
-        break;
-    case PARSE_STATE_CONFLICTS_LISTITEM:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!strcmp((char *)event.data.scalar.value, "name")) {
-                return PARSE_STATE_CONFLICTS_NAME;
-            } else if (!strcmp((char *)event.data.scalar.value, "version")) {
-                return PARSE_STATE_CONFLICTS_VERSION;
-            } else if (!strcmp((char *)event.data.scalar.value, "op")) {
-                return PARSE_STATE_CONFLICTS_OPERATOR;
-            } else {
-                goto return_error;
-            }
-        case YAML_MAPPING_END_EVENT:
-            if (!tmp_pkgref || !tmp_str) {
-                goto return_error;
-            }
-            tmp_pkgref->name = tmp_str;
-            if (mpk_pkgreflist_add(&pkg->conflicts, tmp_pkgref)
-                    != MPK_SUCCESS) {
-                goto return_error;
-            }
-            tmp_pkgref = NULL;
-            tmp_str = NULL;
-            return PARSE_STATE_CONFLICTS_LIST;
-        default:
-            goto return_error;
-            return PARSE_STATE_ERROR;
-        }
-    case PARSE_STATE_CONFLICTS_NAME:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (tmp_str) {
-                goto return_error;
-                return PARSE_STATE_ERROR;
-            }
-            if(!(tmp_str = allocate_and_copy_str(
-                     (char *)event.data.scalar.value))) {
-                goto return_error;
-            }
-            return PARSE_STATE_CONFLICTS_LISTITEM;
-        default:
-            goto return_error;
-        }
-        break;
-    case PARSE_STATE_CONFLICTS_VERSION:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (mpk_version_deserialize(&tmp_pkgref->ver, NULL,
-                    (char *)event.data.scalar.value,
-                    strlen((char *)event.data.scalar.value))
-                    != MPK_SUCCESS) {
-                goto return_error;
-            }
-            return PARSE_STATE_CONFLICTS_LISTITEM;
-        default:
-            goto return_error;
-        }
-        break;
-    case PARSE_STATE_CONFLICTS_OPERATOR:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (mpk_version_operator_deserialize(&tmp_pkgref->op, 0,
-                    (char *)event.data.scalar.value,
-                    strlen((char *)event.data.scalar.value))
-                    != MPK_SUCCESS) {
-                goto return_error;
-            }
-            return PARSE_STATE_CONFLICTS_LISTITEM;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_PRIORITY:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            pkg->priority = atoi((char *)event.data.scalar.value);
-            return PARSE_STATE_START_MFST;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_SOURCE:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!(pkg->source
-                    = allocate_and_copy_str((char *)event.data.scalar.value))) {
-                goto return_error;
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_VENDOR:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!(pkg->vendor
-                    = allocate_and_copy_str((char *)event.data.scalar.value))) {
-                goto return_error;
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_DESCRIPTION:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!(pkg->description
-                    = allocate_and_copy_str((char *)event.data.scalar.value))) {
-                goto return_error;
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_MAINTAINER:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!(pkg->maintainer
-                    = allocate_and_copy_str((char *)event.data.scalar.value))) {
-                goto return_error;
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_LICENSE:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!(pkg->license
-                    = allocate_and_copy_str((char *)event.data.scalar.value))) {
-                goto return_error;
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_FILES:
-        switch (event.type) {
-        case YAML_SEQUENCE_START_EVENT:
-            return PARSE_STATE_FILE_LIST;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_FILE_LIST:
-        switch (event.type) {
-        case YAML_SEQUENCE_END_EVENT:
-            return PARSE_STATE_START_MFST;
-        case YAML_MAPPING_START_EVENT:
-            if (tmp_file || !(tmp_file = mpk_file_create()))
-                goto return_error;
-            return PARSE_STATE_FILE_LISTITEM_NAME;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_FILE_LISTITEM_NAME:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!tmp_file || !(tmp_file->name
-                    = allocate_and_copy_str((char *)event.data.scalar.value))) {
-                goto return_error;
-            }
-            return PARSE_STATE_FILE_LISTITEM_HASH;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_FILE_LISTITEM_HASH:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (!tmp_file) {
-                goto return_error;
-            }
-            if (*(char *)event.data.scalar.value == '-') {
-                memset(tmp_file->hash, 0, sizeof(tmp_file->hash));
-            } else {
-                if (mpk_pkginfo_signature_deserialize(tmp_file->hash,
-                        (char *)event.data.scalar.value)
-                        != MPK_SUCCESS) {
-                    goto return_error;
-                }
-            }
-            return PARSE_STATE_FILE_LISTITEM_END;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_FILE_LISTITEM_END:
-        switch (event.type) {
-        case YAML_MAPPING_END_EVENT:
-            if (!tmp_file) {
-                goto return_error;
-            }
-            if (mpk_filelist_add(&pkg->files, tmp_file) != MPK_SUCCESS) {
-                goto return_error;
-            }
-            tmp_file = NULL;
-            return PARSE_STATE_FILE_LIST;
-        default:
-            goto return_error;
-        }
-    case PARSE_STATE_SIGNATURE:
-        switch (event.type) {
-        case YAML_SCALAR_EVENT:
-            if (*((char *)event.data.scalar.value) == '-') {
-                memset(pkg->signature, 0, sizeof(pkg->signature));
-            } else {
-                if (read_hexstr(pkg->signature,  sizeof(pkg->signature),
-                        (char *)event.data.scalar.value) != MPK_SUCCESS) {
-                    goto return_error;
-                }
-            }
-            return PARSE_STATE_START_MFST;
-        default:
-            goto return_error;
-        }
-    default:
-        syslog(LOG_ERR, "invalid parser state");
-        return PARSE_STATE_ERROR;
-    }
-
-return_error:
-    if (tmp_file)
-        mpk_file_delete(&tmp_file);
-    if (tmp_str)
-        free(tmp_str);
-    if (tmp_pkgref)
-        free(tmp_pkgref);
-    return PARSE_STATE_ERROR;
+    const char *str = json_string_value(in);
+    return mpk_version_deserialize(version, NULL, str, strlen(str));
 }
 
+int parse_string(const char **str, json_t *in)
+{
+    const char *in_str = json_string_value(in);
+    if (!in_str) {
+        return MPK_FAILURE;
+    }
+    *str = allocate_and_copy_str(in_str);
+    return MPK_SUCCESS;
+}
+
+int parse_stringlist(struct mpk_stringlist *strl, json_t *in)
+{
+    if (!in || json_typeof(in) != JSON_ARRAY)
+        return MPK_FAILURE;
+
+    int i;
+    json_t *value;
+    json_array_foreach(in, i, value) {
+        const char *str = json_string_value(value);
+        if (mpk_stringlist_add(strl, str) != MPK_SUCCESS) {
+            mpk_stringlist_delete(strl);
+        }
+    }
+
+    return MPK_SUCCESS;
+}
+
+int parse_pkgreflist(struct mpk_pkgreflist *pkgs, json_t *in)
+{
+    if (!in || json_typeof(in) != JSON_ARRAY)
+        return MPK_FAILURE;
+
+    int i;
+    json_t *val1;
+    json_array_foreach(in, i, val1) {
+        char *key;
+        json_t *val2;
+        if (!val1 || json_typeof(in) != JSON_OBJECT) {
+            mpk_pkgreflist_delete(pkgs);
+            return MPK_FAILURE;
+        }
+        json_object_foreach(val1, key, val2) {
+            if (strcmp(key, "name") == 0) {
+                /* TODO */
+            } else if (strcmp(key, "name") == 0) {
+                /* TODO */
+            } else {
+                /* TODO */
+            }
+        }
+        /* TODO */
+    }
+
+    return MPK_SUCCESS;
+}
+
+int parse_int(int *i, json_t *in)
+{
+    *i = json_integer_value(in);
+    return MPK_SUCCESS;
+}
+
+int parse_filelist(struct mpk_filelist *files, json_t *in)
+{
+    /* TODO */
+}
+
+int parse_hexstring(unsigned char hex[], int blen, json_t *in)
+{
+    const char *hexstr = json_string_value(in);
+    if (!hexstr)
+        return MPK_FAILURE;
+
+    return read_hexstr(hex, blen, hexstr);
+}
+
+int handle_manifest_tag(struct mpk_pkginfo *pkg, char *tag, json_t *value)
+{
+    enum MANIFEST_TAG tag_id = manifest_tag_id(tag);
+    if (tag_id == MANIFEST_TAG_UNDEFINED)
+        return MPK_FAILURE;
+
+    switch (tag_id) {
+    case MANIFEST_TAG_MANIFEST:
+        return parse_version(&pkg->manifest, value);
+    case MANIFEST_TAG_NAME:
+        return parse_string(&pkg->name, value);
+    case MANIFEST_TAG_VERSION:
+        return parse_version(&pkg->version, value);
+    case MANIFEST_TAG_ARCH:
+        return parse_string(&pkg->arch, value);
+    case MANIFEST_TAG_REGIONS:
+        return parse_stringlist(&pkg->regions, value);
+    case MANIFEST_TAG_DEPENDS:
+        return parse_pkgreflist(&pkg->depends, value);
+    case MANIFEST_TAG_CONFLICTS:
+        return parse_pkgreflist(&pkg->conflicts, value);
+    case MANIFEST_TAG_PRIORITY:
+        return parse_int(&pkg->priority, value);
+    case MANIFEST_TAG_SOURCE:
+        return parse_string(&pkg->source, value);
+    case MANIFEST_TAG_VENDOR:
+        return parse_string(&pkg->vendor, value);
+    case MANIFEST_TAG_DESCRIPTION:
+        return parse_string(&pkg->description, value);
+    case MANIFEST_TAG_MAINTAINER:
+        return parse_string(&pkg->maintainer, value);
+    case MANIFEST_TAG_LICENSE:
+        return parse_string(&pkg->license, value);
+    case MANIFEST_TAG_FILES:
+        return parse_string(&pkg->files, value);
+    case MANIFEST_TAG_SIGNATURE:
+        return parse_string(&pkg->signature, value);
+    default:
+        return MPK_FAILURE;
+    }
+}
 
 mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
 {
     /* TODO: JSON instead of yaml */
 
-
-    FILE *f;
-    yaml_parser_t parser;
-    yaml_event_t event;
-    int done = 0;
-    enum PARSE_STATE state = PARSE_STATE_START;
-
-    if (!(f = fopen(filename, "r"))) {
-        syslog(LOG_ERR, "could not open manifest file (%s)", filename);
+    json_t *root = json_load_file(filename, 0, NULL);
+    if (!root)
         return MPK_FAILURE;
+
+    void *iter = json_object_iter(root);
+    char *key;
+    json_t *value;
+    json_object_foreach(root, key, value) {
+        handle_manifest_tag(pkginfo, key, value);
     }
 
-    if (!yaml_parser_initialize(&parser)) {
-        syslog(LOG_ERR, "could not initialize yaml parser");
-        fclose(f);
-        return MPK_FAILURE;
-    }
-
-    yaml_parser_set_input_file(&parser, f);
-
-    /* parse file */
-
-    while (!done) {
-        if (!yaml_parser_parse(&parser, &event)) {
-            syslog(LOG_ERR, "error while parsing manifest file");
-            yaml_parser_delete(&parser);
-            fclose(f);
-            return MPK_FAILURE;
-        }
-
-        state = eval_input(pkginfo, state, event);
-
-        if (state == PARSE_STATE_ERROR) {
-            syslog(LOG_ERR, "error while parsing manifest file");
-            yaml_event_delete(&event);
-            fclose(f);
-            mpk_pkginfo_delete(pkginfo);
-            return MPK_FAILURE;
-        } else if (state == PARSE_STATE_END) {
-            done = 1;
-        }
-
-        yaml_event_delete(&event);
-    }
-
-    yaml_parser_delete(&parser);
-    fclose(f);
+    json_decref(root);
 
     return MPK_SUCCESS;
 }
@@ -752,6 +341,12 @@ mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
         json_decref(root);
         return MPK_FAILURE;
     }
+
+    /* architecture */
+    /* TODO */
+
+    /* regions */
+    /* TODO */
 
     /* depends */
     json_t *depends_array = json_array();

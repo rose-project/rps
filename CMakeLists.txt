@@ -29,7 +29,6 @@ set(LIBMPK_LIBS
     tar
     ssl
     crypto
-    yaml
     jsmn
     jansson
 )

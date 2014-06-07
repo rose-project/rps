@@ -45,7 +45,7 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
     char manifest_fpath[MPK_PATH_MAX];
     struct stat sb;
 
-    sprintf(manifest_tmpl_fpath, "%s/manifest.txt.tmpl", src_dir);
+    sprintf(manifest_tmpl_fpath, "%s/manifest-tmpl.json", src_dir);
 
     if (stat(manifest_tmpl_fpath, &sb) == -1) {
         syslog(LOG_ERR, "cannot find manifest template: %s",
