@@ -162,7 +162,7 @@ mpk_ret_t mpk_version_serialize(char *dst, int *written, int len,
     if (v->buildid != MPK_VERSION_BUILDID_UNFEDINED) {
         if (len < MPK_VERSION_BUILDID_SIZE)
             return MPK_FAILURE;
-        n = snprintf(dst, MPK_VERSION_BUILDID_SIZE, "%0*lld",
+        n = snprintf(dst, MPK_VERSION_BUILDID_SIZE + 1, "%.*lld",
             MPK_VERSION_BUILDID_SIZE, v->buildid);
         w += n;
         dst += n;
@@ -258,10 +258,6 @@ mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
                     break; /* just a whitespaces in front */
                 } else {
                     v->major = atoi(buf);
-                    v->minor = 0;
-                    v->patch = 0;
-                    v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-                    v->buildid = 0;
                     if (len)
                         *len = c;
                     return MPK_SUCCESS;
@@ -269,22 +265,16 @@ mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
                 break;
             case 1:
                 v->minor = (n == 0) ? 0 : atoi(buf);
-                v->patch = 0;
-                v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-                v->buildid = 0;
                 if (len)
                     *len = c;
                 return MPK_SUCCESS;
             case 2:
                 v->patch = (n == 0) ? 0 : atoi(buf);
-                v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-                v->buildid = 0;
                 if (len)
                     *len = c;
                 return MPK_SUCCESS;
             case 3:
                 v->buildtype = type;
-                v->buildid = 0;
                 if (len)
                     *len = c;
                 return MPK_SUCCESS;
@@ -305,31 +295,21 @@ mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
                     return MPK_FAILURE;
                 } else {
                     v->major = atoi(buf);
-                    v->minor = 0;
-                    v->patch = 0;
-                    v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-                    v->buildid = 0;
                 }
                 *len = c;
                 return MPK_SUCCESS;
             case 1:
                 v->minor = (n == 0) ? 0 : atoi(buf);
-                v->patch = 0;
-                v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-                v->buildid = 0;
                 if (len)
                     *len = c;
                 return MPK_SUCCESS;
             case 2:
                 v->patch = (n == 0) ? 0 : atoi(buf);
-                v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-                v->buildid = 0;
                 if (len)
                     *len = c;
                 return MPK_SUCCESS;
             case 3:
                 v->buildtype = type;
-                v->buildid = 0;
                 if (len)
                     *len = c;
                 return MPK_SUCCESS;
@@ -356,36 +336,26 @@ mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
                 return MPK_FAILURE;
             } else {
                 v->major = atoi(buf);
-                v->minor = 0;
-                v->patch = 0;
-                v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-                v->buildid = 0;
             }
             *len = c;
             return MPK_SUCCESS;
         case 1:
             v->minor = (n == 0) ? 0 : atoi(buf);
-            v->patch = 0;
-            v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-            v->buildid = 0;
             if (len)
                 *len = c;
             return MPK_SUCCESS;
         case 2:
             v->patch = (n == 0) ? 0 : atoi(buf);
-            v->buildtype = MPK_VERSION_BUILDTYPE_UNKNOWN;
-            v->buildid = 0;
             if (len)
                 *len = c;
             return MPK_SUCCESS;
         case 3:
             v->buildtype = type;
-            v->buildid = 0;
             if (len)
                 *len = c;
             return MPK_SUCCESS;
         case 4:
-            v->buildid = (n == 0) ? 0 : atoi(buf);
+            v->buildid = (n == 0) ? 0 : atoll(buf);
             if (len)
                 *len = c;
             return MPK_SUCCESS;

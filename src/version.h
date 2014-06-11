@@ -38,11 +38,11 @@ struct mpk_version {
     int32_t minor;
     int32_t patch;
     enum MPK_VERSION_BUILDTYPE buildtype;
-    int64_t buildid; /* fixed length of 14 digits */
+    int64_t buildid; /* fixed length of 16 digits */
 };
 extern const struct mpk_version MPK_VERSION_DEFAULT;
 
-#define MPK_VERSION_BUILDID_SIZE 14
+#define MPK_VERSION_BUILDID_SIZE 16
 #define MPK_VERSION_BUILDID_UNFEDINED -1
 
 int mpk_version_isempty(struct mpk_version *v);
