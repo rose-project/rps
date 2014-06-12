@@ -17,19 +17,6 @@
     ptr = NULL;                         \
 }                                       \
 
-static const char *archname[] = {
-    "generic",
-    "x86",
-    "x86_64",
-    "PowerPC",
-    "armv5",
-    "armv6",
-    "armv6hf",
-    "armv7",
-    "armv7hf",
-    "armv8"
-};
-
 mpk_ret_t mpk_pkginfo_init(struct mpk_pkginfo *pkg)
 {
     if (!pkg) {
@@ -40,7 +27,7 @@ mpk_ret_t mpk_pkginfo_init(struct mpk_pkginfo *pkg)
     pkg->manifest = MPK_VERSION_DEFAULT;
     pkg->name = NULL;
     pkg->version = MPK_VERSION_DEFAULT;
-    pkg->arch = MPK_PKGINFO_ARCH_UNKNOWN;
+    pkg->arch = NULL;
     mpk_stringlist_init(&pkg->regions);
     mpk_pkgreflist_init(&pkg->depends);
     mpk_pkgreflist_init(&pkg->conflicts);
@@ -64,6 +51,7 @@ void mpk_pkginfo_delete(struct mpk_pkginfo *pkg)
     }
 
     CHECK_AND_FREE(pkg->name);
+    CHECK_AND_FREE(pkg->arch);
     mpk_stringlist_delete(&pkg->regions);
     mpk_pkgreflist_delete(&pkg->depends);
     mpk_pkgreflist_delete(&pkg->conflicts);
@@ -129,7 +117,7 @@ mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
     if (!EVP_SignUpdate(&ctx, &pkginf->version, sizeof(pkginf->version)))
         goto err3;
 
-    if (!EVP_SignUpdate(&ctx, &pkginf->arch, sizeof(pkginf->arch)))
+    if (!EVP_SignUpdate(&ctx, &pkginf->arch, strlen(pkginf->arch)))
         goto err3;
 
     if (!EVP_SignUpdate(&ctx, &pkginf->regions, sizeof(pkginf->regions)))
@@ -206,35 +194,6 @@ mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
         EVP_PKEY_free(private_key);
     err1:
         return MPK_FAILURE;
-}
-
-mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str)
-{
-    int i;
-
-    for (i = 0; i < MPK_PKGINFO_ARCH_COUNT; i++) {
-        if (!strcmp(str, archname[i])) {
-            *arch = i;
-            return MPK_SUCCESS;
-        }
-    }
-
-    return MPK_FAILURE;
-}
-
-mpk_ret_t mpk_pkginfo_arch_serialize(char *dst, int *written, int len,
-    enum MPK_PKGINFO_ARCH arch)
-{
-    int n;
-
-    if (!dst || arch < 0 || arch >= MPK_PKGINFO_ARCH_COUNT)
-        return MPK_FAILURE;
-
-    n = snprintf(dst, len, "%s", archname[arch]);
-    if (len)
-        *written = n;
-
-    return MPK_SUCCESS;
 }
 
 mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[],

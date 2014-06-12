@@ -15,24 +15,6 @@
 
 #define MPK_PKGINFO_SIGNATURE_LEN 256
 
-/*
- * has to be in sync with archname in pkginfo.c
- */
-enum MPK_PKGINFO_ARCH {
-    MPK_PKGINFO_ARCH_UNKNOWN = -1,
-    MPK_PKGINFO_ARCH_GENERIC = 0,
-    MPK_PKGINFO_ARCH_X86,
-    MPK_PKGINFO_ARCH_X86_64,
-    MPK_PKGINFO_ARCH_POWERPC,
-    MPK_PKGINFO_ARCH_ARMV5,
-    MPK_PKGINFO_ARCH_ARMV6,
-    MPK_PKGINFO_ARCH_ARMV6HF,
-    MPK_PKGINFO_ARCH_ARMV7,
-    MPK_PKGINFO_ARCH_ARMV7HF,
-    MPK_PKGINFO_ARCH_ARMV8,
-    MPK_PKGINFO_ARCH_COUNT
-};
-
 /**
  * @brief Contains all information about a single package.
  */
@@ -40,7 +22,7 @@ struct mpk_pkginfo {
     struct mpk_version manifest;
     char *name;                             /**< Package name */
     struct mpk_version version;             /**< version of the package */
-    enum MPK_PKGINFO_ARCH arch;             /**< the target architecure */
+    char *arch;                             /**< the target architecure */
     struct mpk_stringlist regions;
     struct mpk_pkgreflist depends;
     struct mpk_pkgreflist conflicts;
@@ -87,11 +69,6 @@ mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
  * @return MPK_SUCCESS or MPK_FAILURE
  */
 mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file);
-
-mpk_ret_t mpk_pkginfo_arch_deserialize(enum MPK_PKGINFO_ARCH *arch, char *str);
-
-mpk_ret_t mpk_pkginfo_arch_serialize(char *dst, int *written, int len,
-    enum MPK_PKGINFO_ARCH arch);
 
 mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[],
     char *src);

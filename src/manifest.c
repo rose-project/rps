@@ -13,59 +13,6 @@
 
 #define TMP_STR_BUFFER_SIZE 1024
 
-enum PARSE_STATE {
-    PARSE_STATE_ERROR = -1,
-    PARSE_STATE_START,
-    PARSE_STATE_START_DOC,
-    PARSE_STATE_START_STREAM,
-    PARSE_STATE_START_MFST,
-    PARSE_STATE_END_MFST,
-    PARSE_STATE_END_DOC,
-    PARSE_STATE_END,
-    PARSE_STATE_PARSING,
-    PARSE_STATE_MANIFEST,
-    PARSE_STATE_NAME,
-    PARSE_STATE_VERSION,
-    PARSE_STATE_ARCH,
-    PARSE_STATE_REGIONS,
-    PARSE_STATE_REGIONS_LIST,
-    PARSE_STATE_DEPENDS,
-    PARSE_STATE_DEPENDS_LIST,
-    PARSE_STATE_DEPENDS_LISTITEM,
-    PARSE_STATE_DEPENDS_NAME,
-    PARSE_STATE_DEPENDS_VERSION,
-    PARSE_STATE_DEPENDS_OPERATOR,
-    PARSE_STATE_CONFLICTS,
-    PARSE_STATE_CONFLICTS_LIST,
-    PARSE_STATE_CONFLICTS_LISTITEM,
-    PARSE_STATE_CONFLICTS_NAME,
-    PARSE_STATE_CONFLICTS_VERSION,
-    PARSE_STATE_CONFLICTS_OPERATOR,
-    PARSE_STATE_PRIORITY,
-    PARSE_STATE_SOURCE,
-    PARSE_STATE_VENDOR,
-    PARSE_STATE_DESCRIPTION,
-    PARSE_STATE_MAINTAINER,
-    PARSE_STATE_LICENSE,
-    PARSE_STATE_FILES,
-    PARSE_STATE_FILE_LIST,
-    PARSE_STATE_FILE_LISTITEM_NAME,
-    PARSE_STATE_FILE_LISTITEM_HASH,
-    PARSE_STATE_FILE_LISTITEM_END,
-    PARSE_STATE_SIGNATURE
-};
-
-
-enum PARSE_EVENT {
-    PARSE_EVENT_DEFAULT = 0,
-    PARSE_EVENT_TOKEN,
-    PASRE_EVENT_START_SEQUENCE,
-    PASRE_EVENT_END_SEQUENCE,
-    PASRE_EVENT_START_MAPPING,
-    PASRE_EVENT_END_MAPPING
-};
-
-
 enum MANIFEST_TAG {
     MANIFEST_TAG_UNDEFINED = -1,
     MANIFEST_TAG_MANIFEST = 0,
@@ -176,7 +123,7 @@ int parse_stringlist(struct mpk_stringlist *strl, json_t *in)
     json_t *value;
     json_array_foreach(in, i, value) {
         const char *str = json_string_value(value);
-        if (mpk_stringlist_add(strl, str) != MPK_SUCCESS) {
+        if (mpk_stringlist_addend(strl, str) != MPK_SUCCESS) {
             mpk_stringlist_delete(strl);
         }
     }
@@ -343,10 +290,33 @@ mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
     }
 
     /* architecture */
-    /* TODO */
+    if (json_object_set_new(root, "arch", json_string(pkg->arch)) != 0) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
 
     /* regions */
-    /* TODO */
+    struct mpk_stringlist_item *strl_it;
+    json_t *regions_array = json_array();
+    if (!regions_array) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    for (strl_it = pkg->regions.lh_first; strl_it;
+            strl_it = strl_it->items.le_next) {
+        if (json_array_append_new(regions_array, json_string(strl_it->str))
+                != 0) {
+            json_decref(regions_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+    }
+    if (json_object_set(root, "regions", regions_array) != 0) {
+        json_decref(regions_array);
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    json_decref(regions_array);
 
     /* depends */
     json_t *depends_array = json_array();
