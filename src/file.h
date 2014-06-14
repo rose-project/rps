@@ -13,11 +13,14 @@
 
 #define MPK_FILEHASH_SIZE SHA256_DIGEST_LENGTH
 
+/**
+ * @brief Metadata for a file in the package.
+ */
 struct mpk_file {
-    char *name;
-    unsigned char hash[MPK_FILEHASH_SIZE];
-    bool hash_is_set;
-    LIST_ENTRY(mpk_file) items;
+    char *name; /**< filepath on the target */
+    unsigned char hash[MPK_FILEHASH_SIZE]; /**< an SHA256 hash of the file */
+    bool hash_is_set; /**< true if #hash has been set */
+    LIST_ENTRY(mpk_file) items; /**< linked list metadata */
 };
 
 LIST_HEAD(mpk_filelist, mpk_file);
