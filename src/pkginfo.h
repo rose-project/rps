@@ -7,6 +7,7 @@
 #define _PKGINFO_H
 
 #include <sys/queue.h>
+#include <stdbool.h>
 #include "pkgref.h"
 #include "file.h"
 #include "version.h"
@@ -20,9 +21,9 @@
  */
 struct mpk_pkginfo {
     struct mpk_version manifest;
-    char *name;                             /**< Package name */
+    char *name;                       /**< Package name */
     struct mpk_version version;             /**< version of the package */
-    char *arch;                             /**< the target architecure */
+    char *arch;                       /**< the target architecure */
     struct mpk_stringlist regions;
     struct mpk_pkgreflist depends;
     struct mpk_pkgreflist conflicts;
@@ -35,6 +36,7 @@ struct mpk_pkginfo {
     struct mpk_filelist files;
 /*    uint8_t package_hash[MPK_PACKAGE_HASH_LEN]; */
     unsigned char signature[MPK_PKGINFO_SIGNATURE_LEN];
+    bool is_signed;
 };
 
 /**
@@ -48,7 +50,7 @@ mpk_ret_t mpk_pkginfo_init(struct mpk_pkginfo *pkg);
  *        default values
  * @param pkg the pkginfo object
  */
-void mpk_pkginfo_delete(struct mpk_pkginfo *pkg);
+void mpk_pkginfo_clean(struct mpk_pkginfo *pkg);
 
 /* TODO: should be moved to package.h */
 /**

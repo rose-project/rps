@@ -51,7 +51,7 @@ int mpk_version_serializedsize(struct mpk_version *v);
 
 mpk_ret_t mpk_version_serialize(char *dst, int *written, int len, struct mpk_version *v);
 
-mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
+mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, const char *data,
     int data_size);
 
 mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,

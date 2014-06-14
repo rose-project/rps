@@ -52,6 +52,29 @@ mpk_ret_t mpk_pkgreflist_add(struct mpk_pkgreflist *list,
     return MPK_SUCCESS;
 }
 
+mpk_ret_t mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
+    struct mpk_pkgref *pkgref)
+{
+    struct mpk_pkgreflist_item *item
+        = malloc(sizeof(struct mpk_pkgreflist_item));
+    if (!item)
+        return MPK_FAILURE;
+
+    item->pkgref = pkgref;
+
+    struct mpk_pkgreflist_item *it, *last = NULL;
+    for (it = list->lh_first; it; it = it->items.le_next) {
+        last = it;
+    }
+
+    if (last)
+        LIST_INSERT_AFTER(last, item, items);
+    else
+        LIST_INSERT_HEAD(list, item, items);
+
+    return MPK_SUCCESS;
+}
+
 mpk_ret_t mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
     struct mpk_pkgreflist_item *item)
 {

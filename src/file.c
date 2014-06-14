@@ -23,6 +23,7 @@ struct mpk_file *mpk_file_create()
 
     f->name = NULL;
     memset(f->hash, 0, sizeof(f->hash));
+    f->hash_is_set = false;
 
     return f;
 }
@@ -107,6 +108,7 @@ mpk_ret_t mpk_file_calchash(struct mpk_file *file, const char *basedir)
     }
 
     close(fd);
+    file->hash_is_set = true;
     return MPK_SUCCESS;
 }
 
@@ -137,6 +139,26 @@ mpk_ret_t mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file)
     }
 
     LIST_INSERT_HEAD(list, file, items);
+
+    return MPK_SUCCESS;
+}
+
+mpk_ret_t mpk_filelist_addend(struct mpk_filelist *list, struct mpk_file *file)
+{
+    if (!list || !file) {
+        syslog(LOG_ERR, "invalid argument(s)");
+        return MPK_FAILURE;
+    }
+
+    struct mpk_file *it, *last = NULL;
+    for (it = list->lh_first; it; it = it->items.le_next) {
+        last = it;
+    }
+
+    if (last)
+        LIST_INSERT_AFTER(last, file, items);
+    else
+        LIST_INSERT_HEAD(list, file, items);
 
     return MPK_SUCCESS;
 }

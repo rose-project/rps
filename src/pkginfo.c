@@ -39,11 +39,12 @@ mpk_ret_t mpk_pkginfo_init(struct mpk_pkginfo *pkg)
     pkg->license = NULL;
     mpk_filelist_init(&pkg->files);
     memset(pkg->signature, 0, MPK_PKGINFO_SIGNATURE_LEN);
+    pkg->is_signed = false;
 
     return MPK_SUCCESS;
 }
 
-void mpk_pkginfo_delete(struct mpk_pkginfo *pkg)
+void mpk_pkginfo_clean(struct mpk_pkginfo *pkg)
 {
     if (!pkg) {
         syslog(LOG_WARNING, "mpk_pkginfo_deinit() called on NULL pointer");
@@ -61,6 +62,8 @@ void mpk_pkginfo_delete(struct mpk_pkginfo *pkg)
     CHECK_AND_FREE(pkg->maintainer);
     CHECK_AND_FREE(pkg->license);
     mpk_filelist_delete(&pkg->files);
+    memset(pkg->signature, 0, MPK_PKGINFO_SIGNATURE_LEN);
+    pkg->is_signed = false;
 }
 
 mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
@@ -186,6 +189,7 @@ mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
 
     fclose(priv_key_file);
 
+    pkginf->is_signed = true;
     return MPK_SUCCESS;
 
     err3:

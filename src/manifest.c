@@ -8,6 +8,7 @@
 #include <jansson.h>
 #include <memory.h>
 #include <string.h>
+#include <syslog.h>
 #include "stringhelper.h"
 #include "manifest.h"
 
@@ -104,7 +105,7 @@ int parse_version(struct mpk_version *version, json_t *in)
     return mpk_version_deserialize(version, NULL, str, strlen(str));
 }
 
-int parse_string(const char **str, json_t *in)
+int parse_string(char **str, json_t *in)
 {
     const char *in_str = json_string_value(in);
     if (!in_str) {
@@ -139,22 +140,53 @@ int parse_pkgreflist(struct mpk_pkgreflist *pkgs, json_t *in)
     int i;
     json_t *val1;
     json_array_foreach(in, i, val1) {
-        char *key;
-        json_t *val2;
-        if (!val1 || json_typeof(in) != JSON_OBJECT) {
+        if (!val1 || json_typeof(val1) != JSON_OBJECT) {
             mpk_pkgreflist_delete(pkgs);
             return MPK_FAILURE;
         }
+        struct mpk_pkgref *pkg = NULL;
+        if (!(pkg = malloc(sizeof(struct mpk_pkgref)))) {
+            mpk_pkgreflist_delete(pkgs);
+            return MPK_FAILURE;
+        }
+        pkg->name = NULL;
+
+        char *key;
+        json_t *val2;
         json_object_foreach(val1, key, val2) {
             if (strcmp(key, "name") == 0) {
-                /* TODO */
-            } else if (strcmp(key, "name") == 0) {
-                /* TODO */
+                pkg->name = allocate_and_copy_str(json_string_value(val2));
+            } else if (strcmp(key, "version") == 0) {
+                const char *str = json_string_value(val2);
+                if (strlen(str) == 0) {
+                    pkg->ver = MPK_VERSION_DEFAULT;
+                    continue;
+                }
+                if (mpk_version_deserialize(&pkg->ver, NULL, str, strlen(str))
+                        != MPK_SUCCESS) {
+                    if (pkg->name)
+                        free(pkg->name);
+                    free(pkg);
+                    mpk_pkgreflist_delete(pkgs);
+                    return MPK_FAILURE;
+                }
             } else {
-                /* TODO */
+                syslog(LOG_ERR, "Undefined tag in pkgref list");
+                if (pkg->name)
+                    free(pkg->name);
+                free(pkg);
+                mpk_pkgreflist_delete(pkgs);
+                return MPK_FAILURE;
             }
         }
-        /* TODO */
+        if (mpk_pkgreflist_addend(pkgs, pkg) != MPK_SUCCESS) {
+            if (pkg->name)
+                free(pkg->name);
+            free(pkg);
+            mpk_pkgreflist_delete(pkgs);
+            return MPK_FAILURE;
+        }
+        pkg = NULL;
     }
 
     return MPK_SUCCESS;
@@ -166,18 +198,97 @@ int parse_int(int *i, json_t *in)
     return MPK_SUCCESS;
 }
 
-int parse_filelist(struct mpk_filelist *files, json_t *in)
-{
-    /* TODO */
-}
-
 int parse_hexstring(unsigned char hex[], int blen, json_t *in)
 {
     const char *hexstr = json_string_value(in);
     if (!hexstr)
         return MPK_FAILURE;
 
+    if (strlen(hexstr) == 0) {
+        memset(hex, 0, blen);
+        return MPK_EMPTY;
+    }
+
     return read_hexstr(hex, blen, hexstr);
+}
+
+int parse_filelist(struct mpk_filelist *files, json_t *in)
+{
+    if (!in || json_typeof(in) != JSON_ARRAY)
+        return MPK_FAILURE;
+
+    int i;
+    json_t *val1;
+    json_array_foreach(in, i, val1) {
+        if (!val1 || json_typeof(val1) != JSON_OBJECT) {
+            mpk_filelist_delete(files);
+            return MPK_FAILURE;
+        }
+        struct mpk_file *file = NULL;
+        if (!(file = malloc(sizeof(struct mpk_file)))) {
+            mpk_filelist_delete(files);
+            return MPK_FAILURE;
+        }
+        file->name = NULL;
+
+        char *key;
+        json_t *val2;
+        json_object_foreach(val1, key, val2) {
+            if (strcmp(key, "name") == 0) {
+                file->name = allocate_and_copy_str(json_string_value(val2));
+            } else if (strcmp(key, "hash") == 0) {
+
+                switch (parse_hexstring(file->hash, MPK_FILEHASH_SIZE, val2)) {
+                case MPK_EMPTY:
+                    file->hash_is_set = false;
+                    break;
+                case MPK_SUCCESS:
+                    file->hash_is_set = true;
+                    break;
+                case MPK_FAILURE:
+                default:
+                    if (file->name)
+                        free(file->name);
+                    free(file);
+                    mpk_filelist_delete(files);
+                    return MPK_FAILURE;
+                }
+            } else {
+                syslog(LOG_ERR, "Undefined tag in pkgref list");
+                if (file->name)
+                    free(file->name);
+                free(file);
+                mpk_filelist_delete(files);
+                return MPK_FAILURE;
+            }
+        }
+
+        if (mpk_filelist_addend(files, file) != MPK_SUCCESS) {
+            if (file->name)
+                free(file->name);
+            free(file);
+            mpk_filelist_delete(files);
+            return MPK_FAILURE;
+        }
+        file = NULL;
+    }
+
+    return MPK_SUCCESS;
+}
+
+int parse_signature(unsigned char bytearray[], bool *is_signed, json_t *in)
+{
+    switch (parse_hexstring(bytearray, MPK_PKGINFO_SIGNATURE_LEN, in)) {
+    case MPK_EMPTY:
+        *is_signed = false;
+        return MPK_SUCCESS;
+    case MPK_SUCCESS:
+        *is_signed = true;
+        return MPK_SUCCESS;
+    case MPK_FAILURE:
+    default:
+        return MPK_FAILURE;
+    }
 }
 
 int handle_manifest_tag(struct mpk_pkginfo *pkg, char *tag, json_t *value)
@@ -214,9 +325,9 @@ int handle_manifest_tag(struct mpk_pkginfo *pkg, char *tag, json_t *value)
     case MANIFEST_TAG_LICENSE:
         return parse_string(&pkg->license, value);
     case MANIFEST_TAG_FILES:
-        return parse_string(&pkg->files, value);
+        return parse_filelist(&pkg->files, value);
     case MANIFEST_TAG_SIGNATURE:
-        return parse_string(&pkg->signature, value);
+        return parse_signature(pkg->signature, &pkg->is_signed, value);
     default:
         return MPK_FAILURE;
     }
@@ -224,13 +335,10 @@ int handle_manifest_tag(struct mpk_pkginfo *pkg, char *tag, json_t *value)
 
 mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
 {
-    /* TODO: JSON instead of yaml */
-
     json_t *root = json_load_file(filename, 0, NULL);
     if (!root)
         return MPK_FAILURE;
 
-    void *iter = json_object_iter(root);
     char *key;
     json_t *value;
     json_object_foreach(root, key, value) {
@@ -487,7 +595,13 @@ mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
             json_decref(root);
             return MPK_FAILURE;
         }
-        if (json_object_set_new(files_item, "hash", json_string("-")) != 0) {
+        if (f->hash_is_set) {
+            write_hexstr(tmp_str, f->hash, MPK_FILEHASH_SIZE);
+            tmp_str[MPK_FILEHASH_SIZE * 2] = 0;
+        } else {
+            tmp_str[0] = 0;
+        }
+        if (json_object_set_new(files_item, "hash", json_string(tmp_str)) != 0) {
             json_decref(files_item);
             json_decref(files_array);
             json_decref(root);
@@ -509,7 +623,13 @@ mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
     json_decref(files_array);
 
     /* signature */
-    if (json_object_set_new(root, "signature", json_string("-")) != 0) {
+    if (pkg->is_signed) {
+        write_hexstr(tmp_str, pkg->signature, MPK_PKGINFO_SIGNATURE_LEN);
+        tmp_str[MPK_PKGINFO_SIGNATURE_LEN * 2] = 0;
+    } else {
+        tmp_str[0] = 0;
+    }
+    if (json_object_set_new(root, "signature", json_string(tmp_str)) != 0) {
         json_decref(root);
         return MPK_FAILURE;
     }

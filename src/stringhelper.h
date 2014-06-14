@@ -19,7 +19,7 @@ int hex2byte(const char *str);
  * @param hexstr the null terminated source string
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t read_hexstr(unsigned char barray[], int blen, char *hexstr);
+mpk_ret_t read_hexstr(unsigned char barray[], int blen, const char *hexstr);
 
 void write_hexstr(char *hexstr, unsigned char barray[], int blen);
 

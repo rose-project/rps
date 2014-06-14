@@ -46,7 +46,7 @@ int hex2byte(const char *str)
 }
 
 
-mpk_ret_t read_hexstr(unsigned char barray[], int blen, char *hexstr)
+mpk_ret_t read_hexstr(unsigned char barray[], int blen, const char *hexstr)
 {
     int i;
 

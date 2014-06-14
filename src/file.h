@@ -5,6 +5,7 @@
 #ifndef _FILE_H
 #define _FILE_H
 
+#include <stdbool.h>
 #include <sys/queue.h>
 #include <openssl/sha.h>
 #include "err.h"
@@ -15,6 +16,7 @@
 struct mpk_file {
     char *name;
     unsigned char hash[MPK_FILEHASH_SIZE];
+    bool hash_is_set;
     LIST_ENTRY(mpk_file) items;
 };
 
@@ -47,5 +49,7 @@ mpk_ret_t mpk_filelist_init(struct mpk_filelist *list);
 void mpk_filelist_delete(struct mpk_filelist *list);
 
 mpk_ret_t mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file);
+
+mpk_ret_t mpk_filelist_addend(struct mpk_filelist *list, struct mpk_file *file);
 
 #endif /* _FILE_H */

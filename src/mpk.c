@@ -86,7 +86,7 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
         return MPK_FAILURE;
     }
 
-    mpk_pkginfo_delete(&pkg);
+    mpk_pkginfo_clean(&pkg);
 
     return MPK_SUCCESS;
 }

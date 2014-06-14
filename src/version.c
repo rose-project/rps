@@ -163,7 +163,7 @@ mpk_ret_t mpk_version_serialize(char *dst, int *written, int len,
         if (len < MPK_VERSION_BUILDID_SIZE)
             return MPK_FAILURE;
         n = snprintf(dst, MPK_VERSION_BUILDID_SIZE + 1, "%.*lld",
-            MPK_VERSION_BUILDID_SIZE, v->buildid);
+            MPK_VERSION_BUILDID_SIZE, (unsigned long long)v->buildid);
         w += n;
         dst += n;
         len -= n;
@@ -174,8 +174,8 @@ mpk_ret_t mpk_version_serialize(char *dst, int *written, int len,
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
-    int data_size)
+mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len,
+    const char *data, int data_size)
 {
     int i = 0, n = 0, c = 0, idx = 0;
     char buf[32];
@@ -185,6 +185,8 @@ mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, char *data,
         syslog(LOG_ERR, "illegal values for parameter 'v'' or 'data'");
         return MPK_FAILURE;
     }
+
+    *v = MPK_VERSION_DEFAULT;
 
     while (i < data_size && n < 32) {
         if (isdigit(data[i])) {
@@ -539,7 +541,7 @@ mpk_ret_t mpk_version_print(FILE *f, struct mpk_version *v)
 
     /* TODO make sure string length is always MPK_VERSION_BUILDID_SIZE */
     if (v->buildid != MPK_VERSION_BUILDID_UNFEDINED) {
-        fprintf(f, "%llu", v->buildid);
+        fprintf(f, "%llu", (unsigned long long)v->buildid);
     }
 
     return MPK_SUCCESS;
