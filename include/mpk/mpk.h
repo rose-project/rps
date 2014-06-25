@@ -7,6 +7,7 @@
 #define _MPK_H
 
 #include <mpk/err.h>
+#include <mpk/defines.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,8 +31,16 @@ void mpk_deinit();
  * @param dst_dir the directory to put the rulting mpk into
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir,
+int mpk_create(const char *src_dir, const char *dst_dir,
     const char *pkey);
+
+/**
+ * @brief mpk_unpack unpacks an mpk file
+ * @param package_file the file to unpack
+ * @param dst_dir the directory to put the contents to
+ * @return MPK_SUCCESS or MPK_FAILURE
+ */
+int mpk_unpack(const char *package_file, const char *dst_dir);
 
 /**
  * @brief run_install simply runs installation of a single package without

@@ -13,6 +13,7 @@
 #include <libtar.h>
 #include <bzlib.h>
 #include <linux/limits.h>
+#include <mpk/defines.h>
 #include "package.h"
 
 #define CHUNKSIZE 512
@@ -120,15 +121,23 @@ err0:
 
 mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir)
 {
+    int len;
     FILE *tbz2_file, *tar_file;
-    char tar_fpath[PATH_MAX+1];
+    char tar_fpath[MPK_PATH_MAX];
+    char dest_fpath[MPK_PATH_MAX];
+    char package_fname[MPK_PATH_MAX];
     BZFILE *bz2;
     int bzerr;
     unsigned char buf[CHUNKSIZE];
     size_t n;
     TAR *tar;
 
-    sprintf(tar_fpath, "/tmp/unpacked-%lld.tar", (long long)time(NULL));
+    /* get filename of package without extension */
+    strncpy(package_fname, basename(package_file), MPK_PATH_MAX);
+    if ((len = strlen(package_fname)) > 4)
+        package_fname[len - 4] = 0;
+
+    snprintf(tar_fpath, MPK_PATH_MAX, "/tmp/%s.tar", package_fname);
     if (!(tar_file = fopen(tar_fpath, "w")))
         return MPK_FAILURE;
 
@@ -172,16 +181,27 @@ mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir)
     fclose(tbz2_file);
     fclose(tar_file);
 
-    /* unpack tar */
+    /* create output directory */
 
-    if (tar_open(&tar, tar_fpath, NULL, O_RDONLY, 0644, 0) != 0) {
+    snprintf(dest_fpath, MPK_PATH_MAX, "%s/%s", outdir, package_fname);
+    if (mkdir(dest_fpath, 0700) != 0) {
+        syslog(LOG_ERR, "mkdir failed: %s", strerror(errno));
         unlink(tar_fpath);
         return MPK_FAILURE;
     }
 
-    if (tar_extract_all(tar, (char *)outdir) != 0) {
+    /* unpack tar */
+
+    if (tar_open(&tar, tar_fpath, NULL, O_RDONLY, 0644, 0) != 0) {
+        rmdir(dest_fpath);
+        unlink(tar_fpath);
+        return MPK_FAILURE;
+    }
+
+    if (tar_extract_all(tar, dest_fpath) != 0) {
         syslog(LOG_ERR, "tar_extract_all() failed: %s", strerror(errno));
         tar_close(tar);
+        rmdir(dest_fpath);
         unlink(tar_fpath);
         return MPK_FAILURE;
     }

@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <syslog.h>
 #include <mpk/mpk.h>
-#include "defines.h"
+#include <mpk/defines.h>
 #include "config.h"
 #include "pkginfo.h"
 #include "manifest.h"
@@ -38,7 +38,7 @@ void mpk_deinit()
     closelog();
 }
 
-mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
+int mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
 {
     struct mpk_pkginfo pkg;
     char manifest_tmpl_fpath[MPK_PATH_MAX];
@@ -89,6 +89,14 @@ mpk_ret_t mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
     mpk_pkginfo_clean(&pkg);
 
     return MPK_SUCCESS;
+}
+
+int mpk_unpack(const char *package_file, const char *dst_dir)
+{
+    if (mpk_package_unpackmpk(package_file, dst_dir) != MPK_SUCCESS) {
+        syslog(LOG_ERR, "mpk_package_unpackmpk() failed");
+        return MPK_FAILURE;
+    }
 }
 
 int mpk_install(const char *fpath)
