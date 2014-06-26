@@ -8,8 +8,10 @@
 #include <stdbool.h>
 #include <sys/queue.h>
 #include <openssl/sha.h>
-#include "err.h"
-#include "string.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MPK_FILEHASH_SIZE SHA256_DIGEST_LENGTH
 
@@ -43,16 +45,20 @@ void mpk_file_delete(struct mpk_file **file);
  *      MPK_FILEHASH_SIZE + 1 Bytes
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_file_hash_serialize(char *str, struct mpk_file *file);
+int mpk_file_hash_serialize(char *str, struct mpk_file *file);
 
-mpk_ret_t mpk_file_calchash(struct mpk_file *file, const char *basedir);
+int mpk_file_calchash(struct mpk_file *file, const char *basedir);
 
-mpk_ret_t mpk_filelist_init(struct mpk_filelist *list);
+int mpk_filelist_init(struct mpk_filelist *list);
 
 void mpk_filelist_delete(struct mpk_filelist *list);
 
-mpk_ret_t mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file);
+int mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file);
 
-mpk_ret_t mpk_filelist_addend(struct mpk_filelist *list, struct mpk_file *file);
+int mpk_filelist_addend(struct mpk_filelist *list, struct mpk_file *file);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _FILE_H */

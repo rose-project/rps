@@ -3,7 +3,8 @@
  * @author Josef Raschen <josef@raschen.org>
  */
 #include <stdlib.h>
-#include "pkgref.h"
+#include "mpk/defines.h"
+#include "mpk/pkgref.h"
 
 void mpk_pkgref_initempty(struct mpk_pkgref *pkg)
 {
@@ -15,7 +16,7 @@ void mpk_pkgref_initempty(struct mpk_pkgref *pkg)
     pkg->op = MPK_VERSION_OPERATOR_UNKNOWN;
 }
 
-mpk_ret_t mpk_pkgreflist_init(struct mpk_pkgreflist *list)
+int mpk_pkgreflist_init(struct mpk_pkgreflist *list)
 {
     LIST_INIT(list);
 
@@ -37,7 +38,7 @@ void mpk_pkgreflist_delete(struct mpk_pkgreflist *list)
     }
 }
 
-mpk_ret_t mpk_pkgreflist_add(struct mpk_pkgreflist *list,
+int mpk_pkgreflist_add(struct mpk_pkgreflist *list,
     struct mpk_pkgref *pkgref)
 {
     struct mpk_pkgreflist_item *item
@@ -52,7 +53,7 @@ mpk_ret_t mpk_pkgreflist_add(struct mpk_pkgreflist *list,
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
+int mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
     struct mpk_pkgref *pkgref)
 {
     struct mpk_pkgreflist_item *item
@@ -75,7 +76,7 @@ mpk_ret_t mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
+int mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
     struct mpk_pkgreflist_item *item)
 {
     LIST_REMOVE(item, items);
@@ -83,7 +84,7 @@ mpk_ret_t mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_pkgreflist_print(FILE *f, struct mpk_pkgreflist *list)
+int mpk_pkgreflist_print(FILE *f, struct mpk_pkgreflist *list)
 {
     struct mpk_pkgreflist_item *pkg;
 

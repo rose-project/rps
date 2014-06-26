@@ -6,8 +6,9 @@
 #ifndef _MPK_H
 #define _MPK_H
 
-#include <mpk/err.h>
 #include <mpk/defines.h>
+#include <mpk/manifest.h>
+#include <mpk/pkginfo.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,7 +19,7 @@ extern "C" {
  *          before using any API of libmpk.
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_init();
+int mpk_init();
 
 /**
  * @brief mpk_deinit should be called after using any API of libmpk
@@ -55,7 +56,7 @@ int mpk_install(const char *fpath);
  * @param package
  * @return
  */
-mpk_ret_t mpk_uninstall(const char *name);
+int mpk_uninstall(const char *name);
 
 #ifdef __cplusplus
 }

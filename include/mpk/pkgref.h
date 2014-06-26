@@ -7,8 +7,11 @@
 #define _PKGREF_H
 
 #include <sys/queue.h>
-#include "err.h"
-#include "version.h"
+#include <mpk/version.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief The mpk_pkgref struct containts everything to uniquely idetify a
@@ -29,19 +32,23 @@ struct mpk_pkgreflist_item {
 
 LIST_HEAD(mpk_pkgreflist, mpk_pkgreflist_item);
 
-mpk_ret_t mpk_pkgreflist_init(struct mpk_pkgreflist *list);
+int mpk_pkgreflist_init(struct mpk_pkgreflist *list);
 
 void mpk_pkgreflist_delete(struct mpk_pkgreflist *list);
 
-mpk_ret_t mpk_pkgreflist_add(struct mpk_pkgreflist *list,
+int mpk_pkgreflist_add(struct mpk_pkgreflist *list,
     struct mpk_pkgref *pkgref);
 
-mpk_ret_t mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
+int mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
     struct mpk_pkgref *pkgref);
 
-mpk_ret_t mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
+int mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
     struct mpk_pkgreflist_item *item);
 
-mpk_ret_t mpk_pkgreflist_print(FILE *f, struct mpk_pkgreflist *list);
+int mpk_pkgreflist_print(FILE *f, struct mpk_pkgreflist *list);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PKGREF_H */

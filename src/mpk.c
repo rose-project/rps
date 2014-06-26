@@ -5,17 +5,17 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <syslog.h>
-#include <mpk/mpk.h>
-#include <mpk/defines.h>
-#include "config.h"
-#include "pkginfo.h"
-#include "manifest.h"
-#include "package.h"
+#include "mpk/defines.h"
+#include "mpk/pkginfo.h"
+#include "mpk/manifest.h"
 #include "filehandling.h"
+#include "package.h"
+#include "config.h"
+#include "mpk/mpk.h"
 
 #define MPK_CONFIG "/etc/libmpk.conf" /* default configuration file */
 
-mpk_ret_t mpk_init()
+int mpk_init()
 {
     /* initialize logging */
     openlog("libmpk", LOG_PID|LOG_CONS, LOG_USER);
@@ -177,7 +177,7 @@ int mpk_install(const char *fpath)
 }
 
 
-mpk_ret_t mpk_uninstall(const char *name)
+int mpk_uninstall(const char *name)
 {
     /* TODO */
 

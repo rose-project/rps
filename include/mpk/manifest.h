@@ -6,12 +6,15 @@
 #ifndef _MANIFEST_H
 #define _MANIFEST_H
 
-#include "err.h"
-#include "pkginfo.h"
+#include <mpk/pkginfo.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MANIFEST_VERSION "1.0"
 
-mpk_ret_t mpk_manifest_test();
+int mpk_manifest_test();
 
 /**
  * @brief mpk_manifest_read reads manifest file (or template) into pkginfo
@@ -22,7 +25,7 @@ mpk_ret_t mpk_manifest_test();
  * @param filename the file to read from
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename);
+int mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename);
 
 /**
  * @brief mpk_manifest_write Writes the contents of the manifest object to a
@@ -32,6 +35,10 @@ mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename);
  * @param pkg
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg);
+int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MANIFEST_H */

@@ -8,11 +8,14 @@
 
 #include <sys/queue.h>
 #include <stdbool.h>
-#include "pkgref.h"
-#include "file.h"
-#include "version.h"
-#include "stringlist.h"
-#include "err.h"
+#include <mpk/pkgref.h>
+#include <mpk/file.h>
+#include <mpk/version.h>
+#include <mpk/stringlist.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MPK_PKGINFO_SIGNATURE_LEN 256
 
@@ -43,7 +46,7 @@ struct mpk_pkginfo {
  * @brief mpk_pkginfo_initinitializes an empty mpk_pkginfo object
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_pkginfo_init(struct mpk_pkginfo *pkg);
+int mpk_pkginfo_init(struct mpk_pkginfo *pkg);
 
 /**
  * @brief mpk_pkginfo_clean frees any dynamically allocated data and resets to
@@ -61,7 +64,7 @@ void mpk_pkginfo_clean(struct mpk_pkginfo *pkg);
  * are relative to
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
+int mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     const char *pkgroot);
 
 /* TODO: should be moved to package.h */
@@ -70,9 +73,13 @@ mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
  * @param pkginf the package info to sign
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file);
+int mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file);
 
-mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[],
+int mpk_pkginfo_signature_deserialize(unsigned char signature[],
     char *src);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

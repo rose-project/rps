@@ -40,7 +40,7 @@ struct mpk_package_header {
     uint8_t header_signature[MPK_PACKAGE_SIGNATURE_LEN];
 };
 
-mpk_ret_t mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
+int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     const char *outdir)
 {
     TAR *tar;
@@ -119,7 +119,7 @@ err0:
     return MPK_FAILURE;
 }
 
-mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir)
+int mpk_package_unpackmpk(const char *package_file, const char *outdir)
 {
     int len;
     FILE *tbz2_file, *tar_file;

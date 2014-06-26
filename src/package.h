@@ -5,10 +5,9 @@
  */
 #ifndef _PACKAGE_H
 #define _PACKAGE_H
-#include "stdint.h"
-#include "pkginfo.h"
-#include "version.h"
-#include "err.h"
+#include <stdint.h>
+#include <mpk/pkginfo.h>
+#include <mpk/version.h>
 
 #define MPK_PACKAGE_SIGNATURE_LEN 256 /* 2048 bit signature */
 #define MPK_PACKAGE_CACHE_DIR "/tmp"
@@ -20,10 +19,10 @@
  * @param srcdir directory of the source data
  * @return
  */
-mpk_ret_t mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
+int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     const char *outdir);
 
-mpk_ret_t mpk_package_unpackmpk(const char *package_file, const char *outdir);
+int mpk_package_unpackmpk(const char *package_file, const char *outdir);
 
 /**
  * @brief mpk_package_verify checks if the signature of the package is correct

@@ -10,7 +10,8 @@
 #include <string.h>
 #include <syslog.h>
 #include "stringhelper.h"
-#include "manifest.h"
+#include "mpk/defines.h"
+#include "mpk/manifest.h"
 
 #define TMP_STR_BUFFER_SIZE 1024
 
@@ -69,7 +70,7 @@ enum MANIFEST_TAG manifest_tag_id(const char *tag)
     return MANIFEST_TAG_UNDEFINED;
 }
 
-mpk_ret_t mpk_manifest_test()
+int mpk_manifest_test()
 {
     return MPK_SUCCESS;
 }
@@ -333,7 +334,7 @@ int handle_manifest_tag(struct mpk_pkginfo *pkg, char *tag, json_t *value)
     }
 }
 
-mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
+int mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
 {
     json_t *root = json_load_file(filename, 0, NULL);
     if (!root)
@@ -350,7 +351,7 @@ mpk_ret_t mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
+int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
 {
     json_t *root;
     struct mpk_pkgreflist_item *p;

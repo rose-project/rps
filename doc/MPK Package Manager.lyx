@@ -137,6 +137,26 @@ UnionFS, Symlinks, Partition
 \end_layout
 
 \begin_layout Section
+MPK Package Format
+\end_layout
+
+\begin_layout Subsection
+Manifest
+\end_layout
+
+\begin_layout Subsection
+Archive Layout
+\end_layout
+
+\begin_layout Section
+Package Creation
+\end_layout
+
+\begin_layout Standard
+source data, signing, packing
+\end_layout
+
+\begin_layout Section
 Package Installation
 \end_layout
 
@@ -145,7 +165,7 @@ Read Package Header
 \end_layout
 
 \begin_layout Standard
-Read and parse the package Header containing the package manifest.
+Read and parse the package header containing the package manifest.
  
 \end_layout
 

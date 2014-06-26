@@ -8,7 +8,10 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "err.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum MPK_VERSION_BUILDTYPE {
     MPK_VERSION_BUILDTYPE_UNKNOWN = -1,
@@ -49,16 +52,21 @@ int mpk_version_isempty(struct mpk_version *v);
 
 int mpk_version_serializedsize(struct mpk_version *v);
 
-mpk_ret_t mpk_version_serialize(char *dst, int *written, int len, struct mpk_version *v);
+int mpk_version_serialize(char *dst, int *written, int len,
+    struct mpk_version *v);
 
-mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len, const char *data,
+int mpk_version_deserialize(struct mpk_version *v, int *len, const char *data,
     int data_size);
 
-mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
+int mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
     int *len, char *data, int data_size);
 
-mpk_ret_t mpk_version_operator_print(FILE *f, enum MPK_VERSION_OPERATOR);
+int mpk_version_operator_print(FILE *f, enum MPK_VERSION_OPERATOR);
 
-mpk_ret_t mpk_version_print(FILE *f, struct mpk_version *v);
+int mpk_version_print(FILE *f, struct mpk_version *v);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _VERSION_H */

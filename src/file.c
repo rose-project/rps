@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <syslog.h>
-#include "err.h"
 #include "stringhelper.h"
-#include "file.h"
+#include "mpk/defines.h"
+#include "mpk/file.h"
 
 
 struct mpk_file *mpk_file_create()
@@ -39,7 +39,7 @@ void mpk_file_delete(struct mpk_file **file)
     }
 }
 
-mpk_ret_t mpk_file_hash_serialize(char *str, struct mpk_file *file)
+int mpk_file_hash_serialize(char *str, struct mpk_file *file)
 {
     if (!str)
         return MPK_FAILURE;
@@ -50,7 +50,7 @@ mpk_ret_t mpk_file_hash_serialize(char *str, struct mpk_file *file)
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_file_calchash(struct mpk_file *file, const char *basedir)
+int mpk_file_calchash(struct mpk_file *file, const char *basedir)
 {
     char *filename;
     int len;
@@ -112,7 +112,7 @@ mpk_ret_t mpk_file_calchash(struct mpk_file *file, const char *basedir)
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_filelist_init(struct mpk_filelist *list)
+int mpk_filelist_init(struct mpk_filelist *list)
 {
     LIST_INIT(list);
 
@@ -131,7 +131,7 @@ void mpk_filelist_delete(struct mpk_filelist *list)
     }
 }
 
-mpk_ret_t mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file)
+int mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file)
 {
     if (!list || !file) {
         syslog(LOG_ERR, "invalid argument(s)");
@@ -143,7 +143,7 @@ mpk_ret_t mpk_filelist_add(struct mpk_filelist *list, struct mpk_file *file)
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_filelist_addend(struct mpk_filelist *list, struct mpk_file *file)
+int mpk_filelist_addend(struct mpk_filelist *list, struct mpk_file *file)
 {
     if (!list || !file) {
         syslog(LOG_ERR, "invalid argument(s)");

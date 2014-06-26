@@ -8,7 +8,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include "version.h"
+#include "mpk/defines.h"
+#include "mpk/version.h"
 
 static inline int digits_int(int i)
 {
@@ -80,7 +81,7 @@ int mpk_version_serializedsize(struct mpk_version *v)
     return len;
 }
 
-mpk_ret_t mpk_version_serialize(char *dst, int *written, int len,
+int mpk_version_serialize(char *dst, int *written, int len,
     struct mpk_version *v)
 {
     int n;
@@ -174,7 +175,7 @@ mpk_ret_t mpk_version_serialize(char *dst, int *written, int len,
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len,
+int mpk_version_deserialize(struct mpk_version *v, int *len,
     const char *data, int data_size)
 {
     int i = 0, n = 0, c = 0, idx = 0;
@@ -381,7 +382,7 @@ mpk_ret_t mpk_version_deserialize(struct mpk_version *v, int *len,
     return MPK_FAILURE;
 }
 
-mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
+int mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
     int *len, char *data, int data_size)
 {
     if (!op || !data || data_size < 1)
@@ -495,7 +496,7 @@ mpk_ret_t mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
     return MPK_FAILURE;
 }
 
-mpk_ret_t mpk_version_operator_print(FILE *f, enum MPK_VERSION_OPERATOR op)
+int mpk_version_operator_print(FILE *f, enum MPK_VERSION_OPERATOR op)
 {
     if (!f || op < 0 || op >= MPK_VERSION_OPERATOR_COUNT) {
         return MPK_FAILURE;
@@ -506,7 +507,7 @@ mpk_ret_t mpk_version_operator_print(FILE *f, enum MPK_VERSION_OPERATOR op)
     return MPK_SUCCESS;
 }
 
-mpk_ret_t mpk_version_print(FILE *f, struct mpk_version *v)
+int mpk_version_print(FILE *f, struct mpk_version *v)
 {
     if (!f || !v) {
         syslog(LOG_ERR, "ivalid parameter for mpk_version_print()");

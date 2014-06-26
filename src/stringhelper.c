@@ -4,6 +4,7 @@
  */
 #include <ctype.h>
 #include <syslog.h>
+#include "mpk/defines.h"
 #include "stringhelper.h"
 
 void byte2hex(char *dst, unsigned char byte)
@@ -46,7 +47,7 @@ int hex2byte(const char *str)
 }
 
 
-mpk_ret_t read_hexstr(unsigned char barray[], int blen, const char *hexstr)
+int read_hexstr(unsigned char barray[], int blen, const char *hexstr)
 {
     int i;
 

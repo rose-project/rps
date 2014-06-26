@@ -1,7 +1,4 @@
-#include "mpk.h"
-extern "C" {
-#include "manifest.h"
-}
+#include "mpk/mpk.h"
 #include "gtest/gtest.h"
 
 TEST(MpkHighLevelApi, package_create) {

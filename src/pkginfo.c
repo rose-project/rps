@@ -8,16 +8,16 @@
 #include <ctype.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
-#include "err.h"
 #include "stringhelper.h"
-#include "pkginfo.h"
+#include "mpk/defines.h"
+#include "mpk/pkginfo.h"
 
 #define CHECK_AND_FREE(ptr) if (ptr) {  \
     free(ptr);                          \
     ptr = NULL;                         \
 }                                       \
 
-mpk_ret_t mpk_pkginfo_init(struct mpk_pkginfo *pkg)
+int mpk_pkginfo_init(struct mpk_pkginfo *pkg)
 {
     if (!pkg) {
         syslog(LOG_ERR, "parameter pkg is invalid");
@@ -66,7 +66,7 @@ void mpk_pkginfo_clean(struct mpk_pkginfo *pkg)
     pkg->is_signed = false;
 }
 
-mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
+int mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     const char *pkgroot)
 {
     struct mpk_file *file;
@@ -82,7 +82,7 @@ mpk_ret_t mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
 }
 
 /* TODO: move signature calculation to package.c */
-mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
+int mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
 {
     EVP_PKEY *private_key;
     FILE *priv_key_file;
@@ -200,7 +200,7 @@ mpk_ret_t mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
         return MPK_FAILURE;
 }
 
-mpk_ret_t mpk_pkginfo_signature_deserialize(unsigned char signature[],
+int mpk_pkginfo_signature_deserialize(unsigned char signature[],
     char *src)
 {
     return read_hexstr(signature,MPK_PKGINFO_SIGNATURE_LEN, src);

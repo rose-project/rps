@@ -4,7 +4,8 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include "stringlist.h"
+#include "mpk/defines.h"
+#include "mpk/stringlist.h"
 
 int mpk_stringlist_init(struct mpk_stringlist *list)
 {
