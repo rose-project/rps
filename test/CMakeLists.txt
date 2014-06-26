@@ -2,7 +2,6 @@
 # Copyright 2013 Josef Raschen <josef@raschen.org>
 cmake_minimum_required(VERSION 2.8)
 
-message("Gtest inc dirs: ${GTEST_INCLUDE_DIRS}")
 include_directories(
     ${PROJECT_SOURCE_DIR}/ext/gtest/include
 #    ${LIBMPK_INC_DIR}

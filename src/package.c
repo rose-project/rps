@@ -2,6 +2,7 @@
   * @file package.c
   * @author Josef Raschen <josef@raschen.org>
   */
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -121,11 +122,11 @@ err0:
 
 int mpk_package_unpackmpk(const char *package_file, const char *outdir)
 {
+    char *package_file_c, *package_fname;
     int len;
     FILE *tbz2_file, *tar_file;
     char tar_fpath[MPK_PATH_MAX];
     char dest_fpath[MPK_PATH_MAX];
-    char package_fname[MPK_PATH_MAX];
     BZFILE *bz2;
     int bzerr;
     unsigned char buf[CHUNKSIZE];
@@ -133,17 +134,21 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
     TAR *tar;
 
     /* get filename of package without extension */
-    strncpy(package_fname, basename(package_file), MPK_PATH_MAX);
+    package_file_c = strdup(package_file);
+    package_fname = basename(package_file_c);
     if ((len = strlen(package_fname)) > 4)
         package_fname[len - 4] = 0;
 
     snprintf(tar_fpath, MPK_PATH_MAX, "/tmp/%s.tar", package_fname);
-    if (!(tar_file = fopen(tar_fpath, "w")))
+    if (!(tar_file = fopen(tar_fpath, "w"))) {
+        free(package_file_c);
         return MPK_FAILURE;
+    }
 
     if (!(tbz2_file = fopen(package_file, "r"))) {
         syslog(LOG_ERR, "could not open file: %s", package_file);
         fclose(tar_file);
+        free(package_file_c);
         return MPK_FAILURE;
     }
 
@@ -153,6 +158,7 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
     if (bzerr != BZ_OK) {
         fclose(tbz2_file);
         fclose(tar_file);
+        free(package_file_c);
         return MPK_FAILURE;
     }
     while (1) {
@@ -162,6 +168,7 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
             unlink(tar_fpath);
             BZ2_bzReadClose(&bzerr, bz2);
             fclose(tbz2_file);
+            free(package_file_c);
             return MPK_FAILURE;
         }
 
@@ -170,6 +177,7 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
             unlink(tar_fpath);
             BZ2_bzReadClose(&bzerr, bz2);
             fclose(tbz2_file);
+            free(package_file_c);
             return MPK_FAILURE;
         }
 
@@ -187,6 +195,7 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
     if (mkdir(dest_fpath, 0700) != 0) {
         syslog(LOG_ERR, "mkdir failed: %s", strerror(errno));
         unlink(tar_fpath);
+        free(package_file_c);
         return MPK_FAILURE;
     }
 
@@ -195,6 +204,7 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
     if (tar_open(&tar, tar_fpath, NULL, O_RDONLY, 0644, 0) != 0) {
         rmdir(dest_fpath);
         unlink(tar_fpath);
+        free(package_file_c);
         return MPK_FAILURE;
     }
 
@@ -203,9 +213,11 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
         tar_close(tar);
         rmdir(dest_fpath);
         unlink(tar_fpath);
+        free(package_file_c);
         return MPK_FAILURE;
     }
     tar_close(tar);
+    free(package_file_c);
     if (unlink(tar_fpath) != 0)
         return MPK_FAILURE;
 

@@ -42,8 +42,7 @@ int mpk_pkgreflist_add(struct mpk_pkgreflist *list,
 int mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
     struct mpk_pkgref *pkgref);
 
-int mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
-    struct mpk_pkgreflist_item *item);
+int mpk_pkgreflist_remove(struct mpk_pkgreflist_item *item);
 
 int mpk_pkgreflist_print(FILE *f, struct mpk_pkgreflist *list);
 

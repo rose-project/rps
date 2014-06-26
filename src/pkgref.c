@@ -76,8 +76,7 @@ int mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
     return MPK_SUCCESS;
 }
 
-int mpk_pkgreflist_remove(struct mpk_pkgreflist *list,
-    struct mpk_pkgreflist_item *item)
+int mpk_pkgreflist_remove(struct mpk_pkgreflist_item *item)
 {
     LIST_REMOVE(item, items);
 

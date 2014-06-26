@@ -21,8 +21,9 @@
 static const char *src_fpath, *dst_fpath;
 static int len_src_fpath, len_dst_fpath;
 
-static int nftw_directory_delete(const char *fpath, const struct stat *sb,
-    int tflag, struct FTW *ftwbuf)
+static int nftw_directory_delete(const char *fpath,
+    const struct stat __attribute__((__unused__)) *sb,
+    int tflag, struct FTW __attribute__((__unused__)) *ftwbuf)
 {
     if (tflag == FTW_F) {
         printf("delete %s\n", fpath);
@@ -51,8 +52,9 @@ int mpk_filehandling_deletedir(const char *name)
     return 0;
 }
 
-static int nftw_directory_copy(const char *fpath, const struct stat *sb,
-    int tflag, struct FTW *ftwbuf)
+static int nftw_directory_copy(const char *fpath,
+    const struct stat __attribute__((__unused__)) *sb,
+    int tflag, struct FTW __attribute__((__unused__)) *ftwbuf)
 {
     char rel_fpath[PATH_MAX + 1];
     char abs_dst_fpath[PATH_MAX + 1];

@@ -10,7 +10,6 @@
 #include "mpk/manifest.h"
 #include "filehandling.h"
 #include "package.h"
-#include "config.h"
 #include "mpk/mpk.h"
 
 #define MPK_CONFIG "/etc/libmpk.conf" /* default configuration file */
@@ -20,11 +19,6 @@ int mpk_init()
     /* initialize logging */
     openlog("libmpk", LOG_PID|LOG_CONS, LOG_USER);
 
-    /* read the config file */
-    if (mpk_config_init(MPK_CONFIG) != MPK_SUCCESS) {
-        return MPK_FAILURE;
-    }
-
     syslog(LOG_INFO, "Initialized libmpk.");
 
     return MPK_SUCCESS;
@@ -32,8 +26,6 @@ int mpk_init()
 
 void mpk_deinit()
 {
-    mpk_config_destroy();
-
     /* finish logging */
     closelog();
 }
@@ -97,6 +89,8 @@ int mpk_unpack(const char *package_file, const char *dst_dir)
         syslog(LOG_ERR, "mpk_package_unpackmpk() failed");
         return MPK_FAILURE;
     }
+
+    return MPK_SUCCESS;
 }
 
 int mpk_install(const char *fpath)

@@ -37,8 +37,6 @@ target_link_libraries(mpk ${LIBMPK_LIBS})
 
 add_subdirectory(test)
 
-add_subdirectory(samples)
-
 # generate API documentation
 
 option(BUILD_DOCUMENTATION "Build Doxygen based API documentation" OFF)
