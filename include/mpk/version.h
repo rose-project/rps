@@ -36,12 +36,20 @@ enum MPK_VERSION_OPERATOR {
 
 extern const char *mpk_version_operator_strings[];
 
+/**
+ * @brief Contains the version information of a package.
+ *
+ * A version consistst of a #major, #minor and #patch number, the #buildtype
+ * and a unique build ID (#buildid). The build ID consist of 16 decimal digits
+ * which include a timestamp an some more digits which can be used to
+ * differentiate builds with the same timestamp.
+ */
 struct mpk_version {
-    int32_t major;
-    int32_t minor;
-    int32_t patch;
-    enum MPK_VERSION_BUILDTYPE buildtype;
-    int64_t buildid; /* fixed length of 16 digits */
+    int32_t major; /**< The major version number. */
+    int32_t minor; /**< The minor version number. */
+    int32_t patch; /**< The patch level number. */
+    enum MPK_VERSION_BUILDTYPE buildtype; /**< The build type. */
+    int64_t buildid; /**< Fixed unique build ID (16 decimal digits) */
 };
 extern const struct mpk_version MPK_VERSION_DEFAULT;
 

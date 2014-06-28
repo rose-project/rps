@@ -17,6 +17,9 @@
 #include <mpk/defines.h>
 #include "package.h"
 
+/** The defaut size used for chunks of data used in for packing/unpacking and
+ * signature generation generation
+ */
 #define CHUNKSIZE 512
 
 #define PACKAGE_VERSION 1

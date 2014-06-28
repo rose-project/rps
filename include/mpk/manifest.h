@@ -14,8 +14,6 @@ extern "C" {
 
 #define MANIFEST_VERSION "1.0"
 
-int mpk_manifest_test();
-
 /**
  * @brief mpk_manifest_read reads manifest file (or template) into pkginfo
  *        object

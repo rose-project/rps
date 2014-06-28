@@ -23,13 +23,23 @@ struct mpk_pkgref {
     enum MPK_VERSION_OPERATOR op;
 };
 
+/**
+ * @brief Initializes an empty pkgref object.
+ * @param pkg The object ti initialize.
+ */
 void mpk_pkgref_initempty(struct mpk_pkgref *pkg);
 
+/**
+ * @brief A list item of the pkgref list.
+ */
 struct mpk_pkgreflist_item {
-    struct mpk_pkgref *pkgref;
-    LIST_ENTRY(mpk_pkgreflist_item) items;
+    struct mpk_pkgref *pkgref; /**< The payload. */
+    LIST_ENTRY(mpk_pkgreflist_item) items; /**< Linked list metasata */
 };
 
+/**
+ * @brief Definition of a pkgref list head element.
+ */
 LIST_HEAD(mpk_pkgreflist, mpk_pkgreflist_item);
 
 int mpk_pkgreflist_init(struct mpk_pkgreflist *list);

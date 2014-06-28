@@ -35,9 +35,11 @@ enum MANIFEST_TAG {
     MANIFEST_TAG_COUNT,
 };
 
+/**
+ * @brief A manifest file tag.
+ */
 static struct manifest_tag {
-    const char *name;
-    /* TODO */
+    const char *name; /**< The string defining the tag. */
 } manifest_tag[] = {
     { "manifest" },
     { "name" },
@@ -58,7 +60,7 @@ static struct manifest_tag {
 
 /**
  * @brief manifest_tag_id determines the MANIFEST_TAG enum value from string
- * @param str the manifest tag a a null terminated string
+ * @param tag the manifest tag a a null terminated string
  * @return tag id fromMANIFEST_TA  or MANIFEST_TAG_UNDEFINED in case of an error
  */
 enum MANIFEST_TAG manifest_tag_id(const char *tag)
@@ -70,11 +72,6 @@ enum MANIFEST_TAG manifest_tag_id(const char *tag)
     return MANIFEST_TAG_UNDEFINED;
 }
 
-int mpk_manifest_test()
-{
-    return MPK_SUCCESS;
-}
- 
 enum MANIFEST_TAG get_tag_from_name(const char *tag)
 {
     int i;
