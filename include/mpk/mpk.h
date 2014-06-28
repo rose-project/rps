@@ -43,21 +43,6 @@ int mpk_create(const char *src_dir, const char *dst_dir,
  */
 int mpk_unpack(const char *package_file, const char *dst_dir);
 
-/**
- * @brief run_install simply runs installation of a single package without
- *          considering any dependency.
- * @param filename the mpk to install
- * @return MPK_SUCCESS or MPK_FAILURE
- */
-int mpk_install(const char *fpath);
-
-/**
- * @brief mpk_uninstall removes a package without respecting dependencies
- * @param package
- * @return
- */
-int mpk_uninstall(const char *name);
-
 #ifdef __cplusplus
 }
 #endif
