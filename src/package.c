@@ -53,6 +53,7 @@ int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     int tar_fd;
     int bzerr;
     char src[PATH_MAX + 1];
+    char dst[PATH_MAX + 1];
     char tar_fpath[PATH_MAX + 1];
     char tbz2_fpath[PATH_MAX + 1];
     unsigned char buffer[CHUNKSIZE];
@@ -69,9 +70,17 @@ int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     if (tar_open(&tar, tar_fpath, NULL, O_WRONLY|O_CREAT, 0644, 0) != 0)
         goto err0;
 
+    for (file = pkg->tools.lh_first; file; file = file->items.le_next) {
+        sprintf(src, "%s/tools/%s", srcdir, file->name);
+        sprintf(dst, "tools/%s", file->name);
+        if (tar_append_tree(tar, src, dst) != 0)
+            goto err2;
+    }
+
     for (file = pkg->files.lh_first; file; file = file->items.le_next) {
-        sprintf(src, "%s/%s", srcdir, file->name);
-        if (tar_append_tree(tar, src, file->name) != 0)
+        sprintf(src, "%s/data/%s", srcdir, file->name);
+        sprintf(dst, "data/%s", file->name);
+        if (tar_append_tree(tar, src, dst) != 0)
             goto err2;
     }
 

@@ -30,6 +30,7 @@ enum MANIFEST_TAG {
     MANIFEST_TAG_DESCRIPTION,
     MANIFEST_TAG_MAINTAINER,
     MANIFEST_TAG_LICENSE,
+    MANIFEST_TAG_TOOLS,
     MANIFEST_TAG_FILES,
     MANIFEST_TAG_SIGNATURE,
     MANIFEST_TAG_COUNT,
@@ -54,6 +55,7 @@ static struct manifest_tag {
     { "description" },
     { "maintainer" },
     { "license" },
+    { "tools" },
     { "files" },
     { "signature" }
 };
@@ -322,6 +324,8 @@ int handle_manifest_tag(struct mpk_pkginfo *pkg, char *tag, json_t *value)
         return parse_string(&pkg->maintainer, value);
     case MANIFEST_TAG_LICENSE:
         return parse_string(&pkg->license, value);
+    case MANIFEST_TAG_TOOLS:
+        return parse_filelist(&pkg->tools, value);
     case MANIFEST_TAG_FILES:
         return parse_filelist(&pkg->files, value);
     case MANIFEST_TAG_SIGNATURE:
@@ -572,8 +576,56 @@ int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
         return MPK_FAILURE;
     }
 
-    /* files */
+    /* tools */
     struct mpk_file *f;
+    json_t *tools_array = json_array();
+    if (!tools_array) {
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    for (f = pkg->tools.lh_first; f; f = f->items.le_next) {
+        json_t *tools_item = json_object();
+        if (!tools_item) {
+            json_decref(tools_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (json_object_set_new(tools_item, "name", json_string(f->name))
+                != 0) {
+            json_decref(tools_item);
+            json_decref(tools_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (f->hash_is_set) {
+            write_hexstr(tmp_str, f->hash, MPK_FILEHASH_SIZE);
+            tmp_str[MPK_FILEHASH_SIZE * 2] = 0;
+        } else {
+            tmp_str[0] = 0;
+        }
+        if (json_object_set_new(tools_item, "hash", json_string(tmp_str))
+                != 0) {
+            json_decref(tools_item);
+            json_decref(tools_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        if (json_array_append(tools_array, tools_item) != 0) {
+            json_decref(tools_item);
+            json_decref(tools_array);
+            json_decref(root);
+            return MPK_FAILURE;
+        }
+        json_decref(tools_item);
+    }
+    if (json_object_set(root, "tools", tools_array) != 0) {
+        json_decref(tools_array);
+        json_decref(root);
+        return MPK_FAILURE;
+    }
+    json_decref(tools_array);
+
+    /* files */
     json_t *files_array = json_array();
     if (!files_array) {
         json_decref(root);
@@ -613,7 +665,7 @@ int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
         }
         json_decref(files_item);
     }
-    if (json_object_set(root, "files", files_array) != 0) {
+    if (json_object_set(root, "data", files_array) != 0) {
         json_decref(files_array);
         json_decref(root);
         return MPK_FAILURE;

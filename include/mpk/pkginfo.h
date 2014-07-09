@@ -36,6 +36,7 @@ struct mpk_pkginfo {
     char *description;
     char *maintainer;
     char *license;
+    struct mpk_filelist tools;
     struct mpk_filelist files;
 /*    uint8_t package_hash[MPK_PACKAGE_HASH_LEN]; */
     unsigned char signature[MPK_PKGINFO_SIGNATURE_LEN];
