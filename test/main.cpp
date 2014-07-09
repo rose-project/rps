@@ -18,7 +18,8 @@ TEST(MpkHighLevelApi, package_create) {
 
 TEST(MpkHighLevelApi, package_unpack) {
     EXPECT_EQ(MPK_SUCCESS, mpk_init());
-    EXPECT_EQ(MPK_SUCCESS, mpk_unpack(TESTDATA_DIR"/testpackage.mpk", "/tmp"));
+    EXPECT_EQ(MPK_SUCCESS, mpk_unpack(TESTDATA_DIR
+        "/testpackage-1.2.0-R2013031915000000.mpk", "/tmp"));
     mpk_deinit();
     system("rm -rf /tmp/testpackage");
 }

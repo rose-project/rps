@@ -22,7 +22,14 @@
 int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     const char *outdir);
 
-int mpk_package_unpackmpk(const char *package_file, const char *outdir);
+/**
+ * @brief Unpacks a mpk.
+ * @param unpacked_to Returns the path to which the package has been unpacked.
+ * @param package_file The file to unpack.
+ * @param outdir The destination directory.
+ * @return
+ */
+int mpk_package_unpackmpk(const char *package_file, char *outdir);
 
 /**
  * @brief mpk_package_verify checks if the signature of the package is correct
@@ -33,6 +40,16 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir);
  */
 int mpk_package_verify(struct mpk_pkginfo *pkginf, const char *pkgdir,
     const char *pubkey);
+
+/**
+ * @brief Returns a allocated string of the package filename without any
+ * extension.
+ * @param fpath Path include mpk filename.
+ * @return The result string located on the heap.
+ *
+ * Example: /tmp/testpackage-1.2.0.mpk -> testpackage-1.2.0
+ */
+char *mpk_package_name_from_fpath(const char *fpath);
 
 #endif /* _PACKAGE_H */
 

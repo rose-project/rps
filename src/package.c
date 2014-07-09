@@ -84,7 +84,19 @@ int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
 
     /* compress using bz2 */
 
-    sprintf(tbz2_fpath, "%s/%s.mpk", outdir, pkg->name);
+    int version_str_len = mpk_version_serializedsize(&pkg->version);
+    char *version_str;
+    if (!(version_str = malloc(version_str_len + 1)))
+        goto err2;
+    if (mpk_version_serialize(version_str, NULL, version_str_len, &pkg->version)
+            != MPK_SUCCESS) {
+        free(version_str);
+        goto err2;
+    }
+    version_str[version_str_len] = 0;
+
+    sprintf(tbz2_fpath, "%s/%s-%s.mpk", outdir, pkg->name, version_str);
+    free(version_str);
     printf("path:%s\n", tbz2_fpath);
 
     if ((tar_fd = open(tar_fpath, O_RDONLY)) == -1)
@@ -114,7 +126,6 @@ err4:
 err3:
     close(tar_fd);
     goto err1;
-
 err2:
     tar_close(tar);
 err1:
@@ -123,35 +134,25 @@ err0:
     return MPK_FAILURE;
 }
 
-int mpk_package_unpackmpk(const char *package_file, const char *outdir)
+int mpk_package_unpackmpk(const char *package_file, char *outdir)
 {
-    char *package_file_c, *package_fname;
-    int len;
     FILE *tbz2_file, *tar_file;
-    char tar_fpath[MPK_PATH_MAX];
-    char dest_fpath[MPK_PATH_MAX];
+    const char *tar_fpath = "/tmp/mpk-temp.tar";
     BZFILE *bz2;
     int bzerr;
     unsigned char buf[CHUNKSIZE];
     size_t n;
     TAR *tar;
 
-    /* get filename of package without extension */
-    package_file_c = strdup(package_file);
-    package_fname = basename(package_file_c);
-    if ((len = strlen(package_fname)) > 4)
-        package_fname[len - 4] = 0;
-
-    snprintf(tar_fpath, MPK_PATH_MAX, "/tmp/%s.tar", package_fname);
-    if (!(tar_file = fopen(tar_fpath, "w"))) {
-        free(package_file_c);
+    if (!package_file || !outdir)
         return MPK_FAILURE;
-    }
+
+    if (!(tar_file = fopen(tar_fpath, "w")))
+        return MPK_FAILURE;
 
     if (!(tbz2_file = fopen(package_file, "r"))) {
         syslog(LOG_ERR, "could not open file: %s", package_file);
         fclose(tar_file);
-        free(package_file_c);
         return MPK_FAILURE;
     }
 
@@ -161,7 +162,6 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
     if (bzerr != BZ_OK) {
         fclose(tbz2_file);
         fclose(tar_file);
-        free(package_file_c);
         return MPK_FAILURE;
     }
     while (1) {
@@ -171,7 +171,6 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
             unlink(tar_fpath);
             BZ2_bzReadClose(&bzerr, bz2);
             fclose(tbz2_file);
-            free(package_file_c);
             return MPK_FAILURE;
         }
 
@@ -180,7 +179,6 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
             unlink(tar_fpath);
             BZ2_bzReadClose(&bzerr, bz2);
             fclose(tbz2_file);
-            free(package_file_c);
             return MPK_FAILURE;
         }
 
@@ -194,35 +192,62 @@ int mpk_package_unpackmpk(const char *package_file, const char *outdir)
 
     /* create output directory */
 
-    snprintf(dest_fpath, MPK_PATH_MAX, "%s/%s", outdir, package_fname);
-    if (mkdir(dest_fpath, 0700) != 0) {
+    if (mkdir(outdir, 0700) != 0) {
         syslog(LOG_ERR, "mkdir failed: %s", strerror(errno));
         unlink(tar_fpath);
-        free(package_file_c);
         return MPK_FAILURE;
     }
 
     /* unpack tar */
 
     if (tar_open(&tar, tar_fpath, NULL, O_RDONLY, 0644, 0) != 0) {
-        rmdir(dest_fpath);
+        rmdir(outdir);
         unlink(tar_fpath);
-        free(package_file_c);
         return MPK_FAILURE;
     }
 
-    if (tar_extract_all(tar, dest_fpath) != 0) {
+    if (tar_extract_all(tar, outdir) != 0) {
         syslog(LOG_ERR, "tar_extract_all() failed: %s", strerror(errno));
         tar_close(tar);
-        rmdir(dest_fpath);
+        rmdir(outdir);
         unlink(tar_fpath);
-        free(package_file_c);
         return MPK_FAILURE;
     }
     tar_close(tar);
-    free(package_file_c);
     if (unlink(tar_fpath) != 0)
         return MPK_FAILURE;
 
     return MPK_SUCCESS;
+}
+
+/* TODO: not very elegant, there should be a smarter solution */
+char *mpk_package_name_from_fpath(const char *fpath)
+{
+     /* copy so we can hand over the string to basename() */
+    char *fpath_c = strdup(fpath);
+
+    char *tmp_str = basename(fpath_c);
+
+    int len;
+    if ((len = strlen(tmp_str)) < 4) {
+        free(fpath_c);
+        return NULL;
+    }
+
+    if (tmp_str[len - 4] != '.') {
+        free(fpath_c);
+        return NULL;
+    }
+
+    tmp_str[len - 4] = 0;
+
+    char *package_name;
+    if ((package_name = malloc(strlen(tmp_str) + 1))) {
+        strcpy(package_name, tmp_str);
+        free(fpath_c);
+        return package_name;
+    }
+
+    free(fpath_c);
+    return NULL;
 }
