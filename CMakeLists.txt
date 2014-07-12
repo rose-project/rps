@@ -17,9 +17,9 @@ link_directories(
 )
 
 file(GLOB LIBMPK_SRC 
-    ${PROJECT_SOURCE_DIR}/src/*.c
+    ${PROJECT_SOURCE_DIR}/mpk/*.c
     ${PROJECT_SOURCE_DIR}/include/mpk/*.h
-    ${PROJECT_SOURCE_DIR}/src/*.h
+    ${PROJECT_SOURCE_DIR}/mpk/*.h
 )
 
 set(LIBMPK_LIBS
@@ -36,6 +36,8 @@ add_library(mpk SHARED ${LIBMPK_SRC} )
 target_link_libraries(mpk ${LIBMPK_LIBS})
 
 add_subdirectory(test)
+
+add_subdirectory(mpm)
 
 # generate API documentation
 

@@ -4,16 +4,11 @@ cmake_minimum_required(VERSION 2.8)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/ext/gtest/include
-#    ${LIBMPK_INC_DIR}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/mpk
 )
 
 add_definitions(-DTESTDATA_DIR="${PROJECT_SOURCE_DIR}/test/testdata/")
-
-link_directories(
-    ${LIBMPK_LIB_DIR}
-)
 
 set(MPK_TEST_SRC
     main.cpp

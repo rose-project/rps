@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <syslog.h>
+#include <dirent.h>
 #include <linux/limits.h>
 #include "mpk/defines.h"
 #include "mpk/pkginfo.h"
@@ -126,11 +127,9 @@ int mpk_install(const char *fpath, const char *prefix)
     struct mpk_pkginfo pkg;
     char tmp_path1[PATH_MAX + 1];
     char tmp_path2[PATH_MAX + 1];
-//    const char *filename;
-//    int filename_len;
-//    const char *pkgname;
+    char tmp_path3[PATH_MAX + 1];
 
-    if (!fpath || *prefix || strnlen(fpath, PATH_MAX) == PATH_MAX
+    if (!fpath || !prefix || strnlen(fpath, PATH_MAX) == PATH_MAX
             || strnlen(prefix, PATH_MAX) == PATH_MAX) {
         syslog(LOG_ERR, "%s: illegal arguments", __func__);
         return MPK_FAILURE;
@@ -172,8 +171,8 @@ int mpk_install(const char *fpath, const char *prefix)
         return MPK_FAILURE;
     }
 
-    sprintf(tmp_path1, "%s/%s", MPK_PACKAGE_STORE, pkg.name);
-    if (symlink(tmp_path1, outdir_name) != 0) {
+    sprintf(tmp_path1, "%s/%s/%s", prefix, MPK_PACKAGE_STORE, pkg.name);
+    if (symlink(outdir_name, tmp_path1) != 0) {
         syslog(LOG_ERR, "could not create symlink %s -> %s", tmp_path1,
             outdir_name);
         mpk_filehandling_deletedir(outdir_name);
@@ -183,7 +182,7 @@ int mpk_install(const char *fpath, const char *prefix)
     }
 
     struct mpk_file *f;
-    for (f = pkg.files.lh_first; f; f = f->items.le_next) {
+    for (f = pkg.data.lh_first; f; f = f->items.le_next) {
         struct stat st;
         if (access(f->name, R_OK|W_OK) == 0) {
             /* file already exists */
@@ -191,8 +190,9 @@ int mpk_install(const char *fpath, const char *prefix)
         }
 
         sprintf(tmp_path1, "%s/%s", prefix, f->name);
-        sprintf(tmp_path2, "%s/%s/%s", MPK_PACKAGE_STORE, pkg.name, f->name);
-        if (symlink(tmp_path1, tmp_path2) != 0) {
+        sprintf(tmp_path2, "/%s/data/%s", MPK_PACKAGE_STORE, f->name,
+            f->name);
+        if (symlink(tmp_path2, tmp_path1) != 0) {
             mpk_filehandling_deletedir(outdir_name);
             free(outdir_name);
             free(manifest_fname);
@@ -201,75 +201,6 @@ int mpk_install(const char *fpath, const char *prefix)
     }
 
     return MPK_SUCCESS;
-
-
-//    /* get package name from fpath */
-//    filename = basename(fpath);
-//    filename_len = strlen(filename) + 1;
-//    if (len < 5)
-//        return MPK_FAILURE;
-//    if (!(pkgname = malloc(filename_len)))
-//        return MPK_FAILURE;
-//    strcpy(pkgname, filename);
-//    pkgname[filename_len - 5] = 0; /* cut off the extension '.mpk' */
-
-//    /* package extract dir */
-//    if (!(unpack_dir = malloc(strlen("/tmp/") + strlen(pkgname) + 1))) {
-//        free(pkgname);
-//        return MPK_FAILURE;
-//    }
-//    sprintf(unpack_dir, "/tmp/%s", pkgname);
-
-//    if (mpk_package_unpackmpk(fpath, unpack_dir) != MPK_SUCCESS) {
-//        syslog(LOG_ERR, "mpk_package_unpackmpk() failed");
-//        free(unpack_dir);
-//        free(pkgname);
-//        return MPK_FAILURE;
-//    }
-
-//    if (mpk_manifest_read(&pkg, "...") != MPK_SUCCESS) {
-//        syslog(LOG_ERR, "mpk_manifest_read() failed");
-//        mpk_filehandling_deletedir(unpack_dir);
-//        free(unpack_dir);
-//        free(pkgname);
-//        return MPK_FAILURE;
-//    }
-
-//    if (mpk_package_verify(&pkg, "publickey") != MPK_SUCCESS) {
-//        syslog(LOG_ERR, "mpk_package_verifysignature() failed");
-//        mpk_pkginfo_delete(&pkg);
-//        mpk_filehandling_deletedir(unpack_dir);
-//        free(unpack_dir);
-//        free(pkgname);
-//        return MPK_FAILURE;
-//    }
-
-//    /* run preinstall script */
-
-//    /* copy files to destination */
-//    for (struct mpk_file *f = pkg.files.lh_first; f; f = f->items.le_next) {
-
-//    }
-//    if (mpk_filehandling_copydir())
-
-//    /* run install script */
-
-//    /* run cleanup script */
-
-//    /* save manifest and uninstall script */
-
-//    /* add package to list of installed packages in database */
-
-//    /* add package to the 'installed' list to report to backend */
-
-//    /* delete the rest from /tmp */
-//    mpk_filehandling_deletedir(unpack_dir);
-
-//    mpk_pkginfo_delete(&pkg);
-//    free(unpack_dir);
-//    free(pkgname);
-
-//    return MPK_SUCCESS;
 }
 
 
