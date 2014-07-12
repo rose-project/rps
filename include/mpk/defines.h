@@ -12,7 +12,6 @@
 
 #define MPK_PATH_MAX 4096 /* max lendth of a path including terminating 0 */
 
- /* TODO: make configurable; should be /var/packages by default */
-#define MPK_PACKAGE_STORE "/tmp/"
+#define MPK_PACKAGE_STORE "usr/packages"
 
 #endif /* _DEFINES_H */

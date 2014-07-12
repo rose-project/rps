@@ -31,11 +31,11 @@
     ],
     "conflicts": [
         {
-            "name": "testpackage2",
+            "name": "testpackage12",
             "version": "3.2.0"
         },
         {
-            "name": "testpackage2",
+            "name": "testpackage12",
             "version": "0.0"
         },
         {
@@ -44,70 +44,48 @@
         }
     ],
     "priority": 100,
-    "source": "http://packages.raschen-software.de/test/armv7hf/tespackage/1.2.0-R2013031915000000/tespackage.mpk",
+    "source": "http://packages.raschen-software.de/test/armv7hf/tespackage/1.2.0-R2013031915000000/tespackage-1.2.0-R201303191500000.mpk",
     "vendor": "Raschen Software",
     "description": "This is a description of the package testpackage.",
     "maintainer": "josef@raschen-software.de",
     "license": "GPLv2",
-    "files": [
+    "tool": [
         {
-            "name": "tools/anytool",
+            "name": "prepare.sh",
             "hash": ""
         },
         {
-            "name": "data/files_b/a/b1/file2",
+            "name": "install.sh",
             "hash": ""
         },
         {
-            "name": "data/files_b/a/b1/file1",
+            "name": "uninstall.sh",
             "hash": ""
         },
         {
-            "name": "data/files_b/a/b1/file",
+            "name": "anytool",
+            "hash": ""
+        }
+    ],
+    "data": [
+        {
+            "name": "etc/test.conf",
             "hash": ""
         },
         {
-            "name": "data/files_a/file",
+            "name": "usr/bin/test-bin0",
             "hash": ""
         },
         {
-            "name": "data/files_a/some_file",
+            "name": "usr/bin/test-bin1",
             "hash": ""
         },
         {
-            "name": "data/files_b/a/b/empty_file",
+            "name": "usr/bin/test-bin2",
             "hash": ""
         },
         {
-            "name": "data/files_a/file1",
-            "hash": ""
-        },
-        {
-            "name": "data/files_a/file2",
-            "hash": ""
-        },
-        {
-            "name": "data/file2",
-            "hash": ""
-        },
-        {
-            "name": "data/file1",
-            "hash": ""
-        },
-        {
-            "name": "data/file",
-            "hash": ""
-        },
-        {
-            "name": "control/prepare.sh",
-            "hash": ""
-        },
-        {
-            "name": "control/install.sh",
-            "hash": ""
-        },
-        {
-            "name": "control/cleanup.sh",
+            "name": "usr/lib/testlib/testlib.so",
             "hash": ""
         }
     ],

@@ -70,14 +70,14 @@ int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     if (tar_open(&tar, tar_fpath, NULL, O_WRONLY|O_CREAT, 0644, 0) != 0)
         goto err0;
 
-    for (file = pkg->tools.lh_first; file; file = file->items.le_next) {
-        sprintf(src, "%s/tools/%s", srcdir, file->name);
-        sprintf(dst, "tools/%s", file->name);
+    for (file = pkg->tool.lh_first; file; file = file->items.le_next) {
+        sprintf(src, "%s/tool/%s", srcdir, file->name);
+        sprintf(dst, "tool/%s", file->name);
         if (tar_append_tree(tar, src, dst) != 0)
             goto err2;
     }
 
-    for (file = pkg->files.lh_first; file; file = file->items.le_next) {
+    for (file = pkg->data.lh_first; file; file = file->items.le_next) {
         sprintf(src, "%s/data/%s", srcdir, file->name);
         sprintf(dst, "data/%s", file->name);
         if (tar_append_tree(tar, src, dst) != 0)

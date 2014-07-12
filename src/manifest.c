@@ -30,7 +30,7 @@ enum MANIFEST_TAG {
     MANIFEST_TAG_DESCRIPTION,
     MANIFEST_TAG_MAINTAINER,
     MANIFEST_TAG_LICENSE,
-    MANIFEST_TAG_TOOLS,
+    MANIFEST_TAG_TOOL,
     MANIFEST_TAG_FILES,
     MANIFEST_TAG_SIGNATURE,
     MANIFEST_TAG_COUNT,
@@ -55,8 +55,8 @@ static struct manifest_tag {
     { "description" },
     { "maintainer" },
     { "license" },
-    { "tools" },
-    { "files" },
+    { "tool" },
+    { "data" },
     { "signature" }
 };
 
@@ -324,10 +324,10 @@ int handle_manifest_tag(struct mpk_pkginfo *pkg, char *tag, json_t *value)
         return parse_string(&pkg->maintainer, value);
     case MANIFEST_TAG_LICENSE:
         return parse_string(&pkg->license, value);
-    case MANIFEST_TAG_TOOLS:
-        return parse_filelist(&pkg->tools, value);
+    case MANIFEST_TAG_TOOL:
+        return parse_filelist(&pkg->tool, value);
     case MANIFEST_TAG_FILES:
-        return parse_filelist(&pkg->files, value);
+        return parse_filelist(&pkg->data, value);
     case MANIFEST_TAG_SIGNATURE:
         return parse_signature(pkg->signature, &pkg->is_signed, value);
     default:
@@ -583,7 +583,7 @@ int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
         json_decref(root);
         return MPK_FAILURE;
     }
-    for (f = pkg->tools.lh_first; f; f = f->items.le_next) {
+    for (f = pkg->tool.lh_first; f; f = f->items.le_next) {
         json_t *tools_item = json_object();
         if (!tools_item) {
             json_decref(tools_array);
@@ -631,7 +631,7 @@ int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
         json_decref(root);
         return MPK_FAILURE;
     }
-    for (f = pkg->files.lh_first; f; f = f->items.le_next) {
+    for (f = pkg->data.lh_first; f; f = f->items.le_next) {
         json_t *files_item = json_object();
         if (!files_item) {
             json_decref(files_array);

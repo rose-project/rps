@@ -39,8 +39,8 @@ int mpk_pkginfo_init(struct mpk_pkginfo *pkg)
     pkg->description = NULL;
     pkg->maintainer = NULL;
     pkg->license = NULL;
-    mpk_filelist_init(&pkg->tools);
-    mpk_filelist_init(&pkg->files);
+    mpk_filelist_init(&pkg->tool);
+    mpk_filelist_init(&pkg->data);
     memset(pkg->signature, 0, MPK_PKGINFO_SIGNATURE_LEN);
     pkg->is_signed = false;
 
@@ -64,8 +64,8 @@ void mpk_pkginfo_clean(struct mpk_pkginfo *pkg)
     CHECK_AND_FREE(pkg->description);
     CHECK_AND_FREE(pkg->maintainer);
     CHECK_AND_FREE(pkg->license);
-    mpk_filelist_delete(&pkg->tools);
-    mpk_filelist_delete(&pkg->files);
+    mpk_filelist_delete(&pkg->tool);
+    mpk_filelist_delete(&pkg->data);
     memset(pkg->signature, 0, MPK_PKGINFO_SIGNATURE_LEN);
     pkg->is_signed = false;
 }
@@ -76,8 +76,8 @@ int mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     struct mpk_file *file;
     char basedir[PATH_MAX + 1];
 
-    snprintf(basedir, PATH_MAX, "%s/tools", pkgroot);
-    for (file = pkginf->tools.lh_first; file; file = file->items.le_next) {
+    snprintf(basedir, PATH_MAX, "%s/tool", pkgroot);
+    for (file = pkginf->tool.lh_first; file; file = file->items.le_next) {
         syslog(LOG_INFO, "tool %s", file->name);
         if (mpk_file_calchash(file, basedir) != MPK_SUCCESS) {
             return MPK_FAILURE;
@@ -85,7 +85,7 @@ int mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     }
 
     snprintf(basedir, PATH_MAX, "%s/data", pkgroot);
-    for (file = pkginf->files.lh_first; file; file = file->items.le_next) {
+    for (file = pkginf->data.lh_first; file; file = file->items.le_next) {
         syslog(LOG_INFO, "file %s", file->name);
         if (mpk_file_calchash(file, basedir) != MPK_SUCCESS) {
             return MPK_FAILURE;
@@ -190,7 +190,7 @@ int mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
     if (!EVP_SignUpdate(&ctx, pkginf->license, strlen(pkginf->license)))
         goto err3;
 
-    for (file = pkginf->tools.lh_first; file; file = file->items.le_next) {
+    for (file = pkginf->tool.lh_first; file; file = file->items.le_next) {
         if (!EVP_SignUpdate(&ctx, file->name, strlen(file->name)))
             goto err3;
 
@@ -198,7 +198,7 @@ int mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
             goto err3;
     }
 
-    for (file = pkginf->files.lh_first; file; file = file->items.le_next) {
+    for (file = pkginf->data.lh_first; file; file = file->items.le_next) {
         if (!EVP_SignUpdate(&ctx, file->name, strlen(file->name)))
             goto err3;
 
