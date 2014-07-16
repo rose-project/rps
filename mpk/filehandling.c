@@ -4,16 +4,20 @@
  * @copyright 2014 Josef Raschen <josef@raschen.org>
  */
 /** set feature set for nftw */
-#define _XOPEN_SOURCE 500
+#define _GNU_SOURCE
 #include <ftw.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <libgen.h>
+#include <syslog.h>
 #include <string.h>
 #include <limits.h>
 #include <errno.h>
+#include "mpk/defines.h"
 #include "filehandling.h"
 
 /* TODO make thread safe */
@@ -133,4 +137,46 @@ int mpk_filehandling_copyfile(const char *dst, const char *src)
     close(fd_dst);
 
     return 0;
+}
+
+
+int mpk_filehandling_createdir(const char *path)
+{
+    if (!path)
+        return MPK_FAILURE;
+
+    /* TODO */
+
+    return MPK_FAILURE;
+}
+
+
+char *mpk_filehandling_basename(const char *fpath)
+{
+    /* we need to copy fpath as basename might try to change it */
+    char *fpath_c = strdup(fpath);
+    char *bname = basename(fpath_c);
+
+    int len;
+    if ((len = strlen(bname)) < 4) {
+        free(fpath_c);
+        return NULL;
+    }
+
+    /* cut the suffix */
+    if (bname[len - 4] != '.') {
+        free(fpath_c);
+        return NULL;
+    }
+    bname[len - 4] = 0;
+
+    /* copy the result */
+    char *package_name;
+    if (!(package_name = malloc(strlen(bname) + 1))) {
+        free(fpath_c);
+        return NULL;
+    }
+    strcpy(package_name, bname);
+    free(fpath_c);
+    return package_name;
 }

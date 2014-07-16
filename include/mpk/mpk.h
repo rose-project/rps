@@ -46,17 +46,24 @@ int mpk_unpack(const char *package_file, const char *dst_dir);
 /**
  * @brief run_install simply runs installation of a single package without
  * considering any dependency or rights check.
- * @param filename the mpk to install
+ * @param fpath the mpk to install
  * @return MPK_SUCCESS or MPK_FAILURE
  */
 int mpk_install(const char *fpath, const char *prefix);
 
 /**
  * @brief mpk_uninstall removes a package without respecting dependencies
- * @param package
- * @return
+ * @return MPK_SUCCESS or MPK_FAILURE
  */
 int mpk_uninstall(const char *name);
+
+/**
+ * @brief Installs a package and removes an older version installed before.
+ * @param fpath The mpk file
+ * @param prefix The root directory to use
+ * @return MPK_SUCCESS or MPK_FAILURE
+ */
+int mpk_upgrade(const char *fpath, const char *prefix);
 
 #ifdef __cplusplus
 }

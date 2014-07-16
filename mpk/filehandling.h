@@ -26,4 +26,20 @@ int mpk_filehandling_copydir(const char *dst, const char *src);
  */
 int mpk_filehandling_copyfile(const char *dst, const char *src);
 
+/**
+ * Creates a directory including parents if necessary.
+ *
+ * @param path The path to create
+ * @return MPK_SUCCESS or MPK_FAILURE
+ */
+int mpk_filehandling_createdir(const char *path);
+
+/**
+ * @brief Returns a string allocated with malloc that contains the filename
+ * without a path without a trailing suffix.
+ * @param fpath The path of the file including its filename.
+ * @return Pointer to the basename if successful or NULL otherwise.
+ */
+char *mpk_filehandling_basename(const char *fpath);
+
 #endif /* _FILEHANDLING_H */

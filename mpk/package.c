@@ -228,35 +228,3 @@ int mpk_package_unpackmpk(const char *package_file, char *outdir)
 
     return MPK_SUCCESS;
 }
-
-/* TODO: not very elegant, there should be a smarter solution */
-char *mpk_package_name_from_fpath(const char *fpath)
-{
-     /* copy so we can hand over the string to basename() */
-    char *fpath_c = strdup(fpath);
-
-    char *tmp_str = basename(fpath_c);
-
-    int len;
-    if ((len = strlen(tmp_str)) < 4) {
-        free(fpath_c);
-        return NULL;
-    }
-
-    if (tmp_str[len - 4] != '.') {
-        free(fpath_c);
-        return NULL;
-    }
-
-    tmp_str[len - 4] = 0;
-
-    char *package_name;
-    if ((package_name = malloc(strlen(tmp_str) + 1))) {
-        strcpy(package_name, tmp_str);
-        free(fpath_c);
-        return package_name;
-    }
-
-    free(fpath_c);
-    return NULL;
-}
