@@ -15,6 +15,14 @@
 #include "mpk/file.h"
 
 
+/* has to be in sync with enum MPK_FILE_TYPE */
+const char *file_type_str[] = {
+    "r",
+    "x",
+    "w",
+    "d"
+};
+
 struct mpk_file *mpk_file_create()
 {
     struct mpk_file *f = malloc(sizeof(struct mpk_file));
@@ -25,6 +33,7 @@ struct mpk_file *mpk_file_create()
     f->name = NULL;
     memset(f->hash, 0, sizeof(f->hash));
     f->hash_is_set = false;
+    f->type = MPK_FILE_TYPE_UNDEFINED;
 
     return f;
 }
@@ -162,4 +171,12 @@ int mpk_filelist_addend(struct mpk_filelist *list, struct mpk_file *file)
         LIST_INSERT_HEAD(list, file, items);
 
     return MPK_SUCCESS;
+}
+
+const char *mpk_file_type_str(enum MPK_FILE_TYPE type)
+{
+    if (type == MPK_FILE_TYPE_UNDEFINED || type >= MPK_FILE_TYPE_CNT)
+        return NULL;
+
+    return file_type_str[type];
 }

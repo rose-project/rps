@@ -87,8 +87,12 @@ int mpk_pkginfo_calcfilehashes(struct mpk_pkginfo *pkginf,
     snprintf(basedir, PATH_MAX, "%s/data", pkgroot);
     for (file = pkginf->data.lh_first; file; file = file->items.le_next) {
         syslog(LOG_INFO, "file %s", file->name);
-        if (mpk_file_calchash(file, basedir) != MPK_SUCCESS) {
-            return MPK_FAILURE;
+        if (file->type == MPK_FILE_TYPE_R
+                || file->type == MPK_FILE_TYPE_EXE
+                || file->type == MPK_FILE_TYPE_W) {
+            if (mpk_file_calchash(file, basedir) != MPK_SUCCESS) {
+                return MPK_FAILURE;
+            }
         }
     }
 
@@ -200,6 +204,9 @@ int mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
 
     for (file = pkginf->data.lh_first; file; file = file->items.le_next) {
         if (!EVP_SignUpdate(&ctx, file->name, strlen(file->name)))
+            goto err3;
+
+        if (!EVP_SignUpdate(&ctx, &file->type, sizeof(enum MPK_FILE_TYPE)))
             goto err3;
 
         if (!EVP_SignUpdate(&ctx, file->hash, MPK_FILEHASH_SIZE))

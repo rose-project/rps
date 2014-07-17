@@ -253,8 +253,25 @@ int parse_filelist(struct mpk_filelist *files, json_t *in)
                     mpk_filelist_delete(files);
                     return MPK_FAILURE;
                 }
+            } else if (strcmp(key, "type") == 0) {
+                if (strcmp(json_string_value(val2), "r") == 0) {
+                    file->type = MPK_FILE_TYPE_R;
+                } else if (strcmp(json_string_value(val2), "x") == 0) {
+                    file->type = MPK_FILE_TYPE_EXE;
+                } else if (strcmp(json_string_value(val2), "w") == 0) {
+                    file->type = MPK_FILE_TYPE_W;
+                } else if (strcmp(json_string_value(val2), "d") == 0) {
+                    file->type = MPK_FILE_TYPE_DIR;
+                } else {
+                    syslog(LOG_ERR, "unexpected file type in file list");
+                    if (file->name)
+                        free(file->name);
+                    free(file);
+                    mpk_filelist_delete(files);
+                    return MPK_FAILURE;
+                }
             } else {
-                syslog(LOG_ERR, "Undefined tag in pkgref list");
+                syslog(LOG_ERR, "Undefined tag in file list");
                 if (file->name)
                     free(file->name);
                 free(file);
@@ -262,6 +279,8 @@ int parse_filelist(struct mpk_filelist *files, json_t *in)
                 return MPK_FAILURE;
             }
         }
+
+
 
         if (mpk_filelist_addend(files, file) != MPK_SUCCESS) {
             if (file->name)
@@ -645,17 +664,25 @@ int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
             json_decref(root);
             return MPK_FAILURE;
         }
+        if (f->type != MPK_FILE_TYPE_UNDEFINED) {
+            if (json_object_set_new(files_item, "type",
+                    json_string(mpk_file_type_str(f->type))) != 0) {
+                json_decref(files_item);
+                json_decref(files_array);
+                json_decref(root);
+                return MPK_FAILURE;
+            }
+        }
         if (f->hash_is_set) {
             write_hexstr(tmp_str, f->hash, MPK_FILEHASH_SIZE);
             tmp_str[MPK_FILEHASH_SIZE * 2] = 0;
-        } else {
-            tmp_str[0] = 0;
-        }
-        if (json_object_set_new(files_item, "hash", json_string(tmp_str)) != 0) {
-            json_decref(files_item);
-            json_decref(files_array);
-            json_decref(root);
-            return MPK_FAILURE;
+            if (json_object_set_new(files_item, "hash", json_string(tmp_str))
+                    != 0) {
+                json_decref(files_item);
+                json_decref(files_array);
+                json_decref(root);
+                return MPK_FAILURE;
+            }
         }
         if (json_array_append(files_array, files_item) != 0) {
             json_decref(files_item);

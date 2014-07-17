@@ -70,22 +70,29 @@
     "data": [
         {
             "name": "etc/test.conf",
-            "hash": ""
+            "type": "w"     
         },
         {
             "name": "usr/bin/test-bin0",
-            "hash": ""
+            "type": "x"
         },
         {
             "name": "usr/bin/test-bin1",
+            "type": "x",
             "hash": ""
         },
         {
             "name": "usr/bin/test-bin2",
+            "type": "x",
             "hash": ""
         },
         {
+            "name": "usr/bin/testlib",
+            "type": "d"
+        },
+        {
             "name": "usr/lib/testlib/testlib.so",
+            "type": "r",
             "hash": ""
         }
     ],

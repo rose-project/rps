@@ -78,10 +78,13 @@ int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     }
 
     for (file = pkg->data.lh_first; file; file = file->items.le_next) {
-        sprintf(src, "%s/data/%s", srcdir, file->name);
-        sprintf(dst, "data/%s", file->name);
-        if (tar_append_tree(tar, src, dst) != 0)
-            goto err2;
+        if (file->type == MPK_FILE_TYPE_R || file->type == MPK_FILE_TYPE_EXE
+                || file->type == MPK_FILE_TYPE_W) {
+            sprintf(src, "%s/data/%s", srcdir, file->name);
+            sprintf(dst, "data/%s", file->name);
+            if (tar_append_tree(tar, src, dst) != 0)
+                goto err2;
+        }
     }
 
     sprintf(src, "%s/manifest.txt", srcdir);
