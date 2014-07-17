@@ -619,16 +619,15 @@ int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
         if (f->hash_is_set) {
             write_hexstr(tmp_str, f->hash, MPK_FILEHASH_SIZE);
             tmp_str[MPK_FILEHASH_SIZE * 2] = 0;
-        } else {
-            tmp_str[0] = 0;
+            if (json_object_set_new(tools_item, "hash", json_string(tmp_str))
+                    != 0) {
+                json_decref(tools_item);
+                json_decref(tools_array);
+                json_decref(root);
+                return MPK_FAILURE;
+            }
         }
-        if (json_object_set_new(tools_item, "hash", json_string(tmp_str))
-                != 0) {
-            json_decref(tools_item);
-            json_decref(tools_array);
-            json_decref(root);
-            return MPK_FAILURE;
-        }
+
         if (json_array_append(tools_array, tools_item) != 0) {
             json_decref(tools_item);
             json_decref(tools_array);
