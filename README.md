@@ -8,19 +8,6 @@ Copyright 2014, Josef Raschen
 libmpk is a framework for creating and installing MPK packages. 
 
 
-External Libraries
-------------------
-
-This software includes external libraries with their own license and 
-copyright. These are:
-
-Google Test: Copyright 2008, Google Inc.
-
-JSMN: Copyright (c) 2010 Serge A. Zaitsev
-
-External code is located in the subdirectory 'ext'.
-
-
 License
 ----------
 

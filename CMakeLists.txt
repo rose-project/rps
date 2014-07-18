@@ -3,9 +3,19 @@
 project(mpk)
 cmake_minimum_required(VERSION 2.8)
 
+include(ExternalProject)
+
 set(CMAKE_C_FLAGS "-std=c11 -Wall -pedantic -Wextra")
 
-add_subdirectory(ext/gtest)
+set_directory_properties(PROPERTIES EP_PREFIX ${CMAKE_BINARY_DIR}/ext)
+
+ExternalProject_Add(
+    googletest
+    SVN_REPOSITORY http://googletest.googlecode.com/svn/trunk/
+    SVN_REVISION -r 690
+    TIMEOUT 10
+    INSTALL_COMMAND ""
+)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
