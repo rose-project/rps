@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 2.8)
 include(ExternalProject)
 
 set(CMAKE_C_FLAGS "-std=c11 -Wall -pedantic -Wextra")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -ggdb -O0")
 
 set_directory_properties(PROPERTIES EP_PREFIX ${CMAKE_BINARY_DIR}/ext)
 
