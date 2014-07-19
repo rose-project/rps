@@ -139,17 +139,51 @@ int mpk_filehandling_copyfile(const char *dst, const char *src)
     return 0;
 }
 
-
-int mpk_filehandling_createdir(const char *path)
+int mpk_filehandling_createdir(const char *path, mode_t mode)
 {
     if (!path)
         return MPK_FAILURE;
 
-    /* TODO */
+    char *subpath = strdup(path);
+    if (!subpath)
+        return MPK_FAILURE;
 
-    return MPK_FAILURE;
+    int len = strlen(path);
+
+    /* remove trailing slashe(s) */
+    int i = len - 1;
+    while ((i >= 0) && subpath[i--] == '/')
+        subpath[i] = 0;
+
+    struct stat st;
+    for (int i = 0; i <= len; i++) {
+        /* search for '/', check if the directory exists and create it if not */
+        if (path[i] == '/' || path[i] == 0) {
+            subpath[i] = 0;
+            if (stat(subpath, &st) != 0) {
+                if (errno != ENOENT) {
+                    free(subpath);
+                    return MPK_FAILURE;
+                }
+
+                /* create the new directory */
+                if (mkdir(subpath, mode) != 0) {
+                    free(subpath);
+                    return MPK_FAILURE;
+                }
+            }
+            if (!S_ISDIR(st.st_mode)) {
+                free(subpath);
+                return MPK_FAILURE;
+            }
+
+            if (i != len)
+                subpath[i] = '/';
+        }
+    }
+
+    return MPK_SUCCESS;
 }
-
 
 char *mpk_filehandling_basename(const char *fpath)
 {

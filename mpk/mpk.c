@@ -23,7 +23,6 @@
 
 #define MPK_CONFIG "/etc/libmpk.conf" /* default configuration file */
 
-
 int mpk_init()
 {
     /* initialize logging */
@@ -34,13 +33,11 @@ int mpk_init()
     return MPK_SUCCESS;
 }
 
-
 void mpk_deinit()
 {
     /* finish logging */
     closelog();
 }
-
 
 int mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
 {
@@ -95,7 +92,6 @@ int mpk_create(const char *src_dir, const char *dst_dir, const char *pkey)
     return MPK_SUCCESS;
 }
 
-
 int mpk_unpack(const char *package_file, const char *dst_dir)
 {
 
@@ -132,7 +128,6 @@ int mpk_unpack(const char *package_file, const char *dst_dir)
 
     return MPK_SUCCESS;
 }
-
 
 int mpk_install(const char *fpath, const char *prefix)
 {
@@ -209,7 +204,6 @@ int mpk_install(const char *fpath, const char *prefix)
     return MPK_SUCCESS;
 }
 
-
 int mpk_uninstall(const char *name)
 {
     /* TODO */
@@ -226,7 +220,6 @@ int mpk_uninstall(const char *name)
 
     return MPK_SUCCESS;
 }
-
 
 int mpk_upgrade(const char *fpath, const char *prefix)
 {

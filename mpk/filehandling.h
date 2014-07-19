@@ -32,7 +32,7 @@ int mpk_filehandling_copyfile(const char *dst, const char *src);
  * @param path The path to create
  * @return MPK_SUCCESS or MPK_FAILURE
  */
-int mpk_filehandling_createdir(const char *path);
+int mpk_filehandling_createdir(const char *path, mode_t mode);
 
 /**
  * @brief Returns a string allocated with malloc that contains the filename

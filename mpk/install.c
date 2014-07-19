@@ -8,6 +8,7 @@
 #include <string.h>
 #include "mpk/defines.h"
 #include "mpk/pkginfo.h"
+#include "filehandling.h"
 #include "install.h"
 
 
@@ -18,14 +19,40 @@ int mpk_install_doinstall(struct mpk_pkginfo *pkg, const char *pkg_path,
         return MPK_FAILURE;
 
     /* create directories */
-    /* TODO */
+    struct mpk_file *f;
+    char *path = NULL, *path_n = NULL;
+    for (f = pkg->data.lh_first; f; f = f->items.le_next) {
+        if (f->type == MPK_FILE_TYPE_DIR) {
+            if (!(path_n = realloc(path,
+                    strlen(prefix) + 1 + strlen(f->name) + 1))) {
+                if (path)
+                    free(path);
+                /* TODO: delete ceated paths */
+                return MPK_FAILURE;
+            }
+            path = path_n;
+            sprintf(path, "%s/%s", prefix, f->name);
+            if (mpk_filehandling_createdir(path, 0770) != MPK_SUCCESS) {
+                if (path)
+                    free(path);
+                /* TODO: delete ceated paths */
+                return MPK_FAILURE;
+            }
+        }
+    }
+    if (path)
+        free(path);
+    path = NULL;
+    path_n = NULL;
 
     /* create symlinks for content from data */
     /* TODO: clean up symlinks in case of failure */
 
     char *link_dest = NULL, *link_name = NULL;
-    struct mpk_file *f;
     for (f = pkg->data.lh_first; f; f = f->items.le_next) {
+        if (f->type == MPK_FILE_TYPE_DIR)
+            continue;
+
         int len = strlen("/usr/packages") + strlen(pkg->name)
             + strlen("/data/") + strlen(f->name) + 1;
         if (len > PATH_MAX)
