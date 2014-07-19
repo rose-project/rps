@@ -87,7 +87,7 @@
             "hash": ""
         },
         {
-            "name": "usr/bin/testlib",
+            "name": "usr/lib/testlib",
             "type": "d"
         },
         {
