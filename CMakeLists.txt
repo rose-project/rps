@@ -10,14 +10,6 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -ggdb -O0")
 
 set_directory_properties(PROPERTIES EP_PREFIX ${CMAKE_BINARY_DIR}/ext)
 
-ExternalProject_Add(
-    googletest
-    SVN_REPOSITORY http://googletest.googlecode.com/svn/trunk/
-    SVN_REVISION -r 690
-    TIMEOUT 10
-    INSTALL_COMMAND ""
-)
-
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
 )

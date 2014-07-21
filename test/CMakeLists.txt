@@ -2,6 +2,13 @@
 # Copyright 2013 Josef Raschen <josef@raschen.org>
 cmake_minimum_required(VERSION 2.8)
 
+ExternalProject_Add(
+    googletest
+    URL https://googletest.googlecode.com/files/gtest-1.7.0.zip
+    TIMEOUT 60
+    INSTALL_COMMAND ""
+)
+
 include_directories(
     ${PROJECT_BINARY_DIR}/ext/src/googletest/include
     ${PROJECT_SOURCE_DIR}/include
