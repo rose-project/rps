@@ -20,6 +20,7 @@ const char *file_type_str[] = {
     "r",
     "x",
     "w",
+    "s",
     "d"
 };
 
@@ -34,6 +35,7 @@ struct mpk_file *mpk_file_create()
     memset(f->hash, 0, sizeof(f->hash));
     f->hash_is_set = false;
     f->type = MPK_FILE_TYPE_UNDEFINED;
+    f->target = NULL;
 
     return f;
 }
@@ -41,9 +43,10 @@ struct mpk_file *mpk_file_create()
 void mpk_file_delete(struct mpk_file **file)
 {
     if (*file) {
-        if ((*file)->name) {
+        if ((*file)->name)
             free((*file)->name);
-        }
+        if ((*file)->target)
+            free((*file)->target);
         free(*file);
         *file = NULL;
     }
@@ -137,6 +140,8 @@ void mpk_filelist_delete(struct mpk_filelist *list)
         LIST_REMOVE(item, items);
         if (item->name)
             free(item->name);
+        if (item->target)
+            free(item->target);
         free(item);
     }
 }

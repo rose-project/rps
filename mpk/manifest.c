@@ -230,6 +230,7 @@ int parse_filelist(struct mpk_filelist *files, json_t *in)
             return MPK_FAILURE;
         }
         file->name = NULL;
+        file->target = NULL;
 
         char *key;
         json_t *val2;
@@ -249,6 +250,8 @@ int parse_filelist(struct mpk_filelist *files, json_t *in)
                 default:
                     if (file->name)
                         free(file->name);
+                    if (file->target)
+                        free(file->target);
                     free(file);
                     mpk_filelist_delete(files);
                     return MPK_FAILURE;
@@ -260,31 +263,39 @@ int parse_filelist(struct mpk_filelist *files, json_t *in)
                     file->type = MPK_FILE_TYPE_EXE;
                 } else if (strcmp(json_string_value(val2), "w") == 0) {
                     file->type = MPK_FILE_TYPE_W;
+                } else if (strcmp(json_string_value(val2), "s") == 0) {
+                    file->type = MPK_FILE_TYPE_S;
                 } else if (strcmp(json_string_value(val2), "d") == 0) {
                     file->type = MPK_FILE_TYPE_DIR;
                 } else {
                     syslog(LOG_ERR, "unexpected file type in file list");
                     if (file->name)
                         free(file->name);
+                    if (file->target)
+                        free(file->target);
                     free(file);
                     mpk_filelist_delete(files);
                     return MPK_FAILURE;
                 }
+            } else if (strcmp(key, "target") == 0) {
+                file->target = allocate_and_copy_str(json_string_value(val2));
             } else {
                 syslog(LOG_ERR, "Undefined tag in file list");
                 if (file->name)
                     free(file->name);
+                if (file->target)
+                    free(file->target);
                 free(file);
                 mpk_filelist_delete(files);
                 return MPK_FAILURE;
             }
         }
 
-
-
         if (mpk_filelist_addend(files, file) != MPK_SUCCESS) {
             if (file->name)
                 free(file->name);
+            if (file->target)
+                free(file->target);
             free(file);
             mpk_filelist_delete(files);
             return MPK_FAILURE;
@@ -677,6 +688,15 @@ int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
             tmp_str[MPK_FILEHASH_SIZE * 2] = 0;
             if (json_object_set_new(files_item, "hash", json_string(tmp_str))
                     != 0) {
+                json_decref(files_item);
+                json_decref(files_array);
+                json_decref(root);
+                return MPK_FAILURE;
+            }
+        }
+        if (f->target) {
+            if (json_object_set_new(files_item, "target",
+                    json_string(f->target)) != 0) {
                 json_decref(files_item);
                 json_decref(files_array);
                 json_decref(root);

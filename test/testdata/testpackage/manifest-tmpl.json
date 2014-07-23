@@ -92,6 +92,11 @@
         },
         {
             "name": "usr/lib/testlib/testlib.so",
+            "type": "s",
+            "target": "testlib.so.1"
+        },
+        {
+            "name": "usr/lib/testlib/testlib.so.1",
             "type": "r",
             "hash": ""
         }

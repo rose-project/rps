@@ -211,6 +211,10 @@ int mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file)
 
         if (!EVP_SignUpdate(&ctx, file->hash, MPK_FILEHASH_SIZE))
             goto err3;
+
+        if (file->type == MPK_FILE_TYPE_S)
+            if (!EVP_SignUpdate(&ctx, file->target, strlen(file->target)))
+                goto err3;
     }
 
     if (!EVP_SignFinal(&ctx, pkginf->signature, &sig_len, private_key))

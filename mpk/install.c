@@ -45,6 +45,7 @@ int mpk_install_doinstall(struct mpk_pkginfo *pkg, const char *pkg_path,
     path = NULL;
     path_n = NULL;
 
+
     /* create symlinks for content from data */
     /* TODO: clean up symlinks in case of failure */
 
@@ -53,7 +54,7 @@ int mpk_install_doinstall(struct mpk_pkginfo *pkg, const char *pkg_path,
         if (f->type == MPK_FILE_TYPE_DIR)
             continue;
 
-        int len = strlen("/usr/packages") + strlen(pkg->name)
+        int len = strlen("/usr/packages/") + strlen(pkg->name)
             + strlen("/data/") + strlen(f->name) + 1;
         if (len > PATH_MAX)
             return MPK_FAILURE;
@@ -89,13 +90,16 @@ int mpk_install_doinstall(struct mpk_pkginfo *pkg, const char *pkg_path,
                 return MPK_FAILURE;
         }
     }
-    free(link_name);
+    if (link_name)
+        free(link_name);
     link_name = NULL;
-    free(link_dest);
+    if (link_dest)
+        free(link_dest);
     link_dest = NULL;
 
 
     /* create package symlink */
+    /* TODO: symlink target does not need to be absolute */
 
     int len = strlen(prefix) + strlen("/usr/packages/") + strlen(pkg->name) + 1;
     char *package_link_name;

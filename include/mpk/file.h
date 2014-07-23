@@ -23,6 +23,7 @@ enum MPK_FILE_TYPE {
     MPK_FILE_TYPE_R, /**< read only file */
     MPK_FILE_TYPE_EXE, /**< executable */
     MPK_FILE_TYPE_W, /**< a modifiable file */
+    MPK_FILE_TYPE_S, /**< a symlink */
     MPK_FILE_TYPE_DIR, /**< not a file but a direcory */
     MPK_FILE_TYPE_CNT /**< not a file but a direcory */
 };
@@ -35,6 +36,7 @@ struct mpk_file {
     unsigned char hash[MPK_FILEHASH_SIZE]; /**< an SHA256 hash of the file */
     bool hash_is_set; /**< true if #hash has been set */
     enum MPK_FILE_TYPE type;
+    char *target; /**< used for link targets */
     LIST_ENTRY(mpk_file) items; /**< linked list metadata */
 };
 
