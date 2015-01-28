@@ -28,6 +28,7 @@ set(MPK_TEST_SRC
 set(MPK_TEST_LIBS
     mpk
     gtest
+    pthread
     gtest_main
 )
 
