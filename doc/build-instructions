@@ -1,2 +1,2 @@
 dependencies
-libyaml-dev, libssl-dev, libbz2-dev, libcrypto++-dev, libar-dev
+libjansson-dev libyaml-dev libssl-dev libbz2-dev libcrypto++-dev libtar-dev
