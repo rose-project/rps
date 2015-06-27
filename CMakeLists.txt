@@ -39,6 +39,8 @@ add_subdirectory(test)
 
 add_subdirectory(mpm)
 
+add_subdirectory(mpm-client)
+
 # generate API documentation
 
 option(BUILD_DOCUMENTATION "Build Doxygen based API documentation" OFF)

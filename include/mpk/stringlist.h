@@ -34,7 +34,7 @@ int mpk_stringlist_init(struct mpk_stringlist *list);
  * @brief Delete all contents of the list an free the elements memory.
  * @param list The head object of the list to delete.
  */
-void mpk_stringlist_delete(struct mpk_stringlist *list);
+void mpk_stringlist_empty(struct mpk_stringlist *list);
 
 /**
  * @brief Add an new string to the front of a list.

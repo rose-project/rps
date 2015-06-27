@@ -14,7 +14,7 @@ int mpk_stringlist_init(struct mpk_stringlist *list)
     return MPK_SUCCESS;
 }
 
-void mpk_stringlist_delete(struct mpk_stringlist *list)
+void mpk_stringlist_empty(struct mpk_stringlist *list)
 {
     struct mpk_stringlist_item *item;
     while (!LIST_EMPTY(list)) {

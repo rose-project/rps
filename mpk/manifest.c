@@ -125,7 +125,7 @@ int parse_stringlist(struct mpk_stringlist *strl, json_t *in)
     json_array_foreach(in, i, value) {
         const char *str = json_string_value(value);
         if (mpk_stringlist_addend(strl, str) != MPK_SUCCESS) {
-            mpk_stringlist_delete(strl);
+            mpk_stringlist_empty(strl);
         }
     }
 
@@ -141,12 +141,12 @@ int parse_pkgreflist(struct mpk_pkgreflist *pkgs, json_t *in)
     json_t *val1;
     json_array_foreach(in, i, val1) {
         if (!val1 || json_typeof(val1) != JSON_OBJECT) {
-            mpk_pkgreflist_delete(pkgs);
+            mpk_pkgreflist_empty(pkgs);
             return MPK_FAILURE;
         }
         struct mpk_pkgref *pkg = NULL;
         if (!(pkg = malloc(sizeof(struct mpk_pkgref)))) {
-            mpk_pkgreflist_delete(pkgs);
+            mpk_pkgreflist_empty(pkgs);
             return MPK_FAILURE;
         }
         pkg->name = NULL;
@@ -167,7 +167,7 @@ int parse_pkgreflist(struct mpk_pkgreflist *pkgs, json_t *in)
                     if (pkg->name)
                         free(pkg->name);
                     free(pkg);
-                    mpk_pkgreflist_delete(pkgs);
+                    mpk_pkgreflist_empty(pkgs);
                     return MPK_FAILURE;
                 }
             } else {
@@ -175,7 +175,7 @@ int parse_pkgreflist(struct mpk_pkgreflist *pkgs, json_t *in)
                 if (pkg->name)
                     free(pkg->name);
                 free(pkg);
-                mpk_pkgreflist_delete(pkgs);
+                mpk_pkgreflist_empty(pkgs);
                 return MPK_FAILURE;
             }
         }
@@ -183,7 +183,7 @@ int parse_pkgreflist(struct mpk_pkgreflist *pkgs, json_t *in)
             if (pkg->name)
                 free(pkg->name);
             free(pkg);
-            mpk_pkgreflist_delete(pkgs);
+            mpk_pkgreflist_empty(pkgs);
             return MPK_FAILURE;
         }
         pkg = NULL;

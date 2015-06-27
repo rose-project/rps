@@ -56,9 +56,9 @@ void mpk_pkginfo_clean(struct mpk_pkginfo *pkg)
 
     CHECK_AND_FREE(pkg->name);
     CHECK_AND_FREE(pkg->arch);
-    mpk_stringlist_delete(&pkg->regions);
-    mpk_pkgreflist_delete(&pkg->depends);
-    mpk_pkgreflist_delete(&pkg->conflicts);
+    mpk_stringlist_empty(&pkg->regions);
+    mpk_pkgreflist_empty(&pkg->depends);
+    mpk_pkgreflist_empty(&pkg->conflicts);
     CHECK_AND_FREE(pkg->source);
     CHECK_AND_FREE(pkg->vendor);
     CHECK_AND_FREE(pkg->description);

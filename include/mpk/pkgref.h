@@ -20,7 +20,7 @@ extern "C" {
 struct mpk_pkgref {
     char *name;
     struct mpk_version ver;
-    enum MPK_VERSION_OPERATOR op;
+    enum MPK_VERSION_OPERATOR op; /* TODO: remove operator */
 };
 
 /**
@@ -28,6 +28,21 @@ struct mpk_pkgref {
  * @param pkg The object ti initialize.
  */
 void mpk_pkgref_initempty(struct mpk_pkgref *pkg);
+
+/**
+ * @brief Allocated memory for a pkgref object and the contents of name and version arguments
+ * @param pkg Used to return a pointer to the object.
+ * @param name The package name.
+ * @param v The package version.
+ * @return MPK_SUCCESS or MPK_FAIL
+ */
+int mpk_pkgref_create(struct mpk_pkgref **pkg, const char *name, struct mpk_version *v);
+
+/**
+ * @brief Free all memory of the pkgref object.
+ * @param pkg The object to delete.
+ */
+void mpk_pkgref_delete(struct mpk_pkgref *pkg);
 
 /**
  * @brief A list item of the pkgref list.
@@ -44,7 +59,7 @@ LIST_HEAD(mpk_pkgreflist, mpk_pkgreflist_item);
 
 int mpk_pkgreflist_init(struct mpk_pkgreflist *list);
 
-void mpk_pkgreflist_delete(struct mpk_pkgreflist *list);
+void mpk_pkgreflist_empty(struct mpk_pkgreflist *list);
 
 int mpk_pkgreflist_add(struct mpk_pkgreflist *list,
     struct mpk_pkgref *pkgref);
