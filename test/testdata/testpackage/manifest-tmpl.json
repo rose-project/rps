@@ -1,0 +1,105 @@
+{
+    "manifest": "1.0",
+    "name": "testpackage",
+    "version": "1.2.0-R2013031915000000",
+    "arch": "armv7hf",
+    "regions": [
+        "EU",
+        "NA"
+    ],
+    "depends": [
+        {
+            "name": "test123",
+            "version": "0.0.123-R2014011412121200"
+        },
+        {
+            "name": "testpackage3",
+            "version": "12.52.12345"
+        },
+        {
+            "name": "abcde",
+            "version": "12.0"
+        },
+        {
+            "name": "testpackage-123",
+            "version": ""
+        },
+        {
+            "name": "testpackage_acb-def",
+            "version": "1.0.0"
+        }
+    ],
+    "conflicts": [
+        {
+            "name": "testpackage12",
+            "version": "3.2.0"
+        },
+        {
+            "name": "testpackage12",
+            "version": "0.0"
+        },
+        {
+            "name": "testpackage4",
+            "version": ""
+        }
+    ],
+    "priority": 100,
+    "source": "http://packages.raschen-software.de/test/armv7hf/tespackage/1.2.0-R2013031915000000/tespackage-1.2.0-R201303191500000.mpk",
+    "vendor": "Raschen Software",
+    "description": "This is a description of the package testpackage.",
+    "maintainer": "josef@raschen-software.de",
+    "license": "GPLv2",
+    "tool": [
+        {
+            "name": "prepare.sh",
+            "hash": ""
+        },
+        {
+            "name": "install.sh",
+            "hash": ""
+        },
+        {
+            "name": "uninstall.sh",
+            "hash": ""
+        },
+        {
+            "name": "anytool",
+            "hash": ""
+        }
+    ],
+    "data": [
+        {
+            "name": "etc/test.conf",
+            "type": "w"     
+        },
+        {
+            "name": "usr/bin/test-bin0",
+            "type": "x"
+        },
+        {
+            "name": "usr/bin/test-bin1",
+            "type": "x",
+            "hash": ""
+        },
+        {
+            "name": "usr/bin/test-bin2",
+            "type": "x",
+            "hash": ""
+        },
+        {
+            "name": "usr/lib/testlib",
+            "type": "d"
+        },
+        {
+            "name": "usr/lib/testlib/testlib.so",
+            "type": "s",
+            "target": "testlib.so.1"
+        },
+        {
+            "name": "usr/lib/testlib/testlib.so.1",
+            "type": "r",
+            "hash": ""
+        }
+    ],
+    "signature": ""
+}
