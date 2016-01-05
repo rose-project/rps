@@ -1,0 +1,98 @@
+{
+    "manifest": "1.0",
+    "name": "testpackage",
+    "version": 12,    
+    "api": {
+        "min": 12,
+        "target": 27,
+        "max": 27
+    },
+    "abi": ["armv7hf", "armv8", "x86_64"],
+    "locale": ["de:de", "us:en", "gb:en", "w:en"],
+    "depends": [
+        {
+            "name": "testb",
+            "version": [{ 3, 3}, {12, 144}, {146, 256} ]
+        },
+        {
+            "name": "testa",
+            "version": [{ 1024, 1024}]
+        }
+    ],
+    "conflicts": [
+        {
+            "name": "testd",
+            "version": [{ 0, 128}, {146, 256}]
+        },
+        {
+            "name": "teste",
+            "version": [{0, 5000}]
+        }
+    ],
+    "source": "http://packages.raschen-software.de/test/tespackage/testpackage-12.rps",
+    "vendor": "Raschen Software",
+    "label": "Test Package",
+    "version-label": "1.2.0",
+    "description": "This is a description of the package testpackage.",
+    "license": "MIT",
+    "files": [
+        {
+            "name": "prepare.sh",
+            "type": "tx",
+            "hash": ""
+        },
+        {
+            "name": "install.sh",
+            "type": "tx",
+            "hash": ""
+        },
+        {
+            "name": "uninstall.sh",
+            "type": "tx",
+            "hash": ""
+        },
+        {
+            "name": "anytool",
+            "type": "t",
+            "hash": ""
+        },
+        {
+            "name": "etc/test.conf",
+            "type": "w",  
+            "hash": ""
+        },
+        {
+            "name": "usr/bin/test-bin0",
+            "type": "x",
+            "hash": ""
+        },
+        {
+            "name": "usr/bin/test-bin1",
+            "type": "x",
+            "hash": ""
+        },
+        {
+            "name": "usr/bin/test-bin2",
+            "type": "x",
+            "hash": ""
+        },
+        {
+            "name": "usr/lib/testlib",
+            "type": "d",
+            "hash": ""
+        },
+        {
+            "name": "usr/lib/testlib/testlib.so",
+            "type": "l",
+            "target": "testlib.so.1"
+        },
+        {
+            "name": "usr/lib/testlib/testlib.so.1",
+            "type": "r",
+            "hash": ""
+        }
+    ],
+    "signatures": [
+        "app.sign"
+    ]
+}
