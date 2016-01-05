@@ -1,8 +1,8 @@
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
 #include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include <mpk/stringlist.h>
 #include <mpk/pkgref.h>
 #include <mpk/defines.h>

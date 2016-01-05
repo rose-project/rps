@@ -1,5 +1,5 @@
 set(MPM_CLIENT_SRC
-        main.c
+        main.cpp
 )
 
 set(MPM_CLIENT_LIBS
