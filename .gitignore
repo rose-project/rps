@@ -1,0 +1,14 @@
+# VIM
+*~
+*.swp
+*.swo
+
+# KATE
+*-swp
+
+# QT-Creator
+*.user
+
+# KDE
+.directory
+
