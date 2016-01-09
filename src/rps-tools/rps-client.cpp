@@ -6,7 +6,6 @@
 #include <rps/stringlist.h>
 #include <rps/pkgref.h>
 #include <rps/defines.h>
-#include "command.h"
 
 #define MPM_CLIENT_VERSION "0.1.0"
 
