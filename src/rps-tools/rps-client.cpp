@@ -6,6 +6,7 @@
 #include <rps/stringlist.h>
 #include <rps/pkgref.h>
 #include <rps/defines.h>
+#include "command.h"
 
 #define MPM_CLIENT_VERSION "0.1.0"
 
@@ -16,7 +17,7 @@ enum COMMAND {
     COMMAND_STATUS,
     COMMAND_INSTALL,
     COMMAND_REMOVE,
-    COMMAND_RELEASE
+    COMMAND_CHANGERELEASE
 };
 
 void show_usage()
@@ -85,7 +86,7 @@ enum COMMAND parse_commandline(int argc, char *argv[],
             cmd = COMMAND_UNDEFINED;
         }
     } else if (strcmp("change-release", *argv) == 0) {
-        cmd = COMMAND_RELEASE;
+        cmd = COMMAND_CHANGERELEASE;
         argv++;
         if (!*argv || (*(argv + 1) != 0)) {
             cmd = COMMAND_UNDEFINED;
@@ -139,7 +140,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "remove_packages() failed\n");
         }
         break;
-    case COMMAND_RELEASE:
+    case COMMAND_CHANGERELEASE:
         if (change_release(param) != MPK_SUCCESS) {
             fprintf(stderr, "change_release() failed\n");
         }

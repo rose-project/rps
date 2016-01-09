@@ -19,6 +19,6 @@ link_directories(
 
 add_subdirectory(src/test)
 add_subdirectory(src/rps)
-add_subdirectory(src/rps-client)
+add_subdirectory(src/rps-tools)
 
 install(DIRECTORY include/rps DESTINATION include)
