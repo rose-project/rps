@@ -16,7 +16,7 @@
 #include "rps/pkginfo.h"
 #include "rps/manifest.h"
 #include "filehandling.h"
-#include "package.h"
+#include "rps/package.h"
 #include "install.h"
 #include "rps/mpk.h"
 

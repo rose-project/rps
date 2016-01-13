@@ -13,7 +13,7 @@ set(RPS_SRC
     manifest.cpp
     ${RPS_INCLUDE_DIR}/mpk.h
     mpk.cpp
-    package.h
+    ${RPS_INCLUDE_DIR}/package.h
     package.cpp
     ${RPS_INCLUDE_DIR}/pkginfo.h
     pkginfo.cpp

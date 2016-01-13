@@ -14,7 +14,7 @@
 #include <bzlib.h>
 #include <linux/limits.h>
 #include <rps/defines.h>
-#include "package.h"
+#include "rps/package.h"
 
 /** The defaut size used for chunks of data used in for packing/unpacking and
  * signature generation generation

@@ -5,7 +5,7 @@
 #ifndef _MPK_INSTALL_H
 #define _MPK_INSTALL_H
 
-#include "package.h"
+#include "rps/package.h"
 
 /**
  * @brief Package installation
