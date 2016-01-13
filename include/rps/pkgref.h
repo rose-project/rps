@@ -8,10 +8,6 @@
 #include <sys/queue.h>
 #include <rps/version.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @brief The mpk_pkgref struct containts everything to uniquely idetify a
  * packge.
@@ -69,9 +65,5 @@ int mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
 int mpk_pkgreflist_remove(struct mpk_pkgreflist_item *item);
 
 int mpk_pkgreflist_print(FILE *f, struct mpk_pkgreflist *list);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _PKGREF_H */

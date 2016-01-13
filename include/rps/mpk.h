@@ -9,10 +9,6 @@
 #include <rps/manifest.h>
 #include <rps/pkginfo.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @brief mpk_init initializes the library (e.g. logging). It has to be called
  *          before using any API of libmpk.
@@ -63,9 +59,5 @@ int mpk_uninstall(const char *name);
  * @return MPK_SUCCESS or MPK_FAILURE
  */
 int mpk_upgrade(const char *fpath, const char *prefix);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _MPK_H */

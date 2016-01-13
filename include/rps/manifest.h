@@ -7,10 +7,6 @@
 
 #include <rps/pkginfo.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MANIFEST_VERSION "1.0"
 
 /**
@@ -33,9 +29,5 @@ int mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename);
  * @return MPK_SUCCESS or MPK_FAILURE
  */
 int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _MANIFEST_H */

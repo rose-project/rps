@@ -108,7 +108,7 @@ int mpk_unpack(const char *package_file, const char *dst_dir)
     if (!(package_fname = mpk_filehandling_basename(package_file)))
         return MPK_FAILURE;
 
-    if (!(outdir_name = malloc(strlen(dst_dir) + 1 + strlen(package_fname) + 1))) {
+    if (!(outdir_name = (char *)malloc(strlen(dst_dir) + 1 + strlen(package_fname) + 1))) {
         free(package_fname);
         return MPK_FAILURE;
     }
@@ -146,7 +146,7 @@ int mpk_install(const char *fpath, const char *prefix)
 
     len = strlen(prefix) + strlen("/usr/packages/") + strlen(package_fname) + 1;
     char *outdir;
-    if (!(outdir = malloc(len))) {
+    if (!(outdir = (char *)malloc(len))) {
         free(package_fname);
         return MPK_FAILURE;
     }
@@ -163,7 +163,7 @@ int mpk_install(const char *fpath, const char *prefix)
 
     len = strlen(outdir) + strlen("/manifest.txt") + 1;
     char *manifest_fpath;
-    if (!(manifest_fpath = malloc(len))) {
+    if (!(manifest_fpath = (char *)malloc(len))) {
         mpk_filehandling_deletedir(outdir);
         free(outdir);
         return MPK_FAILURE;

@@ -25,7 +25,7 @@ const char *file_type_str[] = {
 
 struct mpk_file *mpk_file_create()
 {
-    struct mpk_file *f = malloc(sizeof(struct mpk_file));
+    struct mpk_file *f = (mpk_file*)malloc(sizeof(struct mpk_file));
     if (!f) {
         return NULL;
     }
@@ -77,13 +77,13 @@ int mpk_file_calchash(struct mpk_file *file, const char *basedir)
 
     if (basedir) {
         len = strlen(file->name) + 1 + strlen(basedir) + 1;
-        if (!(filename = malloc(len))) {
+        if (!(filename = (char*)malloc(len))) {
             return MPK_FAILURE;
         }
         snprintf(filename, len, "%s/%s", basedir, file->name);
     } else {
         len = strlen(file->name) + 1;
-        if (!(filename = malloc(strlen(file->name) + 1))) {
+        if (!(filename = (char*)malloc(strlen(file->name) + 1))) {
             return MPK_FAILURE;
         }
         strncpy(filename, file->name, len);

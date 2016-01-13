@@ -23,10 +23,10 @@ int mpk_pkgref_create(struct mpk_pkgref **pkg, const char *name, struct mpk_vers
     if (!name || !v)
         return MPK_FAILURE;
 
-    if (!(p = malloc(sizeof(struct mpk_pkgref))))
+    if (!(p = (mpk_pkgref *)malloc(sizeof(struct mpk_pkgref))))
         return MPK_FAILURE;
 
-    if (!(p->name = malloc(strlen(name) + 1))) {
+    if (!(p->name = (char *)malloc(strlen(name) + 1))) {
         free(p);
         return MPK_FAILURE;
     }
@@ -79,7 +79,7 @@ int mpk_pkgreflist_add(struct mpk_pkgreflist *list,
     struct mpk_pkgref *pkgref)
 {
     struct mpk_pkgreflist_item *item
-        = malloc(sizeof(struct mpk_pkgreflist_item));
+        = (mpk_pkgreflist_item *)malloc(sizeof(struct mpk_pkgreflist_item));
     if (!item)
         return MPK_FAILURE;
 
@@ -94,7 +94,7 @@ int mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
     struct mpk_pkgref *pkgref)
 {
     struct mpk_pkgreflist_item *item
-        = malloc(sizeof(struct mpk_pkgreflist_item));
+        = (mpk_pkgreflist_item *)malloc(sizeof(struct mpk_pkgreflist_item));
     if (!item)
         return MPK_FAILURE;
 

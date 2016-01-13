@@ -46,6 +46,7 @@ struct mpk_package_header {
 int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
     const char *outdir)
 {
+    int version_str_len;
     TAR *tar;
     BZFILE *bz2;
     FILE *tbz2_file;
@@ -96,9 +97,9 @@ int mpk_package_packmpk(struct mpk_pkginfo *pkg, const char *srcdir,
 
     /* compress using bz2 */
 
-    int version_str_len = mpk_version_serializedsize(&pkg->version);
+    version_str_len = mpk_version_serializedsize(&pkg->version);
     char *version_str;
-    if (!(version_str = malloc(version_str_len + 1)))
+    if (!(version_str = (char *)malloc(version_str_len + 1)))
         goto err2;
     if (mpk_version_serialize(version_str, NULL, version_str_len, &pkg->version)
             != MPK_SUCCESS) {

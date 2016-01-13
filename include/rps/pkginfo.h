@@ -12,10 +12,6 @@
 #include <rps/version.h>
 #include <rps/stringlist.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MPK_PKGINFO_SIGNATURE_LEN 256
 
 /**
@@ -77,9 +73,5 @@ int mpk_pkginfo_sign(struct mpk_pkginfo *pkginf, const char *pkey_file);
 
 int mpk_pkginfo_signature_deserialize(unsigned char signature[],
     char *src);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

@@ -68,7 +68,7 @@ enum MANIFEST_TAG manifest_tag_id(const char *tag)
 {
     for (int i = 0; i < MANIFEST_TAG_COUNT; i++) {
         if (strcmp(manifest_tag[i].name, tag) == 0)
-            return i;
+            return (MANIFEST_TAG)i;
     }
     return MANIFEST_TAG_UNDEFINED;
 }
@@ -79,18 +79,18 @@ enum MANIFEST_TAG get_tag_from_name(const char *tag)
 
     for (i = 0; i < MANIFEST_TAG_COUNT; i++) {
         if (!strcmp(tag, manifest_tag[i].name)) {
-            return i;
+            return (MANIFEST_TAG)i;
         }
     }
 
-    return -1;
+    return MANIFEST_TAG_UNDEFINED;
 }
 
 char *allocate_and_copy_str(const char *str)
 {
     char *dest;
 
-    if (!(dest = malloc(strlen(str) + 1)))
+    if (!(dest = (char *)malloc(strlen(str) + 1)))
         return NULL;
 
     strcpy(dest, str);
@@ -144,13 +144,13 @@ int parse_pkgreflist(struct mpk_pkgreflist *pkgs, json_t *in)
             return MPK_FAILURE;
         }
         struct mpk_pkgref *pkg = NULL;
-        if (!(pkg = malloc(sizeof(struct mpk_pkgref)))) {
+        if (!(pkg = (mpk_pkgref *)malloc(sizeof(struct mpk_pkgref)))) {
             mpk_pkgreflist_empty(pkgs);
             return MPK_FAILURE;
         }
         pkg->name = NULL;
 
-        char *key;
+        const char *key;
         json_t *val2;
         json_object_foreach(val1, key, val2) {
             if (strcmp(key, "name") == 0) {
@@ -224,14 +224,14 @@ int parse_filelist(struct mpk_filelist *files, json_t *in)
             return MPK_FAILURE;
         }
         struct mpk_file *file = NULL;
-        if (!(file = malloc(sizeof(struct mpk_file)))) {
+        if (!(file = (mpk_file *)malloc(sizeof(struct mpk_file)))) {
             mpk_filelist_delete(files);
             return MPK_FAILURE;
         }
         file->name = NULL;
         file->target = NULL;
 
-        char *key;
+        const char *key;
         json_t *val2;
         json_object_foreach(val1, key, val2) {
             if (strcmp(key, "name") == 0) {
@@ -320,7 +320,7 @@ int parse_signature(unsigned char bytearray[], bool *is_signed, json_t *in)
     }
 }
 
-int handle_manifest_tag(struct mpk_pkginfo *pkg, char *tag, json_t *value)
+int handle_manifest_tag(struct mpk_pkginfo *pkg, const char *tag, json_t *value)
 {
     enum MANIFEST_TAG tag_id = manifest_tag_id(tag);
     if (tag_id == MANIFEST_TAG_UNDEFINED)
@@ -370,7 +370,7 @@ int mpk_manifest_read(struct mpk_pkginfo *pkginfo, const char *filename)
     if (!root)
         return MPK_FAILURE;
 
-    char *key;
+    const char *key;
     json_t *value;
     json_object_foreach(root, key, value) {
         handle_manifest_tag(pkginfo, key, value);

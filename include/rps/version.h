@@ -8,10 +8,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 enum MPK_VERSION_BUILDTYPE {
     MPK_VERSION_BUILDTYPE_UNKNOWN = -1,
     MPK_VERSION_BUILDTYPE_TEST,       /* T */
@@ -71,9 +67,5 @@ int mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
 int mpk_version_operator_print(FILE *f, enum MPK_VERSION_OPERATOR);
 
 int mpk_version_print(FILE *f, struct mpk_version *v);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _VERSION_H */

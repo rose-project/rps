@@ -7,10 +7,6 @@
 
 #include <sys/queue.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @brief A single element of the stringlist.
  */
@@ -58,9 +54,5 @@ int mpk_stringlist_addend(struct mpk_stringlist *list, const char *str);
  * @param item Item to remove.
  */
 void mpk_stringlist_remove(struct mpk_stringlist_item *item);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _STRINGLIST_H */

@@ -4,27 +4,27 @@ set(RPS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/rps)
 set(RPS_SRC
     ${RPS_INCLUDE_DIR}/defines.h
     ${RPS_INCLUDE_DIR}/file.h
-    file.c
+    file.cpp
     filehandling.h
-    filehandling.c
+    filehandling.cpp
     install.h
-    install.c
+    install.cpp
     ${RPS_INCLUDE_DIR}/manifest.h
-    manifest.c
+    manifest.cpp
     ${RPS_INCLUDE_DIR}/mpk.h
-    mpk.c
+    mpk.cpp
     package.h
-    package.c
+    package.cpp
     ${RPS_INCLUDE_DIR}/pkginfo.h
-    pkginfo.c
+    pkginfo.cpp
     ${RPS_INCLUDE_DIR}/pkgref.h
-    pkgref.c
+    pkgref.cpp
     stringhelper.h
-    stringhelper.c
+    stringhelper.cpp
     ${RPS_INCLUDE_DIR}/stringlist.h
-    stringlist.c
+    stringlist.cpp
     ${RPS_INCLUDE_DIR}/version.h
-    version.c
+    version.cpp
 )
 
 set(RPS_LIBS

@@ -23,7 +23,7 @@ int mpk_install_doinstall(struct mpk_pkginfo *pkg, const char *pkg_path,
     char *path = NULL, *path_n = NULL;
     for (f = pkg->data.lh_first; f; f = f->items.le_next) {
         if (f->type == MPK_FILE_TYPE_DIR) {
-            if (!(path_n = realloc(path,
+            if (!(path_n = (char *)realloc(path,
                     strlen(prefix) + 1 + strlen(f->name) + 1))) {
                 if (path)
                     free(path);
@@ -59,7 +59,7 @@ int mpk_install_doinstall(struct mpk_pkginfo *pkg, const char *pkg_path,
         if (len > PATH_MAX)
             return MPK_FAILURE;
         char *p;
-        if (!(p = realloc(link_dest, len))) {
+        if (!(p = (char *)realloc(link_dest, len))) {
             if (link_dest) {
                 free(link_dest);
                 return MPK_FAILURE;
@@ -74,7 +74,7 @@ int mpk_install_doinstall(struct mpk_pkginfo *pkg, const char *pkg_path,
             free(link_dest);
             return MPK_FAILURE;
         }
-        if (!(p = realloc(link_name, len))) {
+        if (!(p = (char *)realloc(link_name, len))) {
             if (link_name) {
                 free(link_name);
                 free(link_dest);
@@ -103,13 +103,13 @@ int mpk_install_doinstall(struct mpk_pkginfo *pkg, const char *pkg_path,
 
     int len = strlen(prefix) + strlen("/usr/packages/") + strlen(pkg->name) + 1;
     char *package_link_name;
-    if (!(package_link_name = malloc(len)))
+    if (!(package_link_name = (char *)malloc(len)))
         return MPK_FAILURE;
     snprintf(package_link_name, len, "%s/usr/packages/%s", prefix, pkg->name);
 
     len = strlen("/usr/packages/") + strlen(pkg->name) + 1;
     char *package_link_dest;
-    if (!(package_link_dest = malloc(len))) {
+    if (!(package_link_dest = (char *)malloc(len))) {
         free(package_link_name);
         return MPK_FAILURE;
     }

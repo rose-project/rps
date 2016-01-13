@@ -26,12 +26,12 @@ void mpk_stringlist_empty(struct mpk_stringlist *list)
 
 int mpk_stringlist_add(struct mpk_stringlist *list, const char *str)
 {
-    struct mpk_stringlist_item *item
-        = malloc(sizeof(struct mpk_stringlist_item));
+   struct mpk_stringlist_item *item
+        = (struct mpk_stringlist_item *)malloc(sizeof(struct mpk_stringlist_item));
     if (!item)
         return MPK_FAILURE;
 
-    if (!(item->str = malloc(strlen(str) + 1))) {
+    if (!(item->str = (char *)malloc(strlen(str) + 1))) {
         free(item);
         return MPK_FAILURE;
     }
@@ -46,11 +46,11 @@ int mpk_stringlist_add(struct mpk_stringlist *list, const char *str)
 int mpk_stringlist_addend(struct mpk_stringlist *list, const char *str)
 {
     struct mpk_stringlist_item *item
-        = malloc(sizeof(struct mpk_stringlist_item));
+        = (struct mpk_stringlist_item *)malloc(sizeof(struct mpk_stringlist_item));
     if (!item)
         return MPK_FAILURE;
 
-    if (!(item->str = malloc(strlen(str) + 1))) {
+    if (!(item->str = (char *)malloc(strlen(str) + 1))) {
         free(item);
         return MPK_FAILURE;
     }

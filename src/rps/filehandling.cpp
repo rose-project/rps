@@ -204,7 +204,7 @@ char *mpk_filehandling_basename(const char *fpath)
 
     /* copy the result */
     char *package_name;
-    if (!(package_name = malloc(strlen(bname) + 1))) {
+    if (!(package_name = (char *)malloc(strlen(bname) + 1))) {
         free(fpath_c);
         return NULL;
     }
