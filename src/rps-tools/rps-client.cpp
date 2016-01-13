@@ -11,12 +11,12 @@
 void show_usage()
 {
     fprintf(stderr, "usage: \n"
-        "  mpm-client status\n"
-        "  mpm-client install [PACKAGE ...]\n"
-        "  mpm-client remove [PACKAGE ...]\n"
-        "  mpm-client get-release RELEASE\n"
-        "  mpm-client help\n"
-        "  mpm-client version\n"
+        "  rps-client status\n"
+        "  rps-client install [PACKAGE ...]\n"
+        "  rps-client remove [PACKAGE ...]\n"
+        "  rps-client get-release RELEASE\n"
+        "  rps-client help\n"
+        "  rps-client version\n"
     );
 }
 
