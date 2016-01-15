@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <string>
+#include <list>
 
 enum MPK_VERSION_BUILDTYPE {
     MPK_VERSION_BUILDTYPE_UNKNOWN = -1,
@@ -67,5 +69,21 @@ int mpk_version_operator_deserialize(enum MPK_VERSION_OPERATOR *op,
 int mpk_version_operator_print(FILE *f, enum MPK_VERSION_OPERATOR);
 
 int mpk_version_print(FILE *f, struct mpk_version *v);
+
+
+namespace RPS {
+
+struct VersionInterval {
+    int32_t start;
+    int32_t end;
+};
+
+struct Dependency {
+    std::string name;
+    std::list<VersionInterval> requires;
+    std::list<VersionInterval> conflicts;
+};
+
+}
 
 #endif /* _VERSION_H */

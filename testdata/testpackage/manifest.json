@@ -7,26 +7,26 @@
         "target": 27,
         "max": 27
     },
-    "abi": ["armv7hf", "armv8", "x86_64"],
-    "locale": ["de:de", "us:en", "gb:en", "w:en"],
+    "abi": "armv7hf",
+    "localization": ["de:de", "en:us", "en:gb"],
     "depends": [
         {
             "name": "testb",
-            "version": [{ 3, 3}, {12, 144}, {146, 256} ]
+            "requires": [[ 3, 3], [12, 144], [146, 256]],
+            "conflicts": []
         },
         {
             "name": "testa",
-            "version": [{ 1024, 1024}]
-        }
-    ],
-    "conflicts": [
+            "requires": [[ 1024, 1024]]
+        },
         {
             "name": "testd",
-            "version": [{ 0, 128}, {146, 256}]
+            "conflicts": [[0, 128], [146, 256]]
         },
         {
             "name": "teste",
-            "version": [{0, 5000}]
+            "requires": [],
+            "conflicts": [[0, 5000]]
         }
     ],
     "source": "http://packages.raschen-software.de/test/tespackage/testpackage-12.rps",

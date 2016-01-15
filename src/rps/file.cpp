@@ -184,3 +184,18 @@ const char *mpk_file_type_str(enum MPK_FILE_TYPE type)
 
     return file_type_str[type];
 }
+
+
+namespace RPS {
+
+File::File()
+{
+
+}
+
+File::~File()
+{
+
+}
+
+}

@@ -5,6 +5,7 @@
 #ifndef _PKGREF_H
 #define _PKGREF_H
 
+#include <string>
 #include <sys/queue.h>
 #include <rps/version.h>
 
@@ -65,5 +66,13 @@ int mpk_pkgreflist_addend(struct mpk_pkgreflist *list,
 int mpk_pkgreflist_remove(struct mpk_pkgreflist_item *item);
 
 int mpk_pkgreflist_print(FILE *f, struct mpk_pkgreflist *list);
+
+namespace RPS {
+
+struct PkgRef {
+    std::string name;
+    int32_t version;
+};
+}
 
 #endif /* _PKGREF_H */

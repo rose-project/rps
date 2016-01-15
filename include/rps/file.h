@@ -5,8 +5,10 @@
 #define _FILE_H
 
 #include <stdbool.h>
+#include <string>
 #include <sys/queue.h>
 #include <openssl/sha.h>
+
 
 #define MPK_FILEHASH_SIZE SHA256_DIGEST_LENGTH
 
@@ -73,5 +75,27 @@ int mpk_filelist_addend(struct mpk_filelist *list, struct mpk_file *file);
  * @return A null terminated string
  */
 const char *mpk_file_type_str(enum MPK_FILE_TYPE type);
+
+namespace RPS {
+
+class File {
+public:
+    enum class Type {
+        Undefined = -1, /**< undefined type */
+        ReadOnly,
+        Executable,
+        Writeable,
+        Symlink,
+        Directory
+    };
+
+public:
+    File();
+    ~File();
+
+};
+
+}
+
 
 #endif /* _FILE_H */

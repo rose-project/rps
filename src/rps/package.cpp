@@ -232,3 +232,17 @@ int mpk_package_unpackmpk(const char *package_file, char *outdir)
 
     return MPK_SUCCESS;
 }
+
+namespace RPS {
+
+Package::Package()
+{
+
+}
+
+Package::~Package()
+{
+
+}
+
+}

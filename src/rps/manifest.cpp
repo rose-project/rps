@@ -1,6 +1,7 @@
 /**
  * @file manifest.c
  */
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
@@ -736,3 +737,235 @@ int mpk_manifest_write(const char *filename, struct mpk_pkginfo *pkg)
 
     return MPK_SUCCESS;
 }
+
+namespace RPS {
+
+
+std::map<std::string, Manifest::Tag> Manifest::ManifestTags {
+    {"manifest", Manifest::Tag::Manifest},
+    {"name", Manifest::Tag::Name},
+    {"version", Manifest::Tag::Version},
+    {"api", Manifest::Tag::API},
+    {"abi", Manifest::Tag::ABI},
+    {"localization", Manifest::Tag::Localization},
+    {"depends", Manifest::Tag::Depends},
+    {"source", Manifest::Tag::Source},
+    {"vendor", Manifest::Tag::Vendor},
+    {"label", Manifest::Tag::Label},
+    {"version-label", Manifest::Tag::VersionLabel},
+    {"description", Manifest::Tag::Description},
+    {"license", Manifest::Tag::License},
+    {"files", Manifest::Tag::Files},
+    {"signatures", Manifest::Tag::Signatures},
+};
+
+
+std::map<Manifest::Tag, std::function<void(Manifest &, json_t *)>>
+        Manifest::ReadTagFunctions {
+    {Manifest::Tag::Manifest, Manifest::readTagManifest},
+    {Manifest::Tag::Name, Manifest::readTagName},
+    {Manifest::Tag::Version, Manifest::readTagVersion},
+    {Manifest::Tag::ABI, Manifest::readTagABI},
+    {Manifest::Tag::API, Manifest::readTagAPI},
+    {Manifest::Tag::Localization, Manifest::readTagLocalization},
+    {Manifest::Tag::Depends, Manifest::readTagDepends},
+    {Manifest::Tag::Source, Manifest::readTagSource},
+    {Manifest::Tag::Vendor, Manifest::readTagVendor},
+    {Manifest::Tag::Label, Manifest::readTagLabel},
+    {Manifest::Tag::VersionLabel, Manifest::readTagVersionLabel},
+    {Manifest::Tag::Description, Manifest::readTagDescription},
+    {Manifest::Tag::License, Manifest::readTagLicense},
+    {Manifest::Tag::Files, Manifest::readTagFiles},
+    {Manifest::Tag::Signatures, Manifest::readTagSignatures},
+};
+
+Manifest::Manifest()
+{
+
+}
+
+Manifest::~Manifest()
+{
+
+}
+
+void Manifest::readFromFile(std::string filename)
+{
+    json_t *root = json_load_file(filename.c_str(), 0, NULL);
+
+    std::cout << "read manifest: " << filename << std::endl;
+
+    if (!root)
+        throw "cannot read manifest";
+
+    const char *key;
+    json_t *value;
+    json_object_foreach(root, key, value) {
+        Tag t = ManifestTags[key];
+        if (t == Tag::Undefined)
+            throw "invalid key in manifest";
+
+        ReadTagFunctions[t](*this, value);
+    }
+
+    json_decref(root);
+}
+
+std::string Manifest::packageName() const
+{
+    return mPackageName;
+}
+
+void Manifest::setPackageName(const std::string &packageName)
+{
+    mPackageName = packageName;
+}
+
+void Manifest::readTagManifest(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag manifest" << std::endl;
+
+    const char *str = json_string_value(in);
+    if (!str)
+        throw "connot read package name";
+
+    mfst.setPackageName(str);
+}
+
+void Manifest::readTagName(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag name" << std::endl;
+
+    const char *str = json_string_value(in);
+    if (!str)
+        throw "connot read package name";
+
+    mfst.setPackageName(str);
+}
+
+void Manifest::readTagVersion(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag version" << std::endl;
+}
+
+void Manifest::readTagAPI(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag API" << std::endl;
+}
+
+void Manifest::readTagABI(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag ABI" << std::endl;
+}
+
+void Manifest::readTagLocalization(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag localization" << std::endl;
+}
+
+void Manifest::readTagDepends(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag depends" << std::endl;
+}
+
+void Manifest::readTagSource(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag source" << std::endl;
+}
+
+void Manifest::readTagVendor(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag vendor" << std::endl;
+}
+
+void Manifest::readTagLabel(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag label" << std::endl;
+}
+
+void Manifest::readTagVersionLabel(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag version label" << std::endl;
+}
+
+void Manifest::readTagDescription(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag description" << std::endl;
+}
+
+void Manifest::readTagLicense(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag license" << std::endl;
+}
+
+void Manifest::readTagFiles(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag files" << std::endl;
+}
+
+void Manifest::readTagSignatures(Manifest &mfst, json_t *in)
+{
+    std::cout << "read tag signature" << std::endl;
+}
+
+Manifest::TargetArch Manifest::targetArch() const
+{
+    return mTargetArch;
+}
+
+void Manifest::setTargetArch(const Manifest::TargetArch &targetArch)
+{
+    mTargetArch = targetArch;
+}
+
+int32_t Manifest::apiMax() const
+{
+    return mApiMax;
+}
+
+void Manifest::setApiMax(const int32_t &apiMax)
+{
+    mApiMax = apiMax;
+}
+
+int32_t Manifest::apiTarget() const
+{
+    return mApiTarget;
+}
+
+void Manifest::setApiTarget(const int32_t &apiTarget)
+{
+    mApiTarget = apiTarget;
+}
+
+int32_t Manifest::apiMin() const
+{
+    return mApiMin;
+}
+
+void Manifest::setApiMin(const int32_t &apiMin)
+{
+    mApiMin = apiMin;
+}
+
+int32_t Manifest::packageVersion() const
+{
+    return mPackageVersion;
+}
+
+void Manifest::setPackageVersion(const int32_t &packageVersion)
+{
+    mPackageVersion = packageVersion;
+}
+
+Manifest::ManifestVersion Manifest::manifestVersion() const
+{
+    return mManifestVersion;
+}
+
+void Manifest::setManifestVersion(const ManifestVersion &version)
+{
+    mManifestVersion = version;
+}
+
+} // namespace RPS

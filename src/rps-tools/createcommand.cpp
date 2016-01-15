@@ -1,8 +1,9 @@
-#include <iostream>
 #include <libgen.h>
-#include "createcommand.h"
-
+#include <iostream>
+#include <cstddef>
 #include <string>
+#include <rps/manifest.h>
+#include "createcommand.h"
 
 namespace RPS {
 namespace Tools {
@@ -23,8 +24,11 @@ void CreateCommand::execute(char *argv[])
             break;
 
         if (argv[0] == std::string("-d")) {
-            source_dir = dirname(argv[1]);
-            package_name = basename(argv[1]);
+            std::string path(argv[1]);
+
+            const auto last_slash_pos = path.find_last_of('/');
+            package_name = path.substr(last_slash_pos + 1);
+            source_dir =  path.substr(0, last_slash_pos);
             argv += 2;
             continue;
         }
@@ -46,6 +50,10 @@ void CreateCommand::execute(char *argv[])
         << "' in '" << out_dir << "'." << std::endl;
 
     // pack the package
+
+    RPS::Manifest mfst;
+    mfst.readFromFile(source_dir + "/" + package_name + "/manifest.json");
+
 
 
     // sign the package
