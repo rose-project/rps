@@ -8,6 +8,7 @@
 
 # QT-Creator
 *.user
+*.autosave
 
 # KDE
 .directory
