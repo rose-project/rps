@@ -811,6 +811,34 @@ void Manifest::readFromFile(std::string filename)
     json_decref(root);
 }
 
+void Manifest::writeManifestFile(std::__cxx11::string filename)
+{
+    json_t *root;
+
+    root = json_object();
+
+     /* manifest */
+    if (json_object_set_new(root, "manifest", json_string("1.0")) != 0) {
+        json_decref(root);
+        throw "cannot write manifest version tag";
+    }
+
+    /* name */
+    if (json_object_set_new(root, "name", json_string(this->mPackageName.c_str())) != 0) {
+        json_decref(root);
+        throw "cannot write package name";
+    }
+
+    // TODO
+
+    if (json_dump_file(root, filename.c_str(), JSON_INDENT(4)|JSON_PRESERVE_ORDER) != 0) {
+        json_decref(root);
+        throw "json_dump_file failed";
+    }
+
+    json_decref(root);
+}
+
 std::string Manifest::packageName() const
 {
     return mPackageName;

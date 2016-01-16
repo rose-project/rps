@@ -72,6 +72,8 @@ public:
 
     void readFromFile(std::string filename);
 
+    void writeManifestFile(std::string filename);
+
     std::string packageName() const;
     void setPackageName(const std::string &packageName);
 

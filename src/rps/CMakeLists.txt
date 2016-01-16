@@ -28,6 +28,7 @@ set(RPS_SRC
 )
 
 set(RPS_LIBS
+    stdc++fs
     bz2
     tar
     curl
