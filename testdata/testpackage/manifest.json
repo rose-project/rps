@@ -7,7 +7,7 @@
         "target": 27,
         "max": 27
     },
-    "abi": "armv7hf",
+    "arch": "armv7hf",
     "localization": ["de:de", "en:us", "en:gb"],
     "depends": [
         {

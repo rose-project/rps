@@ -47,26 +47,13 @@ public:
         Version1_0 = 100
     };
 
-    enum class TargetArch {
-        Unknown = -1,
-        Generic,
-        ARMv6,
-    };
-
-    enum class Locales {
-        Unknown = -1,
-        EN_US,
-        EN_GB,
-        DE_DE
-    };
-
     enum class Tag {
         Undefined = 0,
         Manifest,
         Name,
         Version,
         API,
-        ABI,
+        Arch,
         Localization,
         Depends,
         Source,
@@ -89,22 +76,24 @@ public:
     void setPackageName(const std::string &packageName);
 
     ManifestVersion manifestVersion() const;
-    void setManifestVersion(const ManifestVersion &version);
+    void setManifestVersion(const ManifestVersion version);
 
     int32_t packageVersion() const;
-    void setPackageVersion(const int32_t &packageVersion);
+    void setPackageVersion(const int32_t packageVersion);
 
     int32_t apiMin() const;
-    void setApiMin(const int32_t &apiMin);
+    void setApiMin(const int32_t apiMin);
 
     int32_t apiTarget() const;
-    void setApiTarget(const int32_t &apiTarget);
+    void setApiTarget(const int32_t apiTarget);
 
     int32_t apiMax() const;
-    void setApiMax(const int32_t &apiMax);
+    void setApiMax(const int32_t apiMax);
 
-    TargetArch targetArch() const;
-    void setTargetArch(const TargetArch &targetArch);
+    std::list<std::string> &locales();
+
+    std::string targetArch() const;
+    void setTargetArch(const std::string &targetArch);
 
 private:
     void handleTag(const std::string &tag, json_t value);
@@ -113,7 +102,7 @@ private:
     static void readTagName(Manifest &mfst, json_t *in);
     static void readTagVersion(Manifest &mfst, json_t *in);
     static void readTagAPI(Manifest &mfst, json_t *in);
-    static void readTagABI(Manifest &mfst, json_t *in);
+    static void readTagArch(Manifest &mfst, json_t *in);
     static void readTagLocalization(Manifest &mfst, json_t *in);
     static void readTagDepends(Manifest &mfst, json_t *in);
     static void readTagSource(Manifest &mfst, json_t *in);
@@ -132,8 +121,8 @@ private:
     int32_t mApiMin;
     int32_t mApiTarget;
     int32_t mApiMax;
-    TargetArch mTargetArch;
-    std::list<Locales> mLocales;
+    std::string mTargetArch;
+    std::list<std::string> mLocales;
     std::list<Dependency> mDependencies;
     std::string mSource;
     std::string mVendor;
