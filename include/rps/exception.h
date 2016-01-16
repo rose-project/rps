@@ -9,7 +9,10 @@ namespace RPS {
 class Exception : public std::exception
 {
 public:
-    Exception(std::string reason);
+    Exception(std::string reason) noexcept;
+    ~Exception() noexcept;
+
+    virtual const char* what() const noexcept;
 
 private:
     std::string mReason;

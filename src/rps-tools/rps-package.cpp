@@ -1,4 +1,5 @@
 #include <iostream>
+#include <rps/exception.h>
 #include "command.h"
 #include "createcommand.h"
 
@@ -55,6 +56,8 @@ int main(int argc, char *argv[])
     } catch (const char *str) {
         std::cerr << "Error: " << str << std::endl;
         return EXIT_FAILURE;
+    } catch (RPS::Exception e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 
 
