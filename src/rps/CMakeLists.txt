@@ -3,6 +3,8 @@ set(RPS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/rps)
 
 set(RPS_SRC
     ${RPS_INCLUDE_DIR}/defines.h
+    ${RPS_INCLUDE_DIR}/exception.h
+    exception.cpp
     ${RPS_INCLUDE_DIR}/file.h
     file.cpp
     filehandling.h
