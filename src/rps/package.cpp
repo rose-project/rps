@@ -1,6 +1,9 @@
  /**
   * @file package.c
   */
+#include <experimental/filesystem>
+#include <rps/exception.h>
+
 #define _GNU_SOURCE
 #include <stdlib.h>
 #include <string.h>
@@ -235,9 +238,18 @@ int mpk_package_unpackmpk(const char *package_file, char *outdir)
 
 namespace RPS {
 
+const std::experimental::filesystem::path Package::mWorkDir = "/tmp/rps";
+
 Package::Package()
 {
+    setupWorkdir();
+}
 
+Package::Package(std::string package_file)
+    : mPackagePath(package_file)
+{
+    setupWorkdir();
+    readPackageFile();
 }
 
 Package::~Package()
@@ -245,4 +257,146 @@ Package::~Package()
 
 }
 
+void Package::readPackageFile(const std::string &package_path)
+{
+    if (!package_path.empty())
+        mPackagePath = package_path;
+
+    // TODO
+
 }
+
+void Package::readPackageDir(std::string package_dir)
+{
+    std::experimental::filesystem::path pkgdir = package_dir;
+    if (!std::experimental::filesystem::exists(pkgdir))
+        throw Exception("package directory '" + package_dir + "'does not exist");
+
+    mManifest.readFromFile(package_dir + "/manifest.json");
+
+    mUnpackedDir = package_dir;
+}
+
+void Package::signPackage(std::__cxx11::string priv_key)
+{
+
+}
+
+void Package::verify(std::__cxx11::string pub_key)
+{
+
+}
+
+void Package::writePackge(std::__cxx11::string dest_dir)
+{
+    if (mManifest.packageName().empty())
+        throw Exception("package metatdata is not set");
+
+    // create package workdir or delete old data
+    std::experimental::filesystem::path package_tmp_dir =
+            std::string("/tmp/rps/") + mManifest.packageName();
+    if (std::experimental::filesystem::exists(package_tmp_dir))
+        std::experimental::filesystem::remove_all(package_tmp_dir);
+
+    std::experimental::filesystem::create_directory(package_tmp_dir);
+
+    mManifest.writeManifestFile(package_tmp_dir.string() + "/manifest.json");
+
+    // TODO: copy files
+
+    // TODO: pack + compress
+    pack();
+
+    // TODO: copy to destination directory
+
+
+}
+
+void Package::setupWorkdir()
+{
+    // create rps working dir if not present
+    std::experimental::filesystem::path rps_tmp_dir = "/tmp/rps";
+    if (!std::experimental::filesystem::exists(rps_tmp_dir))
+        std::experimental::filesystem::create_directory(rps_tmp_dir);
+}
+
+void Package::pack()
+{
+    TAR *tar;
+
+    std::string package_base_filename(mManifest.packageName() + "-"
+        + std::to_string(mManifest.packageVersion()) + "-"
+        + mManifest.targetArch());
+
+    // create tar
+
+    std::experimental::filesystem::path tar_path = std::string("/tmp/rps/")
+        + mManifest.packageName() + "-"
+        + std::to_string(mManifest.packageVersion()) + "-"
+        + mManifest.targetArch() + ".tar";
+
+    if (tar_open(&tar, tar_path.c_str(), NULL, O_WRONLY|O_CREAT, 0644, 0) != 0)
+        throw Exception("tar_open() failed");
+
+    std::string mfst_path = mUnpackedDir.string() + "/manifest.json";
+    if (tar_append_file(tar, (mUnpackedDir.string() + "/manifest.json").c_str(),
+            "manifest.json") != 0) {
+        tar_close(tar);
+        throw Exception("tar_append_file() of 'manifest.json'' failed");
+    }
+
+    // TODO add files
+
+
+    tar_close(tar);
+
+
+    // compress
+
+    std::experimental::filesystem::path tbz2_path = mWorkDir.string() + "/"
+        + package_base_filename + ".rps";
+
+    int tar_fd = open(tar_path.c_str(), O_RDONLY);
+    if (tar_fd  == -1) {
+        std::experimental::filesystem::remove(tar_path);
+        throw Exception("open(tar_path) failed");
+    }
+
+    FILE *tbz2_file = fopen(tbz2_path.c_str(), "wb");
+    if (tbz2_file == NULL) {
+        close(tar_fd);
+        std::experimental::filesystem::remove(tar_path);
+        throw Exception("fopen(tbz2_path) failed");
+    }
+
+    int bzerr;
+    BZFILE *bz2 = BZ2_bzWriteOpen(&bzerr, tbz2_file, 9, 0, 30);
+    if (bzerr != BZ_OK) {
+        fclose(tbz2_file);
+        close(tar_fd);
+        std::experimental::filesystem::remove(tar_path);
+        throw Exception("BZ2_bzWriteOpen failed");
+    }
+
+    size_t size;
+    unsigned char buffer[CHUNKSIZE];
+    while ((size = read(tar_fd, buffer, CHUNKSIZE)) > 0)
+        BZ2_bzWrite(&bzerr, bz2, buffer, size);
+
+    BZ2_bzWriteClose(&bzerr, bz2, 0, NULL, NULL);
+    fclose(tbz2_file);
+    close(tar_fd);
+
+    std::experimental::filesystem::remove(tar_path);
+
+    if (bzerr != BZ_OK || size < 0) {
+        throw Exception("write BZ2 failed");
+    }
+}
+
+void Package::unpack()
+{
+
+}
+
+} // namespace RPS

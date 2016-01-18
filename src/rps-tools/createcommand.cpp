@@ -5,6 +5,7 @@
 #include <experimental/filesystem>
 #include <sys/stat.h>
 #include <rps/manifest.h>
+#include <rps/package.h>
 #include "createcommand.h"
 
 namespace RPS {
@@ -53,30 +54,12 @@ void CreateCommand::execute(char *argv[])
 
     // pack the package
 
-    RPS::Manifest mfst;
-    mfst.readFromFile(source_dir + "/" + package_name + "/manifest.json");
+    RPS::Package pkg;
+    pkg.readPackageDir(source_dir + "/" + package_name);
 
-    // TODO: calculate signature
+//    pkg.signPackage();
 
-    std::experimental::filesystem::path package_tmp_dir =
-        std::string("/tmp/rps/") + package_name;
-    std::cout << "write package to: " << package_tmp_dir << std::endl;
-
-    if (std::experimental::filesystem::exists(package_tmp_dir))
-        std::experimental::filesystem::remove_all(package_tmp_dir);
-
-    std::experimental::filesystem::path rps_tmp_dir = "/tmp/rps";
-    if (!std::experimental::filesystem::exists(rps_tmp_dir))
-        std::experimental::filesystem::create_directory(rps_tmp_dir);
-    std::experimental::filesystem::create_directory(package_tmp_dir);
-
-
-    mfst.writeManifestFile(package_tmp_dir.string() + "/manifest.json");
-
-
-
-
-
+    pkg.writePackge(out_dir);
 }
 
 } // namespace Tools
