@@ -249,7 +249,7 @@ Package::Package(std::string package_file)
     : mPackagePath(package_file)
 {
     setupWorkdir();
-    readPackageFile();
+    readPackageFile(package_file);
 }
 
 Package::~Package()
@@ -262,6 +262,55 @@ void Package::readPackageFile(const std::string &package_path)
     if (!package_path.empty())
         mPackagePath = package_path;
 
+
+    // unpack bz2
+
+    FILE *tbz2_file;
+
+    if (!(tbz2_file = fopen(package_path.c_str(), "r"))) {
+        throw Exception(std::string("could not open package file:") + package_path);
+    }
+
+    BZFILE *bz2;
+    int bzerr;
+    bz2 = BZ2_bzReadOpen(&bzerr, tbz2_file, 0, 0, NULL, 0);
+    if (bzerr != BZ_OK) {
+        fclose(tbz2_file);
+        throw Exception("BZ2_bzReadOpen() failed");
+    }
+
+    FILE *tar_file;
+    std::string tar_fpath = std::string(mWorkDir) + "/unpacked.tar";
+    if (!(tar_file = fopen(tar_fpath.c_str(), "w"))) {
+        BZ2_bzReadClose(&bzerr, bz2);
+        fclose(tbz2_file);
+        throw Exception(std::string("fopen() failed: ") + tar_fpath);
+    }
+
+    unsigned char buf[CHUNKSIZE];
+    while (1) {
+        size_t n = BZ2_bzRead(&bzerr, bz2, buf, CHUNKSIZE);
+        if (bzerr != BZ_OK && bzerr != BZ_STREAM_END) {
+            fclose(tar_file);
+            std::experimental::filesystem::remove(tar_fpath);
+            BZ2_bzReadClose(&bzerr, bz2);
+            fclose(tbz2_file);
+            throw Exception(std::string("BZ2_bzRead failed"));
+        }
+
+        if (fwrite(buf, 1, n, tar_file) != n) {
+            fclose(tar_file);
+            std::experimental::filesystem::remove(tar_fpath);
+            BZ2_bzReadClose(&bzerr, bz2);
+            fclose(tbz2_file);
+            throw Exception(std::string("fwrite() failed"));
+        }
+
+        if (bzerr == BZ_STREAM_END)
+            break;
+    }
+
+    // unpack tar
     // TODO
 
 }

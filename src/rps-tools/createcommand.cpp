@@ -57,7 +57,7 @@ void CreateCommand::execute(char *argv[])
     RPS::Package pkg;
     pkg.readPackageDir(source_dir + "/" + package_name);
 
-//    pkg.signPackage();
+    //    pkg.signPackage();
 
     pkg.writePackge(out_dir);
 }

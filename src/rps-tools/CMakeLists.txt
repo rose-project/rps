@@ -12,6 +12,8 @@ set(RPS_PKGTOOL_SRC
     command.cpp
     createcommand.h
     createcommand.cpp
+    unpackcommand.h
+    unpackcommand.cpp
 )
 
 set(RPS_TOOLS_LIBS

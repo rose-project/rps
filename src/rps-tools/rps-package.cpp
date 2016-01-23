@@ -2,6 +2,7 @@
 #include <rps/exception.h>
 #include "command.h"
 #include "createcommand.h"
+#include "unpackcommand.h"
 
 #define RPS_PKGTOOL_VERSION "0.1.0"
 
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
         if (argv[1] == std::string("create")) {
             cmd = std::make_unique<RPS::Tools::CreateCommand>();
         } else if (argv[1] == std::string("unpack")) {
-            //cmd = std::make_unique<RPS::Tools::UnpackCommand>();
+            cmd = std::make_unique<RPS::Tools::UnpackCommand>();
         } else if (argv[1] == std::string("help")) {
             show_usage();
             return 0;
