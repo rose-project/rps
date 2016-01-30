@@ -7,6 +7,5 @@
 
 #include <rps/defines.h>
 #include <rps/manifest.h>
-#include <rps/pkginfo.h>
 
 #endif /* _MPK_H */
