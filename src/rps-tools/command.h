@@ -2,6 +2,7 @@
 #define RPS_TOOLS_COMMAND_H
 
 #include <string>
+#include <vector>
 #include <list>
 #include <memory>
 
@@ -23,7 +24,7 @@ public:
         Version,
     };
 
-    virtual void execute(char *argv[]) = 0;
+    virtual void execute(std::vector<std::string> &arguments) = 0;
 };
 
 

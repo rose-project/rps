@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <vector>
 #include <string>
 #include <map>
 #include <iostream>
@@ -35,33 +36,40 @@ int main(int argc, char *argv[])
         show_usage();
         return 1;
     }
+    
+    std::vector<std::string> arguments(argv, argv + argc);
+    
 
     // call the command handler
 
     std::unique_ptr<RPS::Tools::Command> cmd;
 
     try {
-        if (argv[1] == std::string("status")) {
+        if (arguments[1] == std::string("status")) {
             //cmd = std::make_unique<RPS::Tools::StatusCommand>();
-        } else if (argv[1] == std::string("install")) {
+        } else if (arguments[1] == std::string("install")) {
             cmd = std::make_unique<RPS::Tools::InstallCommand>();
-        } else if (argv[1] == std::string("remove")) {
+        } else if (arguments[1] == std::string("remove")) {
             //cmd = std::make_unique<RPS::Tools::StatusCommand>();
-        } else if (argv[1] == std::string("get-release")) {
+        } else if (arguments[1] == std::string("get-release")) {
             //cmd = std::make_unique<RPS::Tools::GetReleaseCommand>();
-        } else if (argv[1] == std::string("help")) {
+        } else if (arguments[1] == std::string("help")) {
             show_usage();
             return 0;
-        } else if (argv[1] == std::string("version")) {
+        } else if (arguments[1] == std::string("version")) {
             show_version();
             return 0;
         } else {
-            std::cerr << "unknown command. " << argv[1] << std::endl;
+            std::cerr << "unknown command. " << arguments[1] << std::endl;
             show_usage();
             return 1;
+
         }
 
-    cmd->execute(&argv[2]);
+        arguments.erase(arguments.begin());
+        arguments.erase(arguments.begin());
+
+        cmd->execute(arguments);
     } catch (const char *str) {
         std::cerr << "Error: " << str << std::endl;
         return 1;

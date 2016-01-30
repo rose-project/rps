@@ -11,7 +11,7 @@ class CreateCommand : public Command
 public:
     CreateCommand();
 
-    virtual void execute(char *argv[]);
+    virtual void execute(std::vector<std::string> &arguments);
 
 };
 

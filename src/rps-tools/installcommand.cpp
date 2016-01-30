@@ -8,7 +8,7 @@ InstallCommand::InstallCommand()
 
 }
 
-void InstallCommand::execute(char *argv[])
+void InstallCommand::execute(std::vector<std::string> &arguments)
 {
 
 }

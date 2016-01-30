@@ -11,7 +11,7 @@ class UnpackCommand : public RPS::Tools::Command
 public:
     UnpackCommand();
 
-    virtual void execute(char *argv[]);
+    virtual void execute(std::vector<std::string> &arguments);
 };
 
 } // namespace Tools

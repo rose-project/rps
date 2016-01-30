@@ -10,25 +10,22 @@ UnpackCommand::UnpackCommand()
 
 }
 
-void UnpackCommand::execute(char *argv[])
+void UnpackCommand::execute(std::vector<std::string> &arguments)
 {
     // parse command line
 
     std::string package_path, out_dir;
 
-    while (argv) {
-        if (!argv[0] || !argv[1])
-            break;
+    for (std::vector<std::string>::iterator it = arguments.begin();
+            arguments.end() - it >= 1; it += 2) {
 
-        if (argv[0] == std::string("-f")) {
-            package_path = std::string(argv[1]);
-            argv += 2;
+        if (*it == std::string("-f")) {
+            package_path = *(it + 1);
             continue;
         }
 
-        if (argv[0] == std::string("-o")) {
-            out_dir = argv[1];
-            argv += 2;
+        if (*it == std::string("-o")) {
+            out_dir = *(it + 1);
             continue;
         }
     }

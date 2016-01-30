@@ -16,29 +16,25 @@ CreateCommand::CreateCommand()
 
 }
 
-void CreateCommand::execute(char *argv[])
+void CreateCommand::execute(std::vector<std::string> &arguments)
 {
     // parse command line
 
     std::string package_name, source_dir, out_dir;
 
-    while (argv) {
-        if (!argv[0] || !argv[1])
-            break;
-
-        if (argv[0] == std::string("-d")) {
-            std::string path(argv[1]);
+    for (std::vector<std::string>::iterator it = arguments.begin();
+            arguments.end() - it >= 1; it += 2) {
+        if (*it == std::string("-d")) {
+            std::string path(*(it + 1));
 
             const auto last_slash_pos = path.find_last_of('/');
             package_name = path.substr(last_slash_pos + 1);
             source_dir =  path.substr(0, last_slash_pos);
-            argv += 2;
             continue;
         }
 
-        if (argv[0] == std::string("-o")) {
-            out_dir = argv[1];
-            argv += 2;
+        if (*it == std::string("-o")) {
+            out_dir = *(it + 1);
             continue;
         }
     }

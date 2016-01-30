@@ -31,29 +31,34 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    std::vector<std::string> arguments(argv, argv + argc);
+
+
     // call the command handler
 
     std::unique_ptr<RPS::Tools::Command> cmd;
 
     try {
-        if (argv[1] == std::string("create")) {
+        if (arguments[1] == std::string("create")) {
             cmd = std::make_unique<RPS::Tools::CreateCommand>();
-        } else if (argv[1] == std::string("unpack")) {
+        } else if (arguments[1] == std::string("unpack")) {
             cmd = std::make_unique<RPS::Tools::UnpackCommand>();
-        } else if (argv[1] == std::string("help")) {
+        } else if (arguments[1] == std::string("help")) {
             show_usage();
             return 0;
-        } else if (argv[1] == std::string("version")) {
+        } else if (arguments[1] == std::string("version")) {
             show_version();
             return 0;
         } else {
-            std::cerr << "unknown command. " << argv[1] << std::endl;
+            std::cerr << "unknown command. " << arguments[1] << std::endl;
             show_usage();
             return EXIT_FAILURE;
         }
 
-        cmd->execute(&argv[2]);
+        arguments.erase(arguments.begin());
+        arguments.erase(arguments.begin());
 
+        cmd->execute(arguments);
     } catch (const char *str) {
         std::cerr << "Error: " << str << std::endl;
         return EXIT_FAILURE;

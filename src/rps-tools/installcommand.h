@@ -11,7 +11,7 @@ class InstallCommand : public RPS::Tools::Command
 public:
     InstallCommand();
 
-    virtual void execute(char *argv[]);
+    virtual void execute(std::vector<std::string> &arguments);
 };
 
 } // namespace Tools
