@@ -2,6 +2,9 @@
   * @file package.c
   */
 #include <experimental/filesystem>
+#include <iostream>
+#include <memory>
+#include <vector>
 #include <rps/exception.h>
 
 #define _GNU_SOURCE
@@ -310,8 +313,33 @@ void Package::readPackageFile(const std::string &package_path)
             break;
     }
 
+    fclose(tar_file);
+
     // unpack tar
-    // TODO
+
+     TAR *tar;
+    if (tar_open(&tar, tar_fpath.c_str(), NULL, O_RDONLY, 0644, 0) != 0) {
+        std::experimental::filesystem::remove(tar_fpath);
+        throw Exception("tasr_open() failed");
+    }
+
+    mUnpackedDir = mWorkDir;
+    mUnpackedDir /= mPackagePath.stem();
+    std::cout << "unpack to: " << mUnpackedDir << std::endl;
+    if (std::experimental::filesystem::exists(mUnpackedDir))
+        std::experimental::filesystem::remove_all(mUnpackedDir);
+    std::experimental::filesystem::create_directory(mUnpackedDir);
+
+    std::string unpacked_dirname = mUnpackedDir.string();
+    std::vector<char> unpacked_dirname_v(unpacked_dirname.c_str(),
+        unpacked_dirname.c_str() + (unpacked_dirname.length() + 1));
+    if (tar_extract_all(tar, &unpacked_dirname_v[0]) != 0) {
+        std::experimental::filesystem::remove_all(mUnpackedDir);
+        tar_close(tar);
+        throw Exception("cannot extract tar");
+    }
+    tar_close(tar);
+    std::experimental::filesystem::remove(tar_fpath);
 
 }
 
