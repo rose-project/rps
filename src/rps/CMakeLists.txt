@@ -14,7 +14,6 @@ set(RPS_SRC
     ${RPS_INCLUDE_DIR}/manifest.h
     manifest.cpp
     ${RPS_INCLUDE_DIR}/mpk.h
-    mpk.cpp
     ${RPS_INCLUDE_DIR}/package.h
     package.cpp
     ${RPS_INCLUDE_DIR}/pkginfo.h
