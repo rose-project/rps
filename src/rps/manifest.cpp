@@ -93,19 +93,154 @@ void Manifest::writeManifestFile(std::__cxx11::string filename)
 
     root = json_object();
 
-     /* manifest */
+     // manifest
     if (json_object_set_new(root, "manifest", json_string("1.0")) != 0) {
         json_decref(root);
         throw "cannot write manifest version tag";
     }
 
-    /* name */
-    if (json_object_set_new(root, "name", json_string(this->mPackageName.c_str())) != 0) {
+    // name
+    if (json_object_set_new(root, "name", json_string(mPackageName.c_str())) != 0) {
         json_decref(root);
         throw "cannot write package name";
     }
 
-    // TODO
+    // version
+    if (json_object_set_new(root, "version", json_integer(mPackageVersion)) != 0) {
+        json_decref(root);
+        throw "cannot write package version";
+    }
+
+    // API level
+
+    json_t *api_item = json_object();
+    if (!api_item) {
+        json_decref(root);
+        throw "json_object() failed";
+    }
+    if (json_object_set_new(api_item, "min", json_integer(mApiMin)) != 0) {
+        json_decref(api_item);
+        json_decref(root);
+        throw "cannot write api version: mininum";
+    }
+    if (json_object_set_new(api_item, "target", json_integer(mApiTarget)) != 0) {
+        json_decref(api_item);
+        json_decref(root);
+        throw "cannot write api version: target";
+    }
+    if (json_object_set_new(api_item, "max", json_integer(mApiMax)) != 0) {
+        json_decref(api_item);
+        json_decref(root);
+        throw "cannot write api version: maximum";
+    }
+    if (json_object_set_new(root, "api", api_item) != 0) {
+        json_decref(root);
+        throw "cannot add api info";
+    }
+
+    // arch
+
+    if (json_object_set_new(root, "arch", json_string(mTargetArch.c_str())) != 0) {
+        json_decref(root);
+        throw "cannot write arch";
+    }
+
+    // Localization
+    json_t *localization_item = json_array();
+    if (!localization_item) {
+        json_decref(root);
+        throw "json_object() failed";
+    }
+    if (json_object_set_new(root, "localization", localization_item) != 0) {
+        json_decref(localization_item);
+        json_decref(root);
+        throw "cannot add locales";
+    }
+    for (auto &i: mLocales) {
+        if (json_array_append_new(localization_item, json_string(i.c_str())) != 0) {
+            json_decref(root);
+            throw "cannot add locale";
+        }
+    }
+
+    // depends
+    json_t *depends_item = json_array();
+    if (!depends_item) {
+        json_decref(root);
+        throw "json_object() failed";
+    }
+    if (json_object_set_new(root, "depends", depends_item) != 0) {
+        json_decref(depends_item);
+        json_decref(root);
+        throw "cannot add 'depends'";
+    }
+    for (auto &i: mDependencies) {
+        // TODO
+    }
+
+    // source
+
+    if (json_object_set_new(root, "source", json_string(mSource.c_str())) != 0) {
+        json_decref(root);
+        throw "cannot write source";
+    }
+
+    // vendor
+
+    if (json_object_set_new(root, "vendor", json_string(mVendor.c_str())) != 0) {
+        json_decref(root);
+        throw "cannot write vendor";
+    }
+
+    // label
+
+    if (json_object_set_new(root, "label", json_string(mPackageLabel.c_str())) != 0) {
+        json_decref(root);
+        throw "cannot write label";
+    }
+
+    // version label
+
+    if (json_object_set_new(root, "version-label", json_string(mVersionLabal.c_str())) != 0) {
+        json_decref(root);
+        throw "cannot write version-label";
+    }
+
+    // description
+
+    if (json_object_set_new(root, "description", json_string(mDescription.c_str())) != 0) {
+        json_decref(root);
+        throw "cannot write description";
+    }
+
+    // license
+
+    if (json_object_set_new(root, "license", json_string(mLicense.c_str())) != 0) {
+        json_decref(root);
+        throw "cannot write license";
+    }
+
+    // files
+    json_t *files_item = json_array();
+    if (!depends_item) {
+        json_decref(root);
+        throw "json_object() failed";
+    }
+    if (json_object_set_new(root, "files", files_item) != 0) {
+        json_decref(depends_item);
+        json_decref(root);
+        throw "cannot write files section";
+    }
+    for (auto &i: mFiles) {
+        // TODO
+    }
+
+    // signature
+
+//    if (json_object_set_new(root, "signature", json_string(mSignature.c_str())) != 0) {
+//        json_decref(root);
+//        throw "cannot write license";
+//    }
 
     if (json_dump_file(root, filename.c_str(), JSON_INDENT(4)|JSON_PRESERVE_ORDER) != 0) {
         json_decref(root);
