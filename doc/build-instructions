@@ -1,2 +1,2 @@
 dependencies
-libjansson-dev libssl-dev libbz2-dev libcrypto++-dev libtar-dev
+libjansson-dev libssl-dev libbz2-dev libcrypto++-dev libtar-dev libboost-filesystem-dev
