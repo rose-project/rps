@@ -2,7 +2,6 @@
 #include <iostream>
 #include <cstddef>
 #include <string>
-#include <experimental/filesystem>
 #include <sys/stat.h>
 #include <rps/manifest.h>
 #include <rps/package.h>

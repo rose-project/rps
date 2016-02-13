@@ -26,6 +26,8 @@ set(RPS_LIBS
     ssl
     crypto
     jansson
+    boost_system
+    boost_filesystem
 )
 
 add_library(${PROJECT_NAME} SHARED ${RPS_SRC})

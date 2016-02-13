@@ -5,7 +5,7 @@
 #ifndef _PACKAGE_H
 #define _PACKAGE_H
 #include <string>
-#include <experimental/filesystem>
+#include <boost/filesystem.hpp>
 #include <rps/manifest.h>
 
 namespace RPS {
@@ -60,9 +60,9 @@ private:
 
 private:
     Manifest mManifest;
-    std::experimental::filesystem::path mUnpackedDir;
-    std::experimental::filesystem::path mPackagePath;
-    static const std::experimental::filesystem::path mWorkDir;
+    boost::filesystem::path mUnpackedDir;
+    boost::filesystem::path mPackagePath;
+    static const boost::filesystem::path mWorkDir;
 };
 
 }

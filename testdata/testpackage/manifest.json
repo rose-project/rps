@@ -37,26 +37,6 @@
     "license": "MIT",
     "files": [
         {
-            "name": "prepare.sh",
-            "type": "tx",
-            "hash": ""
-        },
-        {
-            "name": "install.sh",
-            "type": "tx",
-            "hash": ""
-        },
-        {
-            "name": "uninstall.sh",
-            "type": "tx",
-            "hash": ""
-        },
-        {
-            "name": "anytool",
-            "type": "t",
-            "hash": ""
-        },
-        {
             "name": "etc/test.conf",
             "type": "w",  
             "hash": ""
@@ -79,16 +59,6 @@
         {
             "name": "usr/lib/testlib",
             "type": "d",
-            "hash": ""
-        },
-        {
-            "name": "usr/lib/testlib/testlib.so",
-            "type": "l",
-            "target": "testlib.so.1"
-        },
-        {
-            "name": "usr/lib/testlib/testlib.so.1",
-            "type": "r",
             "hash": ""
         }
     ]

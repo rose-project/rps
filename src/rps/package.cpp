@@ -1,7 +1,6 @@
  /**
   * @file package.cpp
   */
-#include <experimental/filesystem>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -11,6 +10,7 @@
 #include <unistd.h>
 #include <libtar.h>
 #include <bzlib.h>
+#include <boost/filesystem.hpp>
 #include <rps/exception.h>
 #include "rps/package.h"
 
@@ -21,7 +21,7 @@
 
 namespace RPS {
 
-const std::experimental::filesystem::path Package::mWorkDir = "/tmp/rps";
+const boost::filesystem::path Package::mWorkDir = "/tmp/rps";
 
 Package::Package()
 {
@@ -63,7 +63,7 @@ void Package::readPackageFile(const std::string &package_path)
     }
 
     FILE *tar_file;
-    std::string tar_fpath = std::string(mWorkDir) + "/unpacked.tar";
+    std::string tar_fpath = mWorkDir.string() + "/unpacked.tar";
     if (!(tar_file = fopen(tar_fpath.c_str(), "w"))) {
         BZ2_bzReadClose(&bzerr, bz2);
         fclose(tbz2_file);
@@ -75,7 +75,7 @@ void Package::readPackageFile(const std::string &package_path)
         size_t n = BZ2_bzRead(&bzerr, bz2, buf, CHUNKSIZE);
         if (bzerr != BZ_OK && bzerr != BZ_STREAM_END) {
             fclose(tar_file);
-            std::experimental::filesystem::remove(tar_fpath);
+            boost::filesystem::remove(tar_fpath);
             BZ2_bzReadClose(&bzerr, bz2);
             fclose(tbz2_file);
             throw Exception(std::string("BZ2_bzRead failed"));
@@ -83,7 +83,7 @@ void Package::readPackageFile(const std::string &package_path)
 
         if (fwrite(buf, 1, n, tar_file) != n) {
             fclose(tar_file);
-            std::experimental::filesystem::remove(tar_fpath);
+            boost::filesystem::remove(tar_fpath);
             BZ2_bzReadClose(&bzerr, bz2);
             fclose(tbz2_file);
             throw Exception(std::string("fwrite() failed"));
@@ -99,34 +99,34 @@ void Package::readPackageFile(const std::string &package_path)
 
      TAR *tar;
     if (tar_open(&tar, tar_fpath.c_str(), NULL, O_RDONLY, 0644, 0) != 0) {
-        std::experimental::filesystem::remove(tar_fpath);
+        boost::filesystem::remove(tar_fpath);
         throw Exception("tasr_open() failed");
     }
 
     mUnpackedDir = mWorkDir;
     mUnpackedDir /= mPackagePath.stem();
     std::cout << "unpack to: " << mUnpackedDir << std::endl;
-    if (std::experimental::filesystem::exists(mUnpackedDir))
-        std::experimental::filesystem::remove_all(mUnpackedDir);
-    std::experimental::filesystem::create_directory(mUnpackedDir);
+    if (boost::filesystem::exists(mUnpackedDir))
+        boost::filesystem::remove_all(mUnpackedDir);
+    boost::filesystem::create_directory(mUnpackedDir);
 
     std::string unpacked_dirname = mUnpackedDir.string();
     std::vector<char> unpacked_dirname_v(unpacked_dirname.c_str(),
         unpacked_dirname.c_str() + (unpacked_dirname.length() + 1));
     if (tar_extract_all(tar, &unpacked_dirname_v[0]) != 0) {
-        std::experimental::filesystem::remove_all(mUnpackedDir);
+        boost::filesystem::remove_all(mUnpackedDir);
         tar_close(tar);
         throw Exception("cannot extract tar");
     }
     tar_close(tar);
-    std::experimental::filesystem::remove(tar_fpath);
+    boost::filesystem::remove(tar_fpath);
 
 }
 
 void Package::readPackageDir(std::string package_dir)
 {
-    std::experimental::filesystem::path pkgdir = package_dir;
-    if (!std::experimental::filesystem::exists(pkgdir))
+    boost::filesystem::path pkgdir = package_dir;
+    if (!boost::filesystem::exists(pkgdir))
         throw Exception("package directory '" + package_dir + "'does not exist");
 
     mManifest.readFromFile(package_dir + "/manifest.json");
@@ -150,31 +150,28 @@ void Package::writePackge(std::__cxx11::string dest_dir)
         throw Exception("package metatdata is not set");
 
     // create package workdir or delete old data
-    std::experimental::filesystem::path package_tmp_dir =
+    boost::filesystem::path package_tmp_dir =
             std::string("/tmp/rps/") + mManifest.packageName();
-    if (std::experimental::filesystem::exists(package_tmp_dir))
-        std::experimental::filesystem::remove_all(package_tmp_dir);
+    if (boost::filesystem::exists(package_tmp_dir))
+        boost::filesystem::remove_all(package_tmp_dir);
 
-    std::experimental::filesystem::create_directory(package_tmp_dir);
+    boost::filesystem::create_directory(package_tmp_dir);
 
     mManifest.writeManifestFile(package_tmp_dir.string() + "/manifest.json");
 
-    // TODO: copy files
-
-    // TODO: pack + compress
+    // pack + compress
     pack();
 
     // TODO: copy to destination directory
-
 
 }
 
 void Package::setupWorkdir()
 {
     // create rps working dir if not present
-    std::experimental::filesystem::path rps_tmp_dir = "/tmp/rps";
-    if (!std::experimental::filesystem::exists(rps_tmp_dir))
-        std::experimental::filesystem::create_directory(rps_tmp_dir);
+    boost::filesystem::path rps_tmp_dir = "/tmp/rps";
+    if (!boost::filesystem::exists(rps_tmp_dir))
+        boost::filesystem::create_directory(rps_tmp_dir);
 }
 
 void Package::pack()
@@ -187,7 +184,7 @@ void Package::pack()
 
     // create tar
 
-    std::experimental::filesystem::path tar_path = std::string("/tmp/rps/")
+    boost::filesystem::path tar_path = std::string("/tmp/rps/")
         + mManifest.packageName() + "-"
         + std::to_string(mManifest.packageVersion()) + "-"
         + mManifest.targetArch() + ".tar";
@@ -202,27 +199,36 @@ void Package::pack()
         throw Exception("tar_append_file() of 'manifest.json'' failed");
     }
 
-    // TODO add files
+    // add files
 
+    for (auto &f: mManifest.files()) {
+        std::string source = mUnpackedDir.string() + std::string("/data/") + f.name();
+        std::string dest = std::string("data/") + f.name();
+        if (tar_append_file(tar, source.c_str(), dest.c_str()) != 0) {
+            tar_close(tar);
+            throw Exception(std::string("tar_append_file() of '") + f.name() + std::string("' failed"));
+        }
+        std::cout << "tar: added file: " << f.name() << std::endl;
+    }
 
     tar_close(tar);
 
 
     // compress
 
-    std::experimental::filesystem::path tbz2_path = mWorkDir.string() + "/"
+    boost::filesystem::path tbz2_path = mWorkDir.string() + "/"
         + package_base_filename + ".rps";
 
     int tar_fd = open(tar_path.c_str(), O_RDONLY);
     if (tar_fd  == -1) {
-        std::experimental::filesystem::remove(tar_path);
+        boost::filesystem::remove(tar_path);
         throw Exception("open(tar_path) failed");
     }
 
     FILE *tbz2_file = fopen(tbz2_path.c_str(), "wb");
     if (tbz2_file == NULL) {
         close(tar_fd);
-        std::experimental::filesystem::remove(tar_path);
+        boost::filesystem::remove(tar_path);
         throw Exception("fopen(tbz2_path) failed");
     }
 
@@ -231,7 +237,7 @@ void Package::pack()
     if (bzerr != BZ_OK) {
         fclose(tbz2_file);
         close(tar_fd);
-        std::experimental::filesystem::remove(tar_path);
+        boost::filesystem::remove(tar_path);
         throw Exception("BZ2_bzWriteOpen failed");
     }
 
@@ -244,7 +250,7 @@ void Package::pack()
     fclose(tbz2_file);
     close(tar_fd);
 
-    std::experimental::filesystem::remove(tar_path);
+    boost::filesystem::remove(tar_path);
 
     if (bzerr != BZ_OK || size < 0) {
         throw Exception("write BZ2 failed");
