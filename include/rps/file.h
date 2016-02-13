@@ -5,6 +5,7 @@
 #define _FILE_H
 
 #include <string>
+#include <vector>
 #include <openssl/sha.h>
 
 
@@ -14,19 +15,17 @@ namespace RPS {
 
 class File {
 public:
-    enum class Type {
-        Undefined = -1, /**< undefined type */
-        ReadOnly,
-        Executable,
-        Writeable,
-        Symlink,
-        Directory
-    };
-
-public:
     File();
     ~File();
 
+    std::string name() const;
+    void setName(const std::string &name);
+    const std::vector<uint8_t> &hash() const;
+    void setHash(const std::vector<uint8_t> &hash);
+
+private:
+    std::string mName;
+    std::vector<uint8_t> mHash;
 };
 
 }

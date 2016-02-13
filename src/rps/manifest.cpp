@@ -222,17 +222,31 @@ void Manifest::writeManifestFile(std::__cxx11::string filename)
 
     // files
     json_t *files_item = json_array();
-    if (!depends_item) {
+    if (!files_item) {
         json_decref(root);
         throw "json_object() failed";
     }
     if (json_object_set_new(root, "files", files_item) != 0) {
-        json_decref(depends_item);
+        json_decref(files_item);
         json_decref(root);
         throw "cannot write files section";
     }
     for (auto &i: mFiles) {
-        // TODO
+        json_t *file_item = json_object();
+        if (!file_item) {
+            json_decref(root);
+            throw "json_object() failed";
+        }
+        if (json_array_append_new(files_item, file_item) != 0) {
+            json_decref(file_item);
+            json_decref(root);
+            throw "cannot write files section";
+        }
+        if (json_object_set_new(file_item, "name", json_string(i.name().c_str())) != 0) {
+            json_decref(root);
+            throw "cannot add file";
+        }
+        std::cerr << "added file: " << i.name().c_str() << std::endl;
     }
 
     // signature
@@ -258,6 +272,16 @@ std::string Manifest::packageName() const
 void Manifest::setPackageName(const std::string &packageName)
 {
     mPackageName = packageName;
+}
+
+
+std::string Manifest::readStringTag(json_t *in)
+{
+    const char *s = json_string_value(in);
+    if (!s)
+        throw "connot source section";
+
+    return std::string(s);
 }
 
 void Manifest::readTagManifest(Manifest &mfst, json_t *in)
@@ -387,65 +411,196 @@ void Manifest::readTagDepends(Manifest &mfst, json_t *in)
             // TODO: read versions
         }
     }
-
-    const char *key;
-    json_t *val;
-    json_object_foreach(in, key, val) {
-        if (!key)
-            throw "invalid data in section 'tag'";
-        int v = json_integer_value(val);
-
-        std::cout << key << ": " << v << std::endl;
-
-        if (std::string("min") == key)
-            mfst.setApiMin(v);
-        else if (std::string("max") == key)
-            mfst.setApiMax(v);
-        else if (std::string("target") == key)
-            mfst.setApiTarget(v);
-        else
-            throw "invalid data";
-    }
 }
 
 void Manifest::readTagSource(Manifest &mfst, json_t *in)
 {
     std::cout << "read tag source" << std::endl;
+
+    const char *str = json_string_value(in);
+    if (!str)
+        throw "connot source section";
+
+    mfst.setSource(str);
 }
 
 void Manifest::readTagVendor(Manifest &mfst, json_t *in)
 {
     std::cout << "read tag vendor" << std::endl;
+
+    const char *str = json_string_value(in);
+    if (!str)
+        throw "connot vendor section";
+
+    mfst.setVendor(str);
 }
 
 void Manifest::readTagLabel(Manifest &mfst, json_t *in)
 {
     std::cout << "read tag label" << std::endl;
+
+    mfst.setPackageLabel(readStringTag(in));
 }
 
 void Manifest::readTagVersionLabel(Manifest &mfst, json_t *in)
 {
     std::cout << "read tag version label" << std::endl;
+
+    mfst.setVersionLabal(readStringTag(in));
 }
 
 void Manifest::readTagDescription(Manifest &mfst, json_t *in)
 {
     std::cout << "read tag description" << std::endl;
+
+    mfst.setDescription(readStringTag(in));
 }
 
 void Manifest::readTagLicense(Manifest &mfst, json_t *in)
 {
     std::cout << "read tag license" << std::endl;
+
+    mfst.setLicense(readStringTag(in));
 }
 
 void Manifest::readTagFiles(Manifest &mfst, json_t *in)
 {
     std::cout << "read tag files" << std::endl;
+
+    if (!in || json_typeof(in) != JSON_ARRAY)
+        throw "invalid arguments";
+
+    int i;
+    json_t *pkg;
+    json_array_foreach(in, i, pkg) {
+        if (json_typeof(pkg) != JSON_OBJECT)
+            throw "invalid data in section 'depends'";
+
+        json_t *file_name = json_object_get(pkg, "name");
+        if (!file_name || json_typeof(file_name) != JSON_STRING)
+            throw "no package name";
+
+        File f;
+
+        const char *name_str = json_string_value(file_name);
+        f.setName(name_str);
+
+        std::cout << "file: " << name_str << std::endl;
+
+        json_t *file_type = json_object_get(pkg, "type");
+        if (file_type) {
+            // TODO
+        }
+
+        json_t *file_hash = json_object_get(pkg, "hash");
+        if (file_hash) {
+            // TODO
+        }
+
+        mfst.files().push_back(f);
+    }
 }
 
 void Manifest::readTagSignatures(Manifest &mfst, json_t *in)
 {
     std::cout << "read tag signature" << std::endl;
+
+    // TODO
+}
+
+std::vector<uint8_t> Manifest::signature() const
+{
+    return mSignature;
+}
+
+void Manifest::setSignature(const std::vector<uint8_t> &signature)
+{
+    mSignature = signature;
+}
+
+std::list<File> &Manifest::files()
+{
+    return mFiles;
+}
+
+void Manifest::setFiles(const std::list<File> &files)
+{
+    mFiles = files;
+}
+
+std::string Manifest::license() const
+{
+    return mLicense;
+}
+
+void Manifest::setLicense(const std::string &license)
+{
+    mLicense = license;
+}
+
+std::string Manifest::description() const
+{
+    return mDescription;
+}
+
+void Manifest::setDescription(const std::string &description)
+{
+    mDescription = description;
+}
+
+std::string Manifest::versionLabal() const
+{
+    return mVersionLabal;
+}
+
+void Manifest::setVersionLabal(const std::string &versionLabal)
+{
+    mVersionLabal = versionLabal;
+}
+
+std::string Manifest::packageLabel() const
+{
+    return mPackageLabel;
+}
+
+void Manifest::setPackageLabel(const std::string &packageLabel)
+{
+    mPackageLabel = packageLabel;
+}
+
+std::string Manifest::vendor() const
+{
+    return mVendor;
+}
+
+void Manifest::setVendor(const std::string &vendor)
+{
+    mVendor = vendor;
+}
+
+std::string Manifest::source() const
+{
+    return mSource;
+}
+
+void Manifest::setSource(const std::string &source)
+{
+    mSource = source;
+}
+
+std::list<Dependency> Manifest::dependencies() const
+{
+    return mDependencies;
+}
+
+void Manifest::setDependencies(const std::list<Dependency> &dependencies)
+{
+    mDependencies = dependencies;
+}
+
+void Manifest::setLocales(const std::list<std::string> &locales)
+{
+    mLocales = locales;
 }
 
 std::string Manifest::targetArch() const

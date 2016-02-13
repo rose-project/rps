@@ -25,4 +25,24 @@ File::~File()
 
 }
 
+std::string File::name() const
+{
+    return mName;
 }
+
+void File::setName(const std::string &name)
+{
+    mName = name;
+}
+
+const std::vector<uint8_t> &File::hash() const
+{
+    return mHash;
+}
+
+void File::setHash(const std::vector<uint8_t> &hash)
+{
+    mHash = hash;
+}
+
+} // namespace RPS

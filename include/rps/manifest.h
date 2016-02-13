@@ -74,8 +74,39 @@ public:
     std::string targetArch() const;
     void setTargetArch(const std::string &targetArch);
 
+    void setLocales(const std::list<std::string> &locales);
+
+    std::list<Dependency> dependencies() const;
+    void setDependencies(const std::list<Dependency> &dependencies);
+
+    std::string source() const;
+    void setSource(const std::string &source);
+
+    std::string vendor() const;
+    void setVendor(const std::string &vendor);
+
+    std::string packageLabel() const;
+    void setPackageLabel(const std::string &packageLabel);
+
+    std::string versionLabal() const;
+    void setVersionLabal(const std::string &versionLabal);
+
+    std::string description() const;
+    void setDescription(const std::string &description);
+
+    std::string license() const;
+    void setLicense(const std::string &license);
+
+    std::list<File> &files();
+    void setFiles(const std::list<File> &files);
+
+    std::vector<uint8_t> signature() const;
+    void setSignature(const std::vector<uint8_t> &signature);
+
 private:
     void handleTag(const std::string &tag, json_t value);
+
+    static std::string readStringTag(json_t *in);
 
     static void readTagManifest(Manifest &mfst, json_t *in);
     static void readTagName(Manifest &mfst, json_t *in);
