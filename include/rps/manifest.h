@@ -39,8 +39,7 @@ public:
         VersionLabel,
         Description,
         License,
-        Files,
-        Signatures,
+        Files
     };
 
 public:
@@ -100,9 +99,6 @@ public:
     std::list<File> &files();
     void setFiles(const std::list<File> &files);
 
-    std::vector<uint8_t> signature() const;
-    void setSignature(const std::vector<uint8_t> &signature);
-
 private:
     void handleTag(const std::string &tag, json_t value);
 
@@ -141,7 +137,6 @@ private:
     std::string mDescription;
     std::string mLicense;
     std::list<File> mFiles;
-    std::vector<uint8_t> mSignature;
 
     static std::map<std::string, Tag> ManifestTags;
     static std::list<std::string> ManifestTag;

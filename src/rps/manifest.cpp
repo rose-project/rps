@@ -2,6 +2,7 @@
  * @file manifest.c
  */
 #include <iostream>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
@@ -31,8 +32,7 @@ std::map<std::string, Manifest::Tag> Manifest::ManifestTags {
     {"version-label", Manifest::Tag::VersionLabel},
     {"description", Manifest::Tag::Description},
     {"license", Manifest::Tag::License},
-    {"files", Manifest::Tag::Files},
-    {"signatures", Manifest::Tag::Signatures},
+    {"files", Manifest::Tag::Files}
 };
 
 
@@ -51,8 +51,7 @@ std::map<Manifest::Tag, std::function<void(Manifest &, json_t *)>>
     {Manifest::Tag::VersionLabel, Manifest::readTagVersionLabel},
     {Manifest::Tag::Description, Manifest::readTagDescription},
     {Manifest::Tag::License, Manifest::readTagLicense},
-    {Manifest::Tag::Files, Manifest::readTagFiles},
-    {Manifest::Tag::Signatures, Manifest::readTagSignatures},
+    {Manifest::Tag::Files, Manifest::readTagFiles}
 };
 
 Manifest::Manifest()
@@ -248,13 +247,6 @@ void Manifest::writeManifestFile(std::__cxx11::string filename)
         }
         std::cerr << "added file: " << i.name().c_str() << std::endl;
     }
-
-    // signature
-
-//    if (json_object_set_new(root, "signature", json_string(mSignature.c_str())) != 0) {
-//        json_decref(root);
-//        throw "cannot write license";
-//    }
 
     if (json_dump_file(root, filename.c_str(), JSON_INDENT(4)|JSON_PRESERVE_ORDER) != 0) {
         json_decref(root);
@@ -499,23 +491,6 @@ void Manifest::readTagFiles(Manifest &mfst, json_t *in)
 
         mfst.files().push_back(f);
     }
-}
-
-void Manifest::readTagSignatures(Manifest &mfst, json_t *in)
-{
-    std::cout << "read tag signature" << std::endl;
-
-    // TODO
-}
-
-std::vector<uint8_t> Manifest::signature() const
-{
-    return mSignature;
-}
-
-void Manifest::setSignature(const std::vector<uint8_t> &signature)
-{
-    mSignature = signature;
 }
 
 std::list<File> &Manifest::files()
