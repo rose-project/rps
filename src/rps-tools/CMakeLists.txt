@@ -25,3 +25,5 @@ target_link_libraries(rps-client ${RPS_TOOLS_LIBS})
 
 add_executable(rps-package ${RPS_PKGTOOL_SRC})
 target_link_libraries(rps-package ${RPS_TOOLS_LIBS})
+
+install(TARGETS rps-client rps-package DESTINATION bin)
