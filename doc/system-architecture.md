@@ -5,7 +5,7 @@ fail-save, transaction based
 
 ## File System Layout
 
-The files of each pacakge are installed in separate directory located in '/apps'. This directory is only changed by the package service. The apps store any data they need to '/var/appdata'. 
+The files of each pacakge are installed in separate directory located in '/usr/apps'. This directory is only changed by the package service. The apps store any data they need to '/var/appdata'. 
 
 
 ## Parition Layout
@@ -23,15 +23,17 @@ Partition layout example
 | bl2-b       | backup of bootloader stage 2                              |                 |
 | rec-kernel  | recovery image kernel                                     |                 |
 | rec-system  | recovery image                                            |                 |
-| kernel      | contains kernel image                                     |                 |
-| system      | recovery image                                            | / ro            |
-| apps        | contains apps, only changed by RPS                        | /apps rw        |
+| kernel      | contains the linux kernel                                 |                 |
+| system      | system image                                              | / ro            |
+| apps        | contains apps, only changed by RPS                        | /usr/apps rw    |
 | appdata     | application data storage                                  | /var/appdata rw |
 
 
 ## System Update
 
-(TODO)
+System is updated by writing new images of the partitions bl2, bl2-b, rec-kernel, rec-system, kernel, system.
+
+TODO: Fails safe update strategy
 
 
 ## Factory Reset
