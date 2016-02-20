@@ -17,7 +17,7 @@ Partition layout example
 
 | Partition   | Description                                               | Mounted         |
 |-------------|-----------------------------------------------------------|-----------------|
-| bl1         | Bootloader Stagea1, will never be updated                 |                 |
+| bl1         | Bootloader stage 1; will never be updated                 |                 |
 | pt          | partition table, never updated, changed atomically        |                 |
 | bl2         | Bootloader stage 2                                        |                 |
 | bl2-b       | backup of bootloader stage 2                              |                 |
