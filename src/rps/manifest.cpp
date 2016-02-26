@@ -3,12 +3,12 @@
  */
 #include <iostream>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <syslog.h>
 #include <jansson.h>
 #include <memory.h>
-#include <string.h>
+#include <cstring>
 #include <syslog.h>
 #include "stringhelper.h"
 #include "rps/defines.h"

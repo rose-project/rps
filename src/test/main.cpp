@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/stat.h>
 #include "rps/mpk.h"
 
