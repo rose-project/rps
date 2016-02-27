@@ -21,9 +21,11 @@ set(RPS_TOOLS_LIBS
 )
 
 add_executable(rps-client ${RPS_CLIENT_SRC})
+set_property(TARGET rps-client PROPERTY CXX_STANDARD 14)
 target_link_libraries(rps-client ${RPS_TOOLS_LIBS})
 
 add_executable(rps-package ${RPS_PKGTOOL_SRC})
+set_property(TARGET rps-package PROPERTY CXX_STANDARD 14)
 target_link_libraries(rps-package ${RPS_TOOLS_LIBS})
 
 install(TARGETS rps-client rps-package DESTINATION bin)

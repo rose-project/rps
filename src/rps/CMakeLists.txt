@@ -30,6 +30,7 @@ set(RPS_LIBS
 )
 
 add_library(${PROJECT_NAME} SHARED ${RPS_SRC})
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 target_link_libraries(${PROJECT_NAME} ${RPS_LIBS})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

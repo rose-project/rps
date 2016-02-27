@@ -1,14 +1,9 @@
 # Project ROSE Package Service
 # Copyright 2013, 2015 Josef Raschen
 project(rps)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
-set(CMAKE_C_FLAGS "-std=c11 -Wall -pedantic -Wextra")
-set(CMAKE_C_FLAGS_DEBUG "-ggdb -O0")
-set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
-set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -O0")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CXX_EXTENSIONS )
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include

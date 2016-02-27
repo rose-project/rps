@@ -1,5 +1,4 @@
 # librps unit tests
-cmake_minimum_required(VERSION 2.8)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
@@ -20,6 +19,7 @@ set(RPS_TEST_LIBS
 )
 
 add_executable(librps-test ${RPS_TEST_SRC})
+set_property(TARGET librps-test PROPERTY CXX_STANDARD 14)
 target_link_libraries(librps-test ${RPS_TEST_LIBS})
 
 
