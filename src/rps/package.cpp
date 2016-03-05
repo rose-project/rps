@@ -98,7 +98,7 @@ void Package::readPackageFile(const std::string &package_path)
         } else if (archive_entry_size(entry) > 0) {
 
             size_t size;
-            off_t offset;
+            int64_t offset;
             while (true) {
                 r = archive_read_data_block(a, &buf, &size, &offset);
                 if (r == ARCHIVE_EOF)
