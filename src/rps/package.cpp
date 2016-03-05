@@ -8,8 +8,8 @@
 #include <cerrno>
 #include <fcntl.h>
 #include <unistd.h>
-#include <libtar.h>
-#include <bzlib.h>
+#include <archive.h>
+#include <archive_entry.h>
 #include <boost/filesystem.hpp>
 #include <rps/exception.h>
 #include "rps/package.h"
@@ -45,82 +45,101 @@ void Package::readPackageFile(const std::string &package_path)
     if (!package_path.empty())
         mPackagePath = package_path;
 
+    boost::filesystem::path unpacked_dir = mWorkDir;
+    unpacked_dir /= mPackagePath.stem();
+    mUnpackedDir = unpacked_dir;
 
-    // unpack bz2
+    const void *buf;
 
-    FILE *tbz2_file;
+    int r;
 
-    if (!(tbz2_file = fopen(package_path.c_str(), "r"))) {
-        throw Exception(std::string("could not open package file:") + package_path);
+    struct archive *a = archive_read_new();
+    struct archive_entry *entry;
+
+    archive_read_support_compression_bzip2(a);
+    archive_read_support_format_tar(a);
+
+
+    struct archive *ext = archive_write_disk_new();
+    int flags = ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_FFLAGS;
+    archive_write_disk_set_options(ext, flags);
+    archive_write_disk_set_standard_lookup(ext);
+
+    r = archive_read_open_filename(a, package_path.c_str(), 16384);
+    if (r != ARCHIVE_OK) {
+        archive_read_free(a);
+        archive_write_free(ext);
+        throw Exception(std::string("archive_read_open_filename() failed for file: ") + package_path);
     }
 
-    BZFILE *bz2;
-    int bzerr;
-    bz2 = BZ2_bzReadOpen(&bzerr, tbz2_file, 0, 0, NULL, 0);
-    if (bzerr != BZ_OK) {
-        fclose(tbz2_file);
-        throw Exception("BZ2_bzReadOpen() failed");
-    }
+    while (true) {
 
-    FILE *tar_file;
-    std::string tar_fpath = mWorkDir.string() + "/unpacked.tar";
-    if (!(tar_file = fopen(tar_fpath.c_str(), "w"))) {
-        BZ2_bzReadClose(&bzerr, bz2);
-        fclose(tbz2_file);
-        throw Exception(std::string("fopen() failed: ") + tar_fpath);
-    }
-
-    unsigned char buf[CHUNKSIZE];
-    while (1) {
-        size_t n = BZ2_bzRead(&bzerr, bz2, buf, CHUNKSIZE);
-        if (bzerr != BZ_OK && bzerr != BZ_STREAM_END) {
-            fclose(tar_file);
-            boost::filesystem::remove(tar_fpath);
-            BZ2_bzReadClose(&bzerr, bz2);
-            fclose(tbz2_file);
-            throw Exception(std::string("BZ2_bzRead failed"));
-        }
-
-        if (fwrite(buf, 1, n, tar_file) != n) {
-            fclose(tar_file);
-            boost::filesystem::remove(tar_fpath);
-            BZ2_bzReadClose(&bzerr, bz2);
-            fclose(tbz2_file);
-            throw Exception(std::string("fwrite() failed"));
-        }
-
-        if (bzerr == BZ_STREAM_END)
+        r = archive_read_next_header(a, &entry);
+        if (r == ARCHIVE_EOF) {
             break;
+        }
+        if (r < ARCHIVE_OK) {
+            std::cerr << archive_error_string(ext) << std::endl;
+        }
+        if (r < ARCHIVE_WARN) {
+            archive_read_free(a);
+            archive_write_free(ext);
+            throw Exception(std::string("archive_read_next_header() failed:") + archive_error_string(a));
+        }
+
+        std::cout << std::string("extract: ") << archive_entry_pathname(entry) << std::endl;
+        archive_entry_set_pathname(entry, (mUnpackedDir.string() + std::string("/") + archive_entry_pathname(entry)).c_str());
+
+        r = archive_write_header(ext, entry);
+        if (r < ARCHIVE_OK) {
+            archive_read_free(a);
+            archive_write_free(ext);
+            throw Exception(std::string("archive_write_header() failed:") + archive_error_string(ext));
+        } else if (archive_entry_size(entry) > 0) {
+
+            size_t size;
+            off_t offset;
+            while (true) {
+                r = archive_read_data_block(a, &buf, &size, &offset);
+                if (r == ARCHIVE_EOF)
+                    break;
+                if (r < ARCHIVE_WARN) {
+                    archive_read_free(a);
+                    archive_write_free(ext);
+                    throw Exception(std::string(archive_error_string(ext)));
+                }
+                if (r < ARCHIVE_OK) {
+                    std::cerr << archive_error_string(ext) << std::endl;
+                    break;
+                }
+
+                r = archive_write_data_block(ext, buf, size, offset);
+                if (r < ARCHIVE_WARN) {
+                    archive_read_free(a);
+                    archive_write_free(ext);
+                    throw Exception(std::string(archive_error_string(ext)));
+                }
+                if (r < ARCHIVE_OK) {
+                    std::cerr << archive_error_string(ext) << std::endl;
+                    break;
+                }
+            }
+
+
+            r = archive_write_finish_entry(ext);
+            if (r < ARCHIVE_OK)
+                std::cerr << archive_error_string(ext) << std::endl;
+            if (r < ARCHIVE_WARN) {
+                archive_read_free(a);
+                archive_write_free(ext);
+                throw Exception(std::string(archive_error_string(ext)));
+            }
+        }
     }
-
-    fclose(tar_file);
-
-    // unpack tar
-
-     TAR *tar;
-    if (tar_open(&tar, tar_fpath.c_str(), NULL, O_RDONLY, 0644, 0) != 0) {
-        boost::filesystem::remove(tar_fpath);
-        throw Exception("tasr_open() failed");
-    }
-
-    mUnpackedDir = mWorkDir;
-    mUnpackedDir /= mPackagePath.stem();
-    std::cout << "unpack to: " << mUnpackedDir << std::endl;
-    if (boost::filesystem::exists(mUnpackedDir))
-        boost::filesystem::remove_all(mUnpackedDir);
-    boost::filesystem::create_directory(mUnpackedDir);
-
-    std::string unpacked_dirname = mUnpackedDir.string();
-    std::vector<char> unpacked_dirname_v(unpacked_dirname.c_str(),
-        unpacked_dirname.c_str() + (unpacked_dirname.length() + 1));
-    if (tar_extract_all(tar, &unpacked_dirname_v[0]) != 0) {
-        boost::filesystem::remove_all(mUnpackedDir);
-        tar_close(tar);
-        throw Exception("cannot extract tar");
-    }
-    tar_close(tar);
-    boost::filesystem::remove(tar_fpath);
-
+    archive_read_close(a);
+    archive_read_free(a);
+    archive_write_close(ext);
+    archive_write_free(ext);
 }
 
 void Package::readPackageDir(std::string package_dir)
@@ -176,85 +195,46 @@ void Package::setupWorkdir()
 
 void Package::pack()
 {
-    TAR *tar;
+    struct archive *a;
+    char buf[8192];
 
     std::string package_base_filename(mManifest.packageName() + "-"
         + std::to_string(mManifest.packageVersion()) + "-"
         + mManifest.targetArch());
 
-    // create tar
+    std::string tbz2_path = mWorkDir.string() + "/"
+        + package_base_filename + ".rps";
 
-    boost::filesystem::path tar_path = std::string("/tmp/rps/")
-        + mManifest.packageName() + "-"
-        + std::to_string(mManifest.packageVersion()) + "-"
-        + mManifest.targetArch() + ".tar";
+    a = archive_write_new();
+    archive_write_add_filter_bzip2(a);
+    archive_write_set_format_pax_restricted(a);
+    archive_write_open_filename(a, tbz2_path.c_str());
 
-    if (tar_open(&tar, tar_path.c_str(), NULL, O_WRONLY|O_CREAT, 0644, 0) != 0)
-        throw Exception("tar_open() failed");
-
-    std::string mfst_path = mUnpackedDir.string() + "/manifest.json";
-    if (tar_append_file(tar, (mUnpackedDir.string() + "/manifest.json").c_str(),
-            "manifest.json") != 0) {
-        tar_close(tar);
-        throw Exception("tar_append_file() of 'manifest.json'' failed");
-    }
-
-    // add files
+    struct stat st;
+    struct archive_entry *entry;
 
     for (auto &f: mManifest.files()) {
         std::string source = mUnpackedDir.string() + std::string("/data/") + f.name();
         std::string dest = std::string("data/") + f.name();
-        if (tar_append_file(tar, source.c_str(), dest.c_str()) != 0) {
-            tar_close(tar);
-            throw Exception(std::string("tar_append_file() of '") + f.name() + std::string("' failed"));
+        stat(source.c_str(), &st);
+        entry = archive_entry_new();
+        archive_entry_set_pathname(entry, dest.c_str());
+        archive_entry_set_size(entry, st.st_size);
+        archive_entry_set_filetype(entry, AE_IFREG);
+        archive_entry_set_perm(entry, 0644);
+        archive_write_header(a, entry);
+        int fd = open(source.c_str(), O_RDONLY);
+        int len = read(fd, buf, sizeof(buf));
+        while (len > 0) {
+            archive_write_data(a, buf, len);
+            len = read(fd, buf, sizeof(buf));
         }
-        std::cout << "tar: added file: " << f.name() << std::endl;
+        close(fd);
+        archive_entry_free(entry);
     }
 
-    tar_close(tar);
-
-
-    // compress
-
-    boost::filesystem::path tbz2_path = mWorkDir.string() + "/"
-        + package_base_filename + ".rps";
-
-    int tar_fd = open(tar_path.c_str(), O_RDONLY);
-    if (tar_fd  == -1) {
-        boost::filesystem::remove(tar_path);
-        throw Exception("open(tar_path) failed");
-    }
-
-    FILE *tbz2_file = fopen(tbz2_path.c_str(), "wb");
-    if (tbz2_file == NULL) {
-        close(tar_fd);
-        boost::filesystem::remove(tar_path);
-        throw Exception("fopen(tbz2_path) failed");
-    }
-
-    int bzerr;
-    BZFILE *bz2 = BZ2_bzWriteOpen(&bzerr, tbz2_file, 9, 0, 30);
-    if (bzerr != BZ_OK) {
-        fclose(tbz2_file);
-        close(tar_fd);
-        boost::filesystem::remove(tar_path);
-        throw Exception("BZ2_bzWriteOpen failed");
-    }
-
-    size_t size;
-    unsigned char buffer[CHUNKSIZE];
-    while ((size = read(tar_fd, buffer, CHUNKSIZE)) > 0)
-        BZ2_bzWrite(&bzerr, bz2, buffer, size);
-
-    BZ2_bzWriteClose(&bzerr, bz2, 0, NULL, NULL);
-    fclose(tbz2_file);
-    close(tar_fd);
-
-    boost::filesystem::remove(tar_path);
-
-    if (bzerr != BZ_OK || size < 0) {
-        throw Exception("write BZ2 failed");
-    }
+    archive_write_close(a);
+    archive_write_free(a);
 }
 
 void Package::unpack()

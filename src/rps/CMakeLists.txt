@@ -19,8 +19,7 @@ set(RPS_SRC
 )
 
 set(RPS_LIBS
-    bz2
-    tar
+    archive
     curl
     ssl
     crypto

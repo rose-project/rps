@@ -1,2 +1,2 @@
 dependencies
-libjansson-dev libssl-dev libbz2-dev libtar-dev libboost-filesystem-dev libcurl4-openssl-dev
+libjansson-dev libssl-dev libarchive-dev libboost-filesystem-dev libcurl4-openssl-dev
