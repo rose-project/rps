@@ -28,7 +28,15 @@ set(RPS_LIBS
     boost_filesystem
 )
 
+set(RPS_VERSION_MAJOR 0)
+set(RPS_VERSION_MINOR 1)
+set(RPS_VERSION_PATCH 0)
+set(RPS_VERSION_STRING ${RPS_VERSION_MAJOR}.${RPS_VERSION_MINOR}.${RPS_VERSION_PATCH})
+
 add_library(${PROJECT_NAME} SHARED ${RPS_SRC})
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${RPS_VERSION_STRING}
+                                          SOVERSION ${RPS_VERSION_MAJOR})
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 target_link_libraries(${PROJECT_NAME} ${RPS_LIBS})
 
