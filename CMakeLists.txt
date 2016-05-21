@@ -3,7 +3,7 @@
 project(rps)
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
-find_package(Boost REQUIRED COMPONENTS filesystem)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
 find_package(LibArchive REQUIRED)
 
 set(CXX_EXTENSIONS )
