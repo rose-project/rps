@@ -18,6 +18,9 @@ set(RPS_PKGTOOL_SRC
 
 set(RPS_TOOLS_LIBS
     rps
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${LibArchive_LIBRARY}
 )
 
 add_executable(rps-client ${RPS_CLIENT_SRC})

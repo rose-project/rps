@@ -19,13 +19,10 @@ set(RPS_SRC
 )
 
 set(RPS_LIBS
-    archive
-    curl
-    ssl
-    crypto
     jansson
-    boost_system
-    boost_filesystem
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${LibArchive_LIBRARY}
 )
 
 set(RPS_VERSION_MAJOR 0)
