@@ -86,7 +86,7 @@ void Manifest::readFromFile(std::string filename)
     json_decref(root);
 }
 
-void Manifest::writeManifestFile(std::__cxx11::string filename)
+void Manifest::writeManifestFile(std::string filename)
 {
     json_t *root;
 

@@ -153,17 +153,17 @@ void Package::readPackageDir(std::string package_dir)
     mUnpackedDir = package_dir;
 }
 
-void Package::signPackage(std::__cxx11::string priv_key)
+void Package::signPackage(std::string priv_key)
 {
 
 }
 
-void Package::verify(std::__cxx11::string pub_key)
+void Package::verify(std::string pub_key)
 {
 
 }
 
-void Package::writePackge(std::__cxx11::string dest_dir)
+void Package::writePackge(std::string dest_dir)
 {
     if (mManifest.packageName().empty())
         throw Exception("package metatdata is not set");
