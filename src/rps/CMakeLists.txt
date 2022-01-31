@@ -33,7 +33,6 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${RPS_VERSION_STRING}
                                           SOVERSION ${RPS_VERSION_MAJOR})
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 target_link_libraries(${PROJECT_NAME} ${RPS_LIBS})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
