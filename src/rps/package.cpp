@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <archive.h>
 #include <archive_entry.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <rps/exception.h>
 #include "rps/package.h"
 
@@ -21,7 +21,7 @@
 
 namespace RPS {
 
-const boost::filesystem::path Package::mWorkDir = "/tmp/rps";
+const std::filesystem::path Package::mWorkDir = "/tmp/rps";
 
 Package::Package()
 {
@@ -45,7 +45,7 @@ void Package::readPackageFile(const std::string &package_path)
     if (!package_path.empty())
         mPackagePath = package_path;
 
-    boost::filesystem::path unpacked_dir = mWorkDir;
+    std::filesystem::path unpacked_dir = mWorkDir;
     unpacked_dir /= mPackagePath.stem();
     mUnpackedDir = unpacked_dir;
 
@@ -144,8 +144,8 @@ void Package::readPackageFile(const std::string &package_path)
 
 void Package::readPackageDir(std::string package_dir)
 {
-    boost::filesystem::path pkgdir = package_dir;
-    if (!boost::filesystem::exists(pkgdir))
+    std::filesystem::path pkgdir = package_dir;
+    if (!std::filesystem::exists(pkgdir))
         throw Exception("package directory '" + package_dir + "'does not exist");
 
     mManifest.readFromFile(package_dir + "/manifest.json");
@@ -169,12 +169,12 @@ void Package::writePackge(std::string dest_dir)
         throw Exception("package metatdata is not set");
 
     // create package workdir or delete old data
-    boost::filesystem::path package_tmp_dir =
+    std::filesystem::path package_tmp_dir =
             std::string("/tmp/rps/") + mManifest.packageName();
-    if (boost::filesystem::exists(package_tmp_dir))
-        boost::filesystem::remove_all(package_tmp_dir);
+    if (std::filesystem::exists(package_tmp_dir))
+        std::filesystem::remove_all(package_tmp_dir);
 
-    boost::filesystem::create_directory(package_tmp_dir);
+    std::filesystem::create_directory(package_tmp_dir);
 
     mManifest.writeManifestFile(package_tmp_dir.string() + "/manifest.json");
 
@@ -188,9 +188,9 @@ void Package::writePackge(std::string dest_dir)
 void Package::setupWorkdir()
 {
     // create rps working dir if not present
-    boost::filesystem::path rps_tmp_dir = "/tmp/rps";
-    if (!boost::filesystem::exists(rps_tmp_dir))
-        boost::filesystem::create_directory(rps_tmp_dir);
+    std::filesystem::path rps_tmp_dir = "/tmp/rps";
+    if (!std::filesystem::exists(rps_tmp_dir))
+        std::filesystem::create_directory(rps_tmp_dir);
 }
 
 void Package::pack()

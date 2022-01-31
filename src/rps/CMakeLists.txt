@@ -20,17 +20,16 @@ set(RPS_SRC
 
 set(RPS_LIBS
     jansson
-    ${Boost_SYSTEM_LIBRARY}
-    ${Boost_FILESYSTEM_LIBRARY}
     ${LibArchive_LIBRARY}
 )
 
 set(RPS_VERSION_MAJOR 0)
-set(RPS_VERSION_MINOR 1)
+set(RPS_VERSION_MINOR 2)
 set(RPS_VERSION_PATCH 0)
 set(RPS_VERSION_STRING ${RPS_VERSION_MAJOR}.${RPS_VERSION_MINOR}.${RPS_VERSION_PATCH})
 
 add_library(${PROJECT_NAME} SHARED ${RPS_SRC})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${RPS_VERSION_STRING}
                                           SOVERSION ${RPS_VERSION_MAJOR})
 

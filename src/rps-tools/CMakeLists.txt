@@ -18,16 +18,17 @@ set(RPS_PKGTOOL_SRC
 
 set(RPS_TOOLS_LIBS
     rps
-    ${Boost_SYSTEM_LIBRARY}
-    ${Boost_FILESYSTEM_LIBRARY}
     ${LibArchive_LIBRARY}
 )
 
 add_executable(rps-client ${RPS_CLIENT_SRC})
+target_compile_features(rps-client PRIVATE cxx_std_17)
+
 set_property(TARGET rps-client PROPERTY CXX_STANDARD 14)
 target_link_libraries(rps-client ${RPS_TOOLS_LIBS})
 
 add_executable(rps-package ${RPS_PKGTOOL_SRC})
+target_compile_features(rps-package PRIVATE cxx_std_17)
 set_property(TARGET rps-package PROPERTY CXX_STANDARD 14)
 target_link_libraries(rps-package ${RPS_TOOLS_LIBS})
 
