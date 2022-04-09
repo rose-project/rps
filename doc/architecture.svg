@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="232.96321mm"
+   height="179.9021mm"
+   viewBox="0 0 880.49087 679.94495"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="architecture.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     units="mm"
+     inkscape:zoom="1.185877"
+     inkscape:cx="401.3907"
+     inkscape:cy="244.12313"
+     inkscape:window-width="1852"
+     inkscape:window-height="1024"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-40.707967,-63.855491)">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect31-8-6"
+       width="303.42682"
+       height="327.28235"
+       x="41.652847"
+       y="415.57318" />
+    <text
+       xml:space="preserve"
+       style="font-size:18.6667px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto"
+       x="54.408241"
+       y="736.08832"
+       id="text36764"><tspan
+         sodipodi:role="line"
+         id="tspan36762"
+         x="54.408241"
+         y="736.08832">Linux based system</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect31-8-6-1"
+       width="303.42682"
+       height="327.28235"
+       x="460.69598"
+       y="411.36182" />
+    <text
+       xml:space="preserve"
+       style="font-size:18.6667px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto"
+       x="477.24771"
+       y="729.09351"
+       id="text36764-1"><tspan
+         sodipodi:role="line"
+         id="tspan36762-7"
+         x="477.24771"
+         y="729.09351">microcontroller system</tspan></text>
+    <path
+       style="display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 235.0624,226.30803 192.68717,436.23297"
+       id="path54666"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="7"
+       sodipodi:nodetypes="ccc"
+       inkscape:connection-start="#g156883-0-5-8" />
+    <g
+       id="g16281-8-4-2"
+       transform="translate(35.632922,213.08849)">
+      <rect
+         style="fill:#c3c3c3;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-8-8-8"
+         width="164.53304"
+         height="57.798908"
+         x="492.86298"
+         y="371.71115" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="574.49603"
+         y="405.66464"
+         id="text4408-2-1-6"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0"
+           x="574.49603"
+           y="405.66464"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:Roboto">Firmware Package</tspan></text>
+    </g>
+    <g
+       id="g16281-8-4-2-49"
+       transform="translate(-385.60072,227.2301)">
+      <rect
+         style="fill:#c3c3c3;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-8-8-8-4"
+         width="164.53304"
+         height="57.798908"
+         x="492.86298"
+         y="371.71115" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="574.49603"
+         y="405.66464"
+         id="text4408-2-1-6-1"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0-1"
+           x="574.49603"
+           y="405.66464"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:Roboto">Firmware Package</tspan></text>
+    </g>
+    <g
+       id="g16281-8-4-2-4"
+       transform="translate(35.632922,270.88741)">
+      <rect
+         style="fill:#c3c3c3;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-8-8-8-9"
+         width="164.53304"
+         height="57.798908"
+         x="492.86298"
+         y="371.71115" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="574.49603"
+         y="405.66464"
+         id="text4408-2-1-6-8"><tspan
+           sodipodi:role="line"
+           x="574.49603"
+           y="405.66464"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:Roboto"
+           id="tspan87127">Binary Package</tspan></text>
+    </g>
+    <g
+       id="g16281-8-4-2-4-7"
+       transform="translate(-385.60072,285.02902)">
+      <rect
+         style="fill:#c3c3c3;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-8-8-8-9-6"
+         width="164.53304"
+         height="57.798908"
+         x="492.86298"
+         y="371.71115" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="574.49603"
+         y="405.66464"
+         id="text4408-2-1-6-8-3"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0-4-3"
+           x="574.49603"
+           y="405.66464"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:Roboto">Package</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto"
+       x="162.3271"
+       y="354.43835"
+       id="text60806"><tspan
+         sodipodi:role="line"
+         id="tspan60804"
+         x="162.3271"
+         y="354.43835">https</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto"
+       x="372.86682"
+       y="239.83827"
+       id="text60806-9"><tspan
+         sodipodi:role="line"
+         id="tspan60804-36"
+         x="372.86682"
+         y="239.83827">?</tspan></text>
+    <path
+       style="display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 333.6298,221.15412 246.75195,226.756"
+       id="path61636"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g156883-0-5-8" />
+    <text
+       xml:space="preserve"
+       style="font-size:16px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto"
+       x="740.26038"
+       y="320.82065"
+       id="text60806-5"><tspan
+         sodipodi:role="line"
+         id="tspan60804-3"
+         x="740.26038"
+         y="320.82065">byte stream</tspan></text>
+    <g
+       id="g16281-88"
+       transform="translate(219.69037,-176.34357)"
+       inkscape:connector-avoid="true">
+      <rect
+         style="fill:#c3c3c3;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-2"
+         width="164.53304"
+         height="57.798908"
+         x="492.86298"
+         y="371.71115" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="574.49603"
+         y="405.66464"
+         id="text4408-5"><tspan
+           sodipodi:role="line"
+           id="tspan4406-2"
+           x="574.49603"
+           y="405.66464"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:Roboto">Package Storage</tspan></text>
+    </g>
+    <g
+       id="g16281-88-8"
+       transform="translate(-9.3957361,-173.42514)">
+      <rect
+         style="fill:#9ed5e8;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-2-1"
+         width="164.53304"
+         height="57.798908"
+         x="492.86298"
+         y="371.71115" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="574.49603"
+         y="405.66464"
+         id="text4408-5-0"><tspan
+           sodipodi:role="line"
+           id="tspan4406-2-6"
+           x="574.49603"
+           y="405.66464"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:Roboto">Package Index</tspan></text>
+    </g>
+    <g
+       id="g16281-88-8-8"
+       transform="translate(61.649777,-290.95746)"
+       inkscape:connector-avoid="true">
+      <rect
+         style="fill:#c3c3c3;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-2-1-9"
+         width="164.53304"
+         height="57.798908"
+         x="492.86298"
+         y="371.71115" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="574.49603"
+         y="405.66464"
+         id="text4408-5-0-6"><tspan
+           sodipodi:role="line"
+           id="tspan4406-2-6-7"
+           x="574.49603"
+           y="405.66464"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:Roboto">Client Database</tspan></text>
+    </g>
+    <g
+       id="g156883">
+      <rect
+         style="fill:#9ed5e8;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-8"
+         width="164.53302"
+         height="150.75279"
+         x="107.26225"
+         y="436.23297" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="189.11404"
+         y="470.18646"
+         id="text4408-2"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6"
+           x="189.11404"
+           y="470.18646"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold'">Package Client</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="188.98579"
+         y="537.86493"
+         id="text4408-2-1-6-1-8"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0-1-6"
+           x="188.98579"
+           y="537.86493"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:Roboto;-inkscape-font-specification:Roboto">Downloader</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="188.93111"
+         y="568.77289"
+         id="text4408-2-1-6-1-8-0"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0-1-6-9"
+           x="188.93111"
+           y="568.77289"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:Roboto;-inkscape-font-specification:Roboto">Installer</tspan></text>
+    </g>
+    <g
+       id="g156883-0"
+       transform="translate(421.23363,-2.1861415)">
+      <rect
+         style="fill:#9ed5e8;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-8-1"
+         width="164.53302"
+         height="150.75279"
+         x="107.26225"
+         y="436.23297" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="189.11404"
+         y="470.18646"
+         id="text4408-2-8"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-5"
+           x="189.11404"
+           y="470.18646"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold'">Package Client</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="188.98579"
+         y="537.86493"
+         id="text4408-2-1-6-1-8-7"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0-1-6-70"
+           x="188.98579"
+           y="537.86493"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:Roboto;-inkscape-font-specification:Roboto">Downloader</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="188.93111"
+         y="568.77289"
+         id="text4408-2-1-6-1-8-0-5"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0-1-6-9-8"
+           x="188.93111"
+           y="568.77289"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:Roboto;-inkscape-font-specification:Roboto">Installer</tspan></text>
+    </g>
+    <g
+       id="g156883-0-5-8"
+       transform="translate(61.834513,-371.4326)">
+      <rect
+         style="fill:#9ed5e8;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect31-8-1-8-7"
+         width="164.53304"
+         height="161.50766"
+         x="107.26225"
+         y="436.23297" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:18.6667px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="189.11404"
+         y="470.18646"
+         id="text4408-2-8-6-9"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-5-3-4"
+           x="189.11404"
+           y="470.18646"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:18.6667px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold'">Package Server</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="188.98579"
+         y="537.86493"
+         id="text4408-2-1-6-1-8-7-0-9"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0-1-6-70-2-9"
+           x="188.98579"
+           y="537.86493"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:Roboto;-inkscape-font-specification:Roboto">Dependency Solver</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="188.98579"
+         y="505.32816"
+         id="text4408-2-1-6-1-8-4-9-7-9"><tspan
+           sodipodi:role="line"
+           id="tspan4406-6-9-0-1-6-7-0-2-6"
+           x="188.98579"
+           y="505.32816"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:Roboto;-inkscape-font-specification:Roboto">Client Manager</tspan></text>
+    </g>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 483.46724,205.82366 333.6298,166.916"
+       id="path198146"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g16281-88-8"
+       inkscape:connection-end="#g156883-0-5-8" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 712.55335,225.31507 -64.55307,0.82237"
+       id="path198148"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g16281-88"
+       inkscape:connection-end="#g16281-88-8" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 554.51275,117.31618 333.6298,137.89117"
+       id="path198150"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g16281-88-8-8"
+       inkscape:connection-end="#g156883-0-5-8" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 754.52331,253.16649 -4.26201,3.05658 -97.97079,177.82376"
+       id="path198611"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g16281-88"
+       inkscape:connection-end="#g156883-0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 527.5087,256.08492 271.79527,449.41306"
+       id="path208640"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g16281-88-8"
+       inkscape:connection-end="#g156883" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 733.94271,253.16649 271.79527,472.55601"
+       id="path208744"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g16281-88"
+       inkscape:connection-end="#g156883" />
+  </g>
+</svg>
