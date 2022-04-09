@@ -15,7 +15,7 @@
 #include "rps/manifest.h"
 
 
-namespace RPS {
+namespace rose {
 
 
 std::map<std::string, Manifest::Tag> Manifest::ManifestTags {

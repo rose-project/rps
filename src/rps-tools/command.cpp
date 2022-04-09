@@ -1,6 +1,6 @@
 #include "command.h"
 
-namespace RPS {
+namespace rose {
 namespace Tools {
 
 Command::Command()

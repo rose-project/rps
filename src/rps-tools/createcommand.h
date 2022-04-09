@@ -3,7 +3,7 @@
 
 #include "command.h"
 
-namespace RPS {
+namespace rose {
 namespace Tools {
 
 class CreateCommand : public Command

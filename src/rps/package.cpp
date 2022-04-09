@@ -19,7 +19,7 @@
  */
 #define CHUNKSIZE 512
 
-namespace RPS {
+namespace rose {
 
 const std::filesystem::path Package::mWorkDir = "/tmp/rps";
 

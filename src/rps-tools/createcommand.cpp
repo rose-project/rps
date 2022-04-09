@@ -7,7 +7,7 @@
 #include <rps/package.h>
 #include "createcommand.h"
 
-namespace RPS {
+namespace rose {
 namespace Tools {
 
 CreateCommand::CreateCommand()
@@ -49,7 +49,7 @@ void CreateCommand::execute(std::vector<std::string> &arguments)
 
     // pack the package
 
-    RPS::Package pkg;
+    rose::Package pkg;
     pkg.readPackageDir(source_dir + "/" + package_name);
 
     //    pkg.signPackage();

@@ -2,7 +2,7 @@
 #include <rps/package.h>
 #include "unpackcommand.h"
 
-namespace RPS {
+namespace rose {
 namespace Tools {
 
 UnpackCommand::UnpackCommand()

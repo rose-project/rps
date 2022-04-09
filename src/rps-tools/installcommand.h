@@ -3,10 +3,10 @@
 
 #include "command.h"
 
-namespace RPS {
+namespace rose {
 namespace Tools {
 
-class InstallCommand : public RPS::Tools::Command
+class InstallCommand : public rose::Tools::Command
 {
 public:
     InstallCommand();

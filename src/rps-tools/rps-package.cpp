@@ -36,13 +36,13 @@ int main(int argc, char *argv[])
 
     // call the command handler
 
-    std::unique_ptr<RPS::Tools::Command> cmd;
+    std::unique_ptr<rose::Tools::Command> cmd;
 
     try {
         if (arguments[1] == std::string("create")) {
-            cmd = std::make_unique<RPS::Tools::CreateCommand>();
+            cmd = std::make_unique<rose::Tools::CreateCommand>();
         } else if (arguments[1] == std::string("unpack")) {
-            cmd = std::make_unique<RPS::Tools::UnpackCommand>();
+            cmd = std::make_unique<rose::Tools::UnpackCommand>();
         } else if (arguments[1] == std::string("help")) {
             show_usage();
             return 0;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     } catch (const char *str) {
         std::cerr << "Error: " << str << std::endl;
         return EXIT_FAILURE;
-    } catch (RPS::Exception e) {
+    } catch (rose::Exception e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 

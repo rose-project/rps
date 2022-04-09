@@ -1,6 +1,6 @@
 #include "rps/exception.h"
 
-namespace RPS {
+namespace rose {
 
 Exception::Exception(std::string reason) noexcept
     : mReason(reason)

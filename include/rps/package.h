@@ -8,7 +8,7 @@
 #include <filesystem>
 #include <rps/manifest.h>
 
-namespace RPS {
+namespace rose {
 
 class Package {
 public:

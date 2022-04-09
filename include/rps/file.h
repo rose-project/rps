@@ -11,7 +11,7 @@
 
 #define MPK_FILEHASH_SIZE SHA256_DIGEST_LENGTH
 
-namespace RPS {
+namespace rose {
 
 class File {
 public:

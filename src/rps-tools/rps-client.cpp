@@ -42,13 +42,13 @@ int main(int argc, char *argv[])
 
     // call the command handler
 
-    std::unique_ptr<RPS::Tools::Command> cmd;
+    std::unique_ptr<rose::Tools::Command> cmd;
 
     try {
         if (arguments[1] == std::string("status")) {
             //cmd = std::make_unique<RPS::Tools::StatusCommand>();
         } else if (arguments[1] == std::string("install")) {
-            cmd = std::make_unique<RPS::Tools::InstallCommand>();
+            cmd = std::make_unique<rose::Tools::InstallCommand>();
         } else if (arguments[1] == std::string("remove")) {
             //cmd = std::make_unique<RPS::Tools::StatusCommand>();
         } else if (arguments[1] == std::string("get-release")) {

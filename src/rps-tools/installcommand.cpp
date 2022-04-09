@@ -1,6 +1,6 @@
 #include "installcommand.h"
 
-namespace RPS {
+namespace rose {
 namespace Tools {
 
 InstallCommand::InstallCommand()

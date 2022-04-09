@@ -3,10 +3,10 @@
 
 #include "command.h"
 
-namespace RPS {
+namespace rose {
 namespace Tools {
 
-class UnpackCommand : public RPS::Tools::Command
+class UnpackCommand : public rose::Tools::Command
 {
 public:
     UnpackCommand();

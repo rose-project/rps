@@ -13,7 +13,7 @@
 #include "rps/defines.h"
 #include "rps/file.h"
 
-namespace RPS {
+namespace rose {
 
 File::File()
 {

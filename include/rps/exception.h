@@ -4,7 +4,7 @@
 #include <exception>
 #include <string>
 
-namespace RPS {
+namespace rose {
 
 class Exception : public std::exception
 {

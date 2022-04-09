@@ -10,7 +10,7 @@
 #include <string>
 #include <list>
 
-namespace RPS {
+namespace rose {
 
 struct VersionInterval {
     int32_t start;

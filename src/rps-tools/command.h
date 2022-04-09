@@ -6,7 +6,7 @@
 #include <list>
 #include <memory>
 
-namespace RPS {
+namespace rose {
 namespace Tools {
 
 class Command

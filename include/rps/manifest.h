@@ -15,7 +15,7 @@
 #include <rps/file.h>
 
 
-namespace RPS {
+namespace rose {
 
 class Manifest {
 public:
