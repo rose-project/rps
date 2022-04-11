@@ -4,21 +4,19 @@
 #include "createcommand.h"
 #include "unpackcommand.h"
 
-#define RPS_PKGTOOL_VERSION "0.1.0"
-
 void show_usage()
 {
     fprintf(stderr, "usage: \n"
-        "  mpm-client create -d DIRECTORY [-o OUTPUT]\n"
-        "  mpm-client unpack -f PACKAGE\n"
-        "  mpm-client help\n"
-        "  mpm-client version\n"
+        "  rps-package create -d DIRECTORY [-o OUTPUT]\n"
+        "  rps-package unpack -f PACKAGE\n"
+        "  rps-package help\n"
+        "  rps-package version\n"
     );
 }
 
 void show_version()
 {
-    std::cerr << "ROSE Package Service - Package Tool " << RPS_PKGTOOL_VERSION << std::endl;
+    std::cerr << "ROSE Package Service - Package Tool " << RPS_VERSION << std::endl;
 }
 
 int main(int argc, char *argv[])

@@ -7,8 +7,6 @@
 #include "command.h"
 #include "installcommand.h"
 
-#define RPS_CLIENT_VERSION "0.1.0"
-
 void show_usage()
 {
     fprintf(stderr, "usage: \n"
@@ -23,7 +21,7 @@ void show_usage()
 
 void show_version()
 {
-    std::cerr << "ROSE Package Service Client" << RPS_CLIENT_VERSION
+    std::cerr << "ROSE Package Service Client" << RPS_VERSION
         << std::endl;
 }
 

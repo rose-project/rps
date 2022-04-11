@@ -5,6 +5,8 @@ project(rps
     DESCRIPTION "ROSE Package Service Library and Tools"
 )
 
+add_compile_definitions(RPS_VERSION="${CMAKE_PROJECT_VERSION}")
+
 find_package(LibArchive REQUIRED)
 
 
