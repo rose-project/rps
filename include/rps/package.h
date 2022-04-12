@@ -45,11 +45,20 @@ public:
      * @brief Write a package file to the file system.
      * @param dest_dir The directory to write the *.rpk file to.
      */
-    void writePackge(std::string dest_dir);
+    void writePackge(std::filesystem::path dest_dir);
 
+    /**
+     * @brief baseFilename
+     * @return the base name of the package file
+     */
+    std::string baseFilename() const;
+
+    /**
+     * @brief filename
+     * @return the file name including extension
+     */
+    std::string filename() const;
 private:
-
-    void setupWorkdir();
 
     /**
      * @brief Creates an *.rps file.
@@ -62,7 +71,8 @@ private:
     Manifest mManifest;
     std::filesystem::path mUnpackedDir;
     std::filesystem::path mPackagePath;
-    static const std::filesystem::path mWorkDir;
+    constexpr static std::string_view FileExtension{"rps"};
+    std::filesystem::path mWorkDir{"/tmp/rps"};
 };
 
 }

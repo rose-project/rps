@@ -21,17 +21,13 @@
 
 namespace rose {
 
-const std::filesystem::path Package::mWorkDir = "/tmp/rps";
-
 Package::Package()
 {
-    setupWorkdir();
 }
 
 Package::Package(std::string package_file)
     : mPackagePath(package_file)
 {
-    setupWorkdir();
     readPackageFile(package_file);
 }
 
@@ -163,14 +159,13 @@ void Package::verify(std::string pub_key)
 
 }
 
-void Package::writePackge(std::string dest_dir)
+void Package::writePackge(std::filesystem::path dest_dir)
 {
     if (mManifest.packageName().empty())
         throw Exception("package metatdata is not set");
 
     // create package workdir or delete old data
-    std::filesystem::path package_tmp_dir =
-            std::string("/tmp/rps/") + mManifest.packageName();
+    std::filesystem::path package_tmp_dir = mWorkDir / mManifest.packageName();
     if (std::filesystem::exists(package_tmp_dir))
         std::filesystem::remove_all(package_tmp_dir);
 
@@ -181,16 +176,18 @@ void Package::writePackge(std::string dest_dir)
     // pack + compress
     pack();
 
-    // TODO: copy to destination directory
-
+    std::filesystem::rename(mWorkDir.append(filename()), dest_dir.append(filename()));
 }
 
-void Package::setupWorkdir()
+std::string Package::baseFilename() const
 {
-    // create rps working dir if not present
-    std::filesystem::path rps_tmp_dir = "/tmp/rps";
-    if (!std::filesystem::exists(rps_tmp_dir))
-        std::filesystem::create_directory(rps_tmp_dir);
+    return mManifest.packageName() + "-" + std::to_string(mManifest.packageVersion()) + "-"
+            + mManifest.targetArch();
+}
+
+std::string Package::filename() const
+{
+    return baseFilename() + "." + std::string(FileExtension);
 }
 
 void Package::pack()
@@ -198,12 +195,7 @@ void Package::pack()
     struct archive *a;
     char buf[8192];
 
-    std::string package_base_filename(mManifest.packageName() + "-"
-        + std::to_string(mManifest.packageVersion()) + "-"
-        + mManifest.targetArch());
-
-    std::string tbz2_path = mWorkDir.string() + "/"
-        + package_base_filename + ".rps";
+    std::filesystem::path tbz2_path = mWorkDir / filename();
 
     a = archive_write_new();
     archive_write_add_filter_bzip2(a);
