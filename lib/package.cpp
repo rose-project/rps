@@ -66,7 +66,9 @@ void Package::extract(const std::string &package_path, const std::filesystem::pa
     if (r != ARCHIVE_OK) {
         archive_read_free(a);
         archive_write_free(ext);
-        throw Exception(std::string("archive_read_open_filename() failed for file: ") + package_path);
+        throw Exception(
+            std::string("archive_read_open_filename() failed for file: ") +
+            package_path);
     }
 
     while (true) {
@@ -78,10 +80,12 @@ void Package::extract(const std::string &package_path, const std::filesystem::pa
         if (r < ARCHIVE_OK) {
             std::cerr << archive_error_string(ext) << std::endl;
         }
+
         if (r < ARCHIVE_WARN) {
             archive_read_free(a);
             archive_write_free(ext);
-            throw Exception(std::string("archive_read_next_header() failed:") + archive_error_string(a));
+            throw Exception(std::string("archive_read_next_header() failed:") +
+                            archive_error_string(a));
         }
 
         std::cout << std::string("extract: ") << archive_entry_pathname(entry) << std::endl;
@@ -91,7 +95,8 @@ void Package::extract(const std::string &package_path, const std::filesystem::pa
         if (r < ARCHIVE_OK) {
             archive_read_free(a);
             archive_write_free(ext);
-            throw Exception(std::string("archive_write_header() failed:") + archive_error_string(ext));
+            throw Exception(std::string("archive_write_header() failed:") +
+                            archive_error_string(ext));
         } else if (archive_entry_size(entry) > 0) {
 
             size_t size;
@@ -206,7 +211,7 @@ void Package::pack()
     struct stat st;
     struct archive_entry *entry;
 
-    for (auto &f: mManifest.files()) {
+    for (auto &f : mManifest.files()) {
         std::string source = mExtractedDir.string() + std::string("/data/") + f.name();
         std::string dest = std::string("data/") + f.name();
         stat(source.c_str(), &st);
