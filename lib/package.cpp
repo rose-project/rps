@@ -28,7 +28,7 @@ Package::Package()
 Package::Package(std::string package_file)
     : mPackagePath(package_file)
 {
-    readPackageFile(package_file);
+    extract(package_file);
 }
 
 Package::~Package()
@@ -36,14 +36,15 @@ Package::~Package()
 
 }
 
-void Package::readPackageFile(const std::string &package_path)
+void Package::extract(const std::string &package_path, const std::filesystem::path &destination)
 {
     if (!package_path.empty())
         mPackagePath = package_path;
 
-    std::filesystem::path unpacked_dir = mWorkDir;
-    unpacked_dir /= mPackagePath.stem();
-    mUnpackedDir = unpacked_dir;
+    std::filesystem::path dest_dir = destination.empty()
+        ? std::filesystem::current_path() : destination;
+    mExtractedDir = dest_dir;
+    std::cout << std::string("extract to: ") << dest_dir << std::endl;
 
     const void *buf;
 
@@ -52,12 +53,12 @@ void Package::readPackageFile(const std::string &package_path)
     struct archive *a = archive_read_new();
     struct archive_entry *entry;
 
-    archive_read_support_compression_bzip2(a);
-    archive_read_support_format_tar(a);
-
+    archive_read_support_filter_all(a);
+    archive_read_support_format_all(a);
 
     struct archive *ext = archive_write_disk_new();
-    int flags = ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_FFLAGS;
+    int flags =
+        ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_FFLAGS;
     archive_write_disk_set_options(ext, flags);
     archive_write_disk_set_standard_lookup(ext);
 
@@ -84,7 +85,7 @@ void Package::readPackageFile(const std::string &package_path)
         }
 
         std::cout << std::string("extract: ") << archive_entry_pathname(entry) << std::endl;
-        archive_entry_set_pathname(entry, (mUnpackedDir.string() + std::string("/") + archive_entry_pathname(entry)).c_str());
+        archive_entry_set_pathname(entry, (mExtractedDir / archive_entry_pathname(entry)).c_str());
 
         r = archive_write_header(ext, entry);
         if (r < ARCHIVE_OK) {
@@ -146,7 +147,7 @@ void Package::readPackageDir(std::string package_dir)
 
     mManifest.readFromFile(package_dir + "/manifest.json");
 
-    mUnpackedDir = package_dir;
+    mExtractedDir = package_dir;
 }
 
 void Package::signPackage(std::string priv_key)
@@ -169,7 +170,7 @@ void Package::writePackge(std::filesystem::path dest_dir)
     if (std::filesystem::exists(package_tmp_dir))
         std::filesystem::remove_all(package_tmp_dir);
 
-    std::filesystem::create_directory(package_tmp_dir);
+    std::filesystem::create_directories(package_tmp_dir);
 
     mManifest.writeManifestFile(package_tmp_dir.string() + "/manifest.json");
 
@@ -206,7 +207,7 @@ void Package::pack()
     struct archive_entry *entry;
 
     for (auto &f: mManifest.files()) {
-        std::string source = mUnpackedDir.string() + std::string("/data/") + f.name();
+        std::string source = mExtractedDir.string() + std::string("/data/") + f.name();
         std::string dest = std::string("data/") + f.name();
         stat(source.c_str(), &st);
         entry = archive_entry_new();

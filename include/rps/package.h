@@ -21,7 +21,8 @@ public:
      * @brief Read a package file.
      * @param package_path Path of the *.rpk.
      */
-    void readPackageFile(const std::string &package_path = std::string());
+    void extract(const std::string &package_path = std::string(),
+            const std::filesystem::path &destination = "");
 
     /**
      * @brief Read a prackage from a source dir.
@@ -69,7 +70,7 @@ private:
 
 private:
     Manifest mManifest;
-    std::filesystem::path mUnpackedDir;
+    std::filesystem::path mExtractedDir;
     std::filesystem::path mPackagePath;
     constexpr static std::string_view FileExtension{"rps"};
     std::filesystem::path mWorkDir{"/tmp/rps"};
