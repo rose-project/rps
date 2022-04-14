@@ -5,12 +5,13 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string>
 #include <list>
+#include <stdint.h>
+#include <stdio.h>
+#include <string>
 
-namespace rose {
+namespace rose
+{
 
 struct VersionInterval {
     int32_t start;
@@ -19,10 +20,11 @@ struct VersionInterval {
 
 struct Dependency {
     std::string name;
-    std::list<VersionInterval> requires;
+    std::list<VersionInterval>
+    requires;
     std::list<VersionInterval> conflicts;
 };
 
-}
+} // namespace rose
 
 #endif /* _VERSION_H */

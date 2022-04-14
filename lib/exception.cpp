@@ -1,21 +1,12 @@
 #include "rps/exception.h"
 
-namespace rose {
-
-Exception::Exception(std::string reason) noexcept
-    : mReason(reason)
-{
-}
-
-Exception::~Exception() noexcept
+namespace rose
 {
 
-}
+Exception::Exception(std::string reason) noexcept : mReason(reason) {}
 
-const char *Exception::what() const noexcept
-{
-    return mReason.c_str();
-}
+Exception::~Exception() noexcept {}
 
-} // namespace RPS
+const char *Exception::what() const noexcept { return mReason.c_str(); }
 
+} // namespace rose

@@ -3,18 +3,20 @@
 
 #include "command.h"
 
-namespace rose {
-namespace Tools {
+namespace rose
+{
+namespace Tools
+{
 
 class InstallCommand : public rose::Tools::Command
 {
-public:
+  public:
     InstallCommand();
 
     virtual void execute(std::vector<std::string> &arguments);
 };
 
 } // namespace Tools
-} // namespace RPS
+} // namespace rose
 
 #endif // RPS_TOOLS_INSTALLCOMMAND_H

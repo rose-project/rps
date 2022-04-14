@@ -3,19 +3,20 @@
 
 #include "command.h"
 
-namespace rose {
-namespace Tools {
+namespace rose
+{
+namespace Tools
+{
 
 class CreateCommand : public Command
 {
-public:
+  public:
     CreateCommand();
 
     virtual void execute(std::vector<std::string> &arguments);
-
 };
 
 } // namespace Tools
-} // namespace RPS
+} // namespace rose
 
 #endif // RPS_TOOLS_CREATECOMMAND_H

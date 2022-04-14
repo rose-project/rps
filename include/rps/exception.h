@@ -4,20 +4,21 @@
 #include <exception>
 #include <string>
 
-namespace rose {
+namespace rose
+{
 
 class Exception : public std::exception
 {
-public:
+  public:
     Exception(std::string reason) noexcept;
     ~Exception() noexcept;
 
-    virtual const char* what() const noexcept;
+    virtual const char *what() const noexcept;
 
-private:
+  private:
     std::string mReason;
 };
 
-} // namespace RPS
+} // namespace rose
 
 #endif // RPS_EXCEPTION_H

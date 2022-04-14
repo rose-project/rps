@@ -5,24 +5,22 @@
 #ifndef _MANIFEST_H
 #define _MANIFEST_H
 
-#include <string>
-#include <list>
-#include <map>
-#include <vector>
 #include <functional>
 #include <jansson.h>
-#include <rps/version.h>
+#include <list>
+#include <map>
 #include <rps/file.h>
+#include <rps/version.h>
+#include <string>
+#include <vector>
 
+namespace rose
+{
 
-namespace rose {
-
-class Manifest {
-public:
-    enum class ManifestVersion {
-        VersionUnknown = -1,
-        Version1_0 = 100
-    };
+class Manifest
+{
+  public:
+    enum class ManifestVersion { VersionUnknown = -1, Version1_0 = 100 };
 
     enum class Tag {
         Undefined = 0,
@@ -42,7 +40,7 @@ public:
         Files
     };
 
-public:
+  public:
     Manifest();
     virtual ~Manifest();
 
@@ -99,7 +97,7 @@ public:
     std::list<File> &files();
     void setFiles(const std::list<File> &files);
 
-private:
+  private:
     void handleTag(const std::string &tag, json_t value);
 
     static std::string readStringTag(json_t *in);
@@ -120,7 +118,7 @@ private:
     static void readTagFiles(Manifest &mfst, json_t *in);
     static void readTagSignatures(Manifest &mfst, json_t *in);
 
-private:
+  private:
     ManifestVersion mManifestVersion;
     std::string mPackageName;
     int32_t mPackageVersion;
@@ -143,6 +141,6 @@ private:
     static std::map<Tag, std::function<void(Manifest &, json_t *)>> ReadTagFunctions;
 };
 
-}
+} // namespace rose
 
 #endif /* _MANIFEST_H */

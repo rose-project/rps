@@ -52,3 +52,12 @@ target_compile_features(rps-package PRIVATE cxx_std_17)
 target_link_libraries(rps-package jansson rps)
 
 install(TARGETS ${PROJECT_NAME} rps-client rps-package)
+
+# clang format
+file(GLOB_RECURSE SOURCE_FILES *.cpp *.h)
+find_program(CLANG_FORMAT "clang-format")
+if(CLANG_FORMAT)
+    add_custom_target(format
+        COMMAND clang-format -i ${SOURCE_FILES}
+    )
+endif()

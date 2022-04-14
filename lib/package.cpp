@@ -1,48 +1,40 @@
- /**
-  * @file package.cpp
-  */
-#include <iostream>
-#include <memory>
-#include <vector>
-#include <cstdlib>
-#include <cerrno>
-#include <fcntl.h>
-#include <unistd.h>
+/**
+ * @file package.cpp
+ */
+#include "rps/package.h"
 #include <archive.h>
 #include <archive_entry.h>
+#include <cerrno>
+#include <cstdlib>
+#include <fcntl.h>
 #include <filesystem>
+#include <iostream>
+#include <memory>
 #include <rps/exception.h>
-#include "rps/package.h"
+#include <unistd.h>
+#include <vector>
 
 /** The defaut size used for chunks of data used in for packing/unpacking and
  * signature generation generation
  */
 #define CHUNKSIZE 512
 
-namespace rose {
-
-Package::Package()
-{
-}
-
-Package::Package(std::string package_file)
-    : mPackagePath(package_file)
-{
-    extract(package_file);
-}
-
-Package::~Package()
+namespace rose
 {
 
-}
+Package::Package() {}
+
+Package::Package(std::string package_file) : mPackagePath(package_file) { extract(package_file); }
+
+Package::~Package() {}
 
 void Package::extract(const std::string &package_path, const std::filesystem::path &destination)
 {
     if (!package_path.empty())
         mPackagePath = package_path;
 
-    std::filesystem::path dest_dir = destination.empty()
-        ? std::filesystem::current_path() : destination;
+    std::filesystem::path dest_dir =
+        destination.empty() ? std::filesystem::current_path() : destination;
     mExtractedDir = dest_dir;
     std::cout << std::string("extract to: ") << dest_dir << std::endl;
 
@@ -67,8 +59,7 @@ void Package::extract(const std::string &package_path, const std::filesystem::pa
         archive_read_free(a);
         archive_write_free(ext);
         throw Exception(
-            std::string("archive_read_open_filename() failed for file: ") +
-            package_path);
+            std::string("archive_read_open_filename() failed for file: ") + package_path);
     }
 
     while (true) {
@@ -84,8 +75,8 @@ void Package::extract(const std::string &package_path, const std::filesystem::pa
         if (r < ARCHIVE_WARN) {
             archive_read_free(a);
             archive_write_free(ext);
-            throw Exception(std::string("archive_read_next_header() failed:") +
-                            archive_error_string(a));
+            throw Exception(
+                std::string("archive_read_next_header() failed:") + archive_error_string(a));
         }
 
         std::cout << std::string("extract: ") << archive_entry_pathname(entry) << std::endl;
@@ -95,8 +86,8 @@ void Package::extract(const std::string &package_path, const std::filesystem::pa
         if (r < ARCHIVE_OK) {
             archive_read_free(a);
             archive_write_free(ext);
-            throw Exception(std::string("archive_write_header() failed:") +
-                            archive_error_string(ext));
+            throw Exception(
+                std::string("archive_write_header() failed:") + archive_error_string(ext));
         } else if (archive_entry_size(entry) > 0) {
 
             size_t size;
@@ -127,7 +118,6 @@ void Package::extract(const std::string &package_path, const std::filesystem::pa
                 }
             }
 
-
             r = archive_write_finish_entry(ext);
             if (r < ARCHIVE_OK)
                 std::cerr << archive_error_string(ext) << std::endl;
@@ -155,15 +145,9 @@ void Package::readPackageDir(std::string package_dir)
     mExtractedDir = package_dir;
 }
 
-void Package::signPackage(std::string priv_key)
-{
+void Package::signPackage(std::string priv_key) {}
 
-}
-
-void Package::verify(std::string pub_key)
-{
-
-}
+void Package::verify(std::string pub_key) {}
 
 void Package::writePackge(std::filesystem::path dest_dir)
 {
@@ -187,14 +171,11 @@ void Package::writePackge(std::filesystem::path dest_dir)
 
 std::string Package::baseFilename() const
 {
-    return mManifest.packageName() + "-" + std::to_string(mManifest.packageVersion()) + "-"
-            + mManifest.targetArch();
+    return mManifest.packageName() + "-" + std::to_string(mManifest.packageVersion()) + "-" +
+           mManifest.targetArch();
 }
 
-std::string Package::filename() const
-{
-    return baseFilename() + "." + std::string(FileExtension);
-}
+std::string Package::filename() const { return baseFilename() + "." + std::string(FileExtension); }
 
 void Package::pack()
 {
@@ -235,9 +216,6 @@ void Package::pack()
     archive_write_free(a);
 }
 
-void Package::unpack()
-{
+void Package::unpack() {}
 
-}
-
-} // namespace RPS
+} // namespace rose

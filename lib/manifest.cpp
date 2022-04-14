@@ -1,47 +1,32 @@
 /**
  * @file manifest.c
  */
-#include <iostream>
-#include <iostream>
+#include "rps/manifest.h"
+#include "rps/defines.h"
+#include "stringhelper.h"
 #include <cstdio>
 #include <cstdlib>
-#include <syslog.h>
+#include <cstring>
+#include <iostream>
 #include <jansson.h>
 #include <memory.h>
-#include <cstring>
 #include <syslog.h>
-#include "stringhelper.h"
-#include "rps/defines.h"
-#include "rps/manifest.h"
 
+namespace rose
+{
 
-namespace rose {
+std::map<std::string, Manifest::Tag> Manifest::ManifestTags{{"manifest", Manifest::Tag::Manifest},
+    {"name", Manifest::Tag::Name}, {"version", Manifest::Tag::Version}, {"api", Manifest::Tag::API},
+    {"arch", Manifest::Tag::Arch}, {"localization", Manifest::Tag::Localization},
+    {"depends", Manifest::Tag::Depends}, {"source", Manifest::Tag::Source},
+    {"vendor", Manifest::Tag::Vendor}, {"label", Manifest::Tag::Label},
+    {"version-label", Manifest::Tag::VersionLabel}, {"description", Manifest::Tag::Description},
+    {"license", Manifest::Tag::License}, {"files", Manifest::Tag::Files}};
 
-
-std::map<std::string, Manifest::Tag> Manifest::ManifestTags {
-    {"manifest", Manifest::Tag::Manifest},
-    {"name", Manifest::Tag::Name},
-    {"version", Manifest::Tag::Version},
-    {"api", Manifest::Tag::API},
-    {"arch", Manifest::Tag::Arch},
-    {"localization", Manifest::Tag::Localization},
-    {"depends", Manifest::Tag::Depends},
-    {"source", Manifest::Tag::Source},
-    {"vendor", Manifest::Tag::Vendor},
-    {"label", Manifest::Tag::Label},
-    {"version-label", Manifest::Tag::VersionLabel},
-    {"description", Manifest::Tag::Description},
-    {"license", Manifest::Tag::License},
-    {"files", Manifest::Tag::Files}
-};
-
-
-std::map<Manifest::Tag, std::function<void(Manifest &, json_t *)>>
-        Manifest::ReadTagFunctions {
+std::map<Manifest::Tag, std::function<void(Manifest &, json_t *)>> Manifest::ReadTagFunctions{
     {Manifest::Tag::Manifest, Manifest::readTagManifest},
     {Manifest::Tag::Name, Manifest::readTagName},
-    {Manifest::Tag::Version, Manifest::readTagVersion},
-    {Manifest::Tag::API, Manifest::readTagAPI},
+    {Manifest::Tag::Version, Manifest::readTagVersion}, {Manifest::Tag::API, Manifest::readTagAPI},
     {Manifest::Tag::Arch, Manifest::readTagArch},
     {Manifest::Tag::Localization, Manifest::readTagLocalization},
     {Manifest::Tag::Depends, Manifest::readTagDepends},
@@ -51,18 +36,11 @@ std::map<Manifest::Tag, std::function<void(Manifest &, json_t *)>>
     {Manifest::Tag::VersionLabel, Manifest::readTagVersionLabel},
     {Manifest::Tag::Description, Manifest::readTagDescription},
     {Manifest::Tag::License, Manifest::readTagLicense},
-    {Manifest::Tag::Files, Manifest::readTagFiles}
-};
+    {Manifest::Tag::Files, Manifest::readTagFiles}};
 
-Manifest::Manifest()
-{
+Manifest::Manifest() {}
 
-}
-
-Manifest::~Manifest()
-{
-
-}
+Manifest::~Manifest() {}
 
 void Manifest::readFromFile(std::string filename)
 {
@@ -75,7 +53,8 @@ void Manifest::readFromFile(std::string filename)
 
     const char *key;
     json_t *value;
-    json_object_foreach(root, key, value) {
+    json_object_foreach(root, key, value)
+    {
         Tag t = ManifestTags[key];
         if (t == Tag::Undefined)
             throw "invalid key in manifest";
@@ -92,7 +71,7 @@ void Manifest::writeManifestFile(std::string filename)
 
     root = json_object();
 
-     // manifest
+    // manifest
     if (json_object_set_new(root, "manifest", json_string("1.0")) != 0) {
         json_decref(root);
         throw "cannot write manifest version tag";
@@ -155,7 +134,7 @@ void Manifest::writeManifestFile(std::string filename)
         json_decref(root);
         throw "cannot add locales";
     }
-    for (auto &i: mLocales) {
+    for (auto &i : mLocales) {
         if (json_array_append_new(localization_item, json_string(i.c_str())) != 0) {
             json_decref(root);
             throw "cannot add locale";
@@ -173,7 +152,7 @@ void Manifest::writeManifestFile(std::string filename)
         json_decref(root);
         throw "cannot add 'depends'";
     }
-    for (auto &i: mDependencies) {
+    for (auto &i : mDependencies) {
         // TODO
     }
 
@@ -230,7 +209,7 @@ void Manifest::writeManifestFile(std::string filename)
         json_decref(root);
         throw "cannot write files section";
     }
-    for (auto &i: mFiles) {
+    for (auto &i : mFiles) {
         json_t *file_item = json_object();
         if (!file_item) {
             json_decref(root);
@@ -248,7 +227,7 @@ void Manifest::writeManifestFile(std::string filename)
         std::cerr << "added file: " << i.name().c_str() << std::endl;
     }
 
-    if (json_dump_file(root, filename.c_str(), JSON_INDENT(4)|JSON_PRESERVE_ORDER) != 0) {
+    if (json_dump_file(root, filename.c_str(), JSON_INDENT(4) | JSON_PRESERVE_ORDER) != 0) {
         json_decref(root);
         throw "json_dump_file failed";
     }
@@ -256,16 +235,9 @@ void Manifest::writeManifestFile(std::string filename)
     json_decref(root);
 }
 
-std::string Manifest::packageName() const
-{
-    return mPackageName;
-}
+std::string Manifest::packageName() const { return mPackageName; }
 
-void Manifest::setPackageName(const std::string &packageName)
-{
-    mPackageName = packageName;
-}
-
+void Manifest::setPackageName(const std::string &packageName) { mPackageName = packageName; }
 
 std::string Manifest::readStringTag(json_t *in)
 {
@@ -323,7 +295,8 @@ void Manifest::readTagAPI(Manifest &mfst, json_t *in)
 
     const char *key;
     json_t *val;
-    json_object_foreach(in, key, val) {
+    json_object_foreach(in, key, val)
+    {
         if (!key)
             throw "invalid data in section 'api'";
         int v = json_integer_value(val);
@@ -362,14 +335,14 @@ void Manifest::readTagLocalization(Manifest &mfst, json_t *in)
 
     int i;
     json_t *value;
-    json_array_foreach(in, i, value) {
+    json_array_foreach(in, i, value)
+    {
         const char *str = json_string_value(value);
         if (!str)
             throw "invalid data";
 
         mfst.locales().push_back(std::string(str));
     }
-
 }
 
 void Manifest::readTagDepends(Manifest &mfst, json_t *in)
@@ -381,7 +354,8 @@ void Manifest::readTagDepends(Manifest &mfst, json_t *in)
 
     int i;
     json_t *pkg;
-    json_array_foreach(in, i, pkg) {
+    json_array_foreach(in, i, pkg)
+    {
         if (json_typeof(pkg) != JSON_OBJECT)
             throw "invalid data in section 'depends'";
 
@@ -464,7 +438,8 @@ void Manifest::readTagFiles(Manifest &mfst, json_t *in)
 
     int i;
     json_t *pkg;
-    json_array_foreach(in, i, pkg) {
+    json_array_foreach(in, i, pkg)
+    {
         if (json_typeof(pkg) != JSON_OBJECT)
             throw "invalid data in section 'depends'";
 
@@ -493,154 +468,67 @@ void Manifest::readTagFiles(Manifest &mfst, json_t *in)
     }
 }
 
-std::list<File> &Manifest::files()
-{
-    return mFiles;
-}
+std::list<File> &Manifest::files() { return mFiles; }
 
-void Manifest::setFiles(const std::list<File> &files)
-{
-    mFiles = files;
-}
+void Manifest::setFiles(const std::list<File> &files) { mFiles = files; }
 
-std::string Manifest::license() const
-{
-    return mLicense;
-}
+std::string Manifest::license() const { return mLicense; }
 
-void Manifest::setLicense(const std::string &license)
-{
-    mLicense = license;
-}
+void Manifest::setLicense(const std::string &license) { mLicense = license; }
 
-std::string Manifest::description() const
-{
-    return mDescription;
-}
+std::string Manifest::description() const { return mDescription; }
 
-void Manifest::setDescription(const std::string &description)
-{
-    mDescription = description;
-}
+void Manifest::setDescription(const std::string &description) { mDescription = description; }
 
-std::string Manifest::versionLabal() const
-{
-    return mVersionLabal;
-}
+std::string Manifest::versionLabal() const { return mVersionLabal; }
 
-void Manifest::setVersionLabal(const std::string &versionLabal)
-{
-    mVersionLabal = versionLabal;
-}
+void Manifest::setVersionLabal(const std::string &versionLabal) { mVersionLabal = versionLabal; }
 
-std::string Manifest::packageLabel() const
-{
-    return mPackageLabel;
-}
+std::string Manifest::packageLabel() const { return mPackageLabel; }
 
-void Manifest::setPackageLabel(const std::string &packageLabel)
-{
-    mPackageLabel = packageLabel;
-}
+void Manifest::setPackageLabel(const std::string &packageLabel) { mPackageLabel = packageLabel; }
 
-std::string Manifest::vendor() const
-{
-    return mVendor;
-}
+std::string Manifest::vendor() const { return mVendor; }
 
-void Manifest::setVendor(const std::string &vendor)
-{
-    mVendor = vendor;
-}
+void Manifest::setVendor(const std::string &vendor) { mVendor = vendor; }
 
-std::string Manifest::source() const
-{
-    return mSource;
-}
+std::string Manifest::source() const { return mSource; }
 
-void Manifest::setSource(const std::string &source)
-{
-    mSource = source;
-}
+void Manifest::setSource(const std::string &source) { mSource = source; }
 
-std::list<Dependency> Manifest::dependencies() const
-{
-    return mDependencies;
-}
+std::list<Dependency> Manifest::dependencies() const { return mDependencies; }
 
 void Manifest::setDependencies(const std::list<Dependency> &dependencies)
 {
     mDependencies = dependencies;
 }
 
-void Manifest::setLocales(const std::list<std::string> &locales)
-{
-    mLocales = locales;
-}
+void Manifest::setLocales(const std::list<std::string> &locales) { mLocales = locales; }
 
-std::string Manifest::targetArch() const
-{
-    return mTargetArch;
-}
+std::string Manifest::targetArch() const { return mTargetArch; }
 
-void Manifest::setTargetArch(const std::string &targetArch)
-{
-    mTargetArch = targetArch;
-}
+void Manifest::setTargetArch(const std::string &targetArch) { mTargetArch = targetArch; }
 
-std::list<std::string> &Manifest::locales()
-{
-    return mLocales;
-}
+std::list<std::string> &Manifest::locales() { return mLocales; }
 
-int32_t Manifest::apiMax() const
-{
-    return mApiMax;
-}
+int32_t Manifest::apiMax() const { return mApiMax; }
 
-void Manifest::setApiMax(const int32_t apiMax)
-{
-    mApiMax = apiMax;
-}
+void Manifest::setApiMax(const int32_t apiMax) { mApiMax = apiMax; }
 
-int32_t Manifest::apiTarget() const
-{
-    return mApiTarget;
-}
+int32_t Manifest::apiTarget() const { return mApiTarget; }
 
-void Manifest::setApiTarget(const int32_t apiTarget)
-{
-    mApiTarget = apiTarget;
-}
+void Manifest::setApiTarget(const int32_t apiTarget) { mApiTarget = apiTarget; }
 
-int32_t Manifest::apiMin() const
-{
-    return mApiMin;
-}
+int32_t Manifest::apiMin() const { return mApiMin; }
 
-void Manifest::setApiMin(const int32_t apiMin)
-{
-    mApiMin = apiMin;
-}
+void Manifest::setApiMin(const int32_t apiMin) { mApiMin = apiMin; }
 
-int32_t Manifest::packageVersion() const
-{
-    return mPackageVersion;
-}
+int32_t Manifest::packageVersion() const { return mPackageVersion; }
 
-void Manifest::setPackageVersion(const int32_t packageVersion)
-{
-    mPackageVersion = packageVersion;
-}
+void Manifest::setPackageVersion(const int32_t packageVersion) { mPackageVersion = packageVersion; }
 
-Manifest::ManifestVersion Manifest::manifestVersion() const
-{
-    return mManifestVersion;
-}
+Manifest::ManifestVersion Manifest::manifestVersion() const { return mManifestVersion; }
 
-void Manifest::setManifestVersion(const ManifestVersion version)
-{
-    mManifestVersion = version;
-}
+void Manifest::setManifestVersion(const ManifestVersion version) { mManifestVersion = version; }
 
-} // namespace RPS
+} // namespace rose

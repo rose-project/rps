@@ -1,17 +1,16 @@
-#include <iostream>
-#include <rps/exception.h>
 #include "command.h"
 #include "createcommand.h"
 #include "unpackcommand.h"
+#include <iostream>
+#include <rps/exception.h>
 
 void show_usage()
 {
     fprintf(stderr, "usage: \n"
-        "  rps-package create -d DIRECTORY [-o OUTPUT]\n"
-        "  rps-package unpack -f PACKAGE\n"
-        "  rps-package help\n"
-        "  rps-package version\n"
-    );
+                    "  rps-package create -d DIRECTORY [-o OUTPUT]\n"
+                    "  rps-package unpack -f PACKAGE\n"
+                    "  rps-package help\n"
+                    "  rps-package version\n");
 }
 
 void show_version()
@@ -23,14 +22,12 @@ int main(int argc, char *argv[])
 {
     show_version();
 
-
     if (argc < 2) {
         show_usage();
         return EXIT_FAILURE;
     }
 
     std::vector<std::string> arguments(argv, argv + argc);
-
 
     // call the command handler
 
@@ -63,7 +60,6 @@ int main(int argc, char *argv[])
     } catch (rose::Exception e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
-
 
     return 0;
 }

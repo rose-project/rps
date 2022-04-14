@@ -1,15 +1,15 @@
 /**
  * @file stringhelper.c
  */
+#include "stringhelper.h"
+#include "rps/defines.h"
 #include <ctype.h>
 #include <syslog.h>
-#include "rps/defines.h"
-#include "stringhelper.h"
 
 void byte2hex(char *dst, unsigned char byte)
 {
-    static char digits[] = { '0', '1', '2', '3', '4', '5', '6' , '7', '8', '9',
-        'a', 'b', 'c', 'd', 'e', 'f'};
+    static char digits[] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     *dst = digits[byte >> 4];
     *(dst + 1) = digits[byte & 0xf];
@@ -45,7 +45,6 @@ int hex2byte(const char *str)
     return b;
 }
 
-
 int read_hexstr(unsigned char barray[], int blen, const char *hexstr)
 {
     int i;
@@ -66,7 +65,6 @@ int read_hexstr(unsigned char barray[], int blen, const char *hexstr)
 
     return MPK_SUCCESS;
 }
-
 
 void write_hexstr(char *hexstr, unsigned char barray[], int blen)
 {

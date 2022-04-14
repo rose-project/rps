@@ -1,8 +1,5 @@
+#include "rps/mpk.h"
 #include <cstdlib>
 #include <sys/stat.h>
-#include "rps/mpk.h"
 
-int main()
-{
-    return 0;
-}
+int main() { return 0; }

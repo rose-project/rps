@@ -1,14 +1,13 @@
-#include <string>
-#include <rps/package.h>
 #include "unpackcommand.h"
+#include <rps/package.h>
+#include <string>
 
-namespace rose {
-namespace Tools {
-
-UnpackCommand::UnpackCommand()
+namespace rose
+{
+namespace Tools
 {
 
-}
+UnpackCommand::UnpackCommand() {}
 
 void UnpackCommand::execute(std::vector<std::string> &arguments)
 {
@@ -16,8 +15,8 @@ void UnpackCommand::execute(std::vector<std::string> &arguments)
 
     std::string package_path, out_dir;
 
-    for (std::vector<std::string>::iterator it = arguments.begin();
-            arguments.end() - it >= 1; it += 2) {
+    for (std::vector<std::string>::iterator it = arguments.begin(); arguments.end() - it >= 1;
+         it += 2) {
 
         if (*it == std::string("-f")) {
             package_path = *(it + 1);
@@ -32,9 +31,7 @@ void UnpackCommand::execute(std::vector<std::string> &arguments)
 
     // unpack the package
     Package pkg(package_path);
-
 }
 
 } // namespace Tools
-} // namespace RPS
-
+} // namespace rose

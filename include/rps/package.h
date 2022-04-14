@@ -4,14 +4,16 @@
  */
 #ifndef _PACKAGE_H
 #define _PACKAGE_H
-#include <string>
 #include <filesystem>
 #include <rps/manifest.h>
+#include <string>
 
-namespace rose {
+namespace rose
+{
 
-class Package {
-public:
+class Package
+{
+  public:
     Package();
     Package(const std::string package_file);
 
@@ -22,7 +24,7 @@ public:
      * @param package_path Path of the *.rpk.
      */
     void extract(const std::string &package_path = std::string(),
-            const std::filesystem::path &destination = "");
+        const std::filesystem::path &destination = "");
 
     /**
      * @brief Read a prackage from a source dir.
@@ -59,8 +61,8 @@ public:
      * @return the file name including extension
      */
     std::string filename() const;
-private:
 
+  private:
     /**
      * @brief Creates an *.rps file.
      */
@@ -68,7 +70,7 @@ private:
 
     void unpack();
 
-private:
+  private:
     Manifest mManifest;
     std::filesystem::path mExtractedDir;
     std::filesystem::path mPackagePath;
@@ -76,7 +78,6 @@ private:
     std::filesystem::path mWorkDir{"/tmp/rps"};
 };
 
-}
+} // namespace rose
 
 #endif /* _PACKAGE_H */
-

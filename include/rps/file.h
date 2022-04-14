@@ -4,17 +4,18 @@
 #ifndef _FILE_H
 #define _FILE_H
 
+#include <openssl/sha.h>
 #include <string>
 #include <vector>
-#include <openssl/sha.h>
-
 
 #define MPK_FILEHASH_SIZE SHA256_DIGEST_LENGTH
 
-namespace rose {
+namespace rose
+{
 
-class File {
-public:
+class File
+{
+  public:
     File();
     ~File();
 
@@ -23,12 +24,11 @@ public:
     const std::vector<uint8_t> &hash() const;
     void setHash(const std::vector<uint8_t> &hash);
 
-private:
+  private:
     std::string mName;
     std::vector<uint8_t> mHash;
 };
 
-}
-
+} // namespace rose
 
 #endif /* _FILE_H */

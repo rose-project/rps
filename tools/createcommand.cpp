@@ -1,19 +1,18 @@
-#include <libgen.h>
-#include <iostream>
+#include "createcommand.h"
 #include <cstddef>
-#include <string>
-#include <sys/stat.h>
+#include <iostream>
+#include <libgen.h>
 #include <rps/manifest.h>
 #include <rps/package.h>
-#include "createcommand.h"
+#include <string>
+#include <sys/stat.h>
 
-namespace rose {
-namespace Tools {
-
-CreateCommand::CreateCommand()
+namespace rose
+{
+namespace Tools
 {
 
-}
+CreateCommand::CreateCommand() {}
 
 void CreateCommand::execute(std::vector<std::string> &arguments)
 {
@@ -21,14 +20,14 @@ void CreateCommand::execute(std::vector<std::string> &arguments)
 
     std::string package_name, source_dir, out_dir;
 
-    for (std::vector<std::string>::iterator it = arguments.begin();
-            arguments.end() - it >= 1; it += 2) {
+    for (std::vector<std::string>::iterator it = arguments.begin(); arguments.end() - it >= 1;
+         it += 2) {
         if (*it == std::string("-d")) {
             std::string path(*(it + 1));
 
             const auto last_slash_pos = path.find_last_of('/');
             package_name = path.substr(last_slash_pos + 1);
-            source_dir =  path.substr(0, last_slash_pos);
+            source_dir = path.substr(0, last_slash_pos);
             continue;
         }
 
@@ -44,8 +43,8 @@ void CreateCommand::execute(std::vector<std::string> &arguments)
     if (out_dir.empty())
         out_dir = ".";
 
-    std::cout << "create package '" << package_name << "' from '" << source_dir
-        << "' in '" << out_dir << "'." << std::endl;
+    std::cout << "create package '" << package_name << "' from '" << source_dir << "' in '"
+              << out_dir << "'." << std::endl;
 
     // pack the package
 
@@ -58,5 +57,4 @@ void CreateCommand::execute(std::vector<std::string> &arguments)
 }
 
 } // namespace Tools
-} // namespace RPS
-
+} // namespace rose
