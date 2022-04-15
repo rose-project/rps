@@ -4,8 +4,8 @@
  */
 #ifndef _PACKAGE_H
 #define _PACKAGE_H
-#include <filesystem>
 #include <rps/manifest.h>
+#include <filesystem>
 #include <string>
 
 namespace rose

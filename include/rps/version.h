@@ -5,9 +5,9 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#include <list>
 #include <stdint.h>
 #include <stdio.h>
+#include <list>
 #include <string>
 
 namespace rose

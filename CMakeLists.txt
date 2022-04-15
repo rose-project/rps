@@ -61,3 +61,16 @@ if(CLANG_FORMAT)
         COMMAND clang-format -i ${SOURCE_FILES}
     )
 endif()
+
+# unit tests
+if(BUILD_TESTING)
+find_package(GTest REQUIRED)
+include(GoogleTest)
+
+add_executable(rps-tests lib/test/main.cpp)
+target_include_directories(rps-tests PRIVATE "${PROJECT_SOURCE_DIR}/include")
+target_compile_definitions(rps-tests PRIVATE "TESTDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/testdata\"")
+target_link_libraries(rps-tests ${GTEST_LIBRARIES} rps)
+
+gtest_discover_tests(rps-tests)
+endif(BUILD_TESTING)

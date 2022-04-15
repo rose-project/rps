@@ -5,7 +5,7 @@
     "api": {
         "min": 12,
         "target": 27,
-        "max": 27
+        "max": 4096
     },
     "arch": "armv7hf",
     "localization": ["de:de", "en:us", "en:gb"],

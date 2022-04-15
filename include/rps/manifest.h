@@ -5,12 +5,12 @@
 #ifndef _MANIFEST_H
 #define _MANIFEST_H
 
-#include <functional>
-#include <jansson.h>
-#include <list>
-#include <map>
 #include <rps/file.h>
 #include <rps/version.h>
+#include <jansson.h>
+#include <functional>
+#include <list>
+#include <map>
 #include <string>
 #include <vector>
 

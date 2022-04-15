@@ -4,13 +4,13 @@
 #include "rps/manifest.h"
 #include "rps/defines.h"
 #include "stringhelper.h"
+#include <jansson.h>
+#include <memory.h>
+#include <syslog.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <jansson.h>
-#include <memory.h>
-#include <syslog.h>
 
 namespace rose
 {

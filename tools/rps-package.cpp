@@ -1,8 +1,8 @@
 #include "command.h"
 #include "createcommand.h"
 #include "unpackcommand.h"
-#include <iostream>
 #include <rps/exception.h>
+#include <iostream>
 
 void show_usage()
 {

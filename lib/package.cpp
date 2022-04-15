@@ -2,17 +2,17 @@
  * @file package.cpp
  */
 #include "rps/package.h"
+#include <rps/exception.h>
 #include <archive.h>
-#include <archive_entry.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <cerrno>
 #include <cstdlib>
-#include <fcntl.h>
 #include <filesystem>
 #include <iostream>
 #include <memory>
-#include <rps/exception.h>
-#include <unistd.h>
 #include <vector>
+#include <archive_entry.h>
 
 /** The defaut size used for chunks of data used in for packing/unpacking and
  * signature generation generation
